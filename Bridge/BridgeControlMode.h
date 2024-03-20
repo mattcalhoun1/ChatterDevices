@@ -31,6 +31,9 @@ class BridgeControlMode : public ControlMode {
         uint8_t maxAirSendPacketsPerCycleAsync = 1; // for udp, we cant fire all out at once
         uint8_t maxBridgeSendPacketsPerCycle = 5;
 
+        unsigned long announceFrequency = 300000; // annoucne presence this often, 5 min
+        unsigned long lastAnnounce = 0;
+
         ChatterChannel* bridgeChannel;
         ChatterChannel* airChannel;
 

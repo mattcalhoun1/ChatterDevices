@@ -89,6 +89,12 @@ void BridgeControlMode::loop () {
     //logConsole("syncing rtc");
     //rtc->syncWithExternalRtc();
   }
+
+  if (lastAnnounce == 0 || millis() - lastAnnounce > announceFrequency) {
+    lastAnnounce = millis();
+    chatter->selfAnnounce (true);
+  }
+
   sleepOrBackground(100);
   loopCount++;
 }

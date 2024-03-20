@@ -35,7 +35,7 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         virtual void showClusterError () = 0;
         virtual void showClusterOnboard () = 0;
 
-        void disableMessaging () { listeningForMessages = false; }
+        void disableMessaging ();
         void enableMessaging () { listeningForMessages = true; }
         virtual bool onboardNewClient (unsigned long timeout);
 

@@ -33,13 +33,13 @@ bool GuiControlMode::init() {
         showStatus("Ready");
       }
 
-      menu = new Menu((MenuEnabledDisplay*)display, rotary, this);
+      menu = new Menu((MenuEnabledDisplay*)display, rotary, this, chatter->isRootDevice(chatter->getDeviceId()));
       menu->init();
 
       return true;
     }
 
-    menu = new Menu((MenuEnabledDisplay*)display, rotary, this);
+    menu = new Menu((MenuEnabledDisplay*)display, rotary, this, chatter->isRootDevice(chatter->getDeviceId()));
     menu->init();
 
     return false;
@@ -122,7 +122,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
             display->showAlert("Send DM", AlertActivity);
             result = sendDirectMessage();
 
-            if (!result) {
+            if (!result && chatter->clusterHasDevice(ChatterDeviceBridgeLora)) {
               sentViaBridge = sendViaBridge();
             }
           }
@@ -164,6 +164,10 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       return result;
     case UserRequestBleJoinCluster:
       display->showAlert("Join Cluster", AlertActivity);
+
+      // disable message receiving, put the radio in sleep mode
+
+
       result = HeadsUpControlMode::handleEvent(eventType);
       if (result) {
         display->showAlert("Joined", AlertSuccess);
@@ -274,7 +278,7 @@ bool GuiControlMode::initializeNewDevice () {
 
   // prompt for device name
   while (deviceAliasLength == 0) {
-    deviceAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Device Name", 12, CharacterFilterAlphaNumeric, newDeviceAlias);
+    deviceAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Alias", 12, CharacterFilterAlphaNumeric, newDeviceAlias);
   }
   newDeviceAlias[deviceAliasLength] = 0;//term it, if the user backspaced some
   Serial.print("New Device name: "); Serial.println(newDeviceAlias);
@@ -285,7 +289,7 @@ bool GuiControlMode::initializeNewDevice () {
 
   // prompt for cluster name
   while (clusterAliasLength == 0) {
-    clusterAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Cluster Name", 12, CharacterFilterAlphaNumeric, newClusterAlias);
+    clusterAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Cluster", 12, CharacterFilterAlphaNumeric, newClusterAlias);
   }
 
   int newFreqLength = 0;
@@ -329,7 +333,7 @@ bool GuiControlMode::onboardNewClient (unsigned long timeout) {
     if(handleConnectedDevice ()) {
       showClusterOk();
       logConsole("Onboarded a device successfully");
-      display->showAlert("Device Trusted", AlertSuccess);
+      display->showAlert("Trusted", AlertSuccess);
       delay(2000);
       fullRepaint = true;
       return true;

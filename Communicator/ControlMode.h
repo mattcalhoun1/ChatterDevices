@@ -48,6 +48,7 @@ class ControlMode : ChatStatusCallback {
 
     // callback from chat status
     void updateChatStatus (uint8_t channelNum, ChatStatus newStatus);
+    void updateChatStatus (const char* statusMessage);
     virtual void updateChatDashboard (); // redisplay chat dashboard
 
     // touch screen, etc

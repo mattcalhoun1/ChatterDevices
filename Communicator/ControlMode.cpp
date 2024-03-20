@@ -24,34 +24,6 @@ bool ControlMode::init() {
       return false;
     }
 
-    /*if (!digitalRead(CLUSTER_GENESIS_PIN)) {
-      // if the device id is not set, we should create a new network
-      ClusterAdmin* admin = new ClusterAdmin(chatter);
-      admin->genesisRandom();
-
-      // probably need to add cleanup code to admin obj?
-      justOnboarded = true;
-      logConsole("New cluster generated");
-      return false;
-    }
-
-    // the sync pin is grounded, go through onboard or sync process
-    if (!digitalRead(CLUSTER_SYNC_PIN)) {
-      ClusterAssistant* assistant = new ClusterAssistant(chatter);
-      if (assistant->attemptOnboard()) {
-        justOnboarded = true;
-        logConsole("Onboard/sync complete");
-        return true;
-      }
-      else {
-        logConsole ("Onboard/sync failed");
-        return false;
-      }
-    }*/
-    
-
-  //chatter->logDebugInfo();
-
     if (chatterReady) {
       showStatus("Init LoRa...");
       chatter->addLoRaChannel(LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
@@ -128,6 +100,10 @@ void ControlMode::updateChatDashboard () {
 // chat status callback
 void ControlMode::updateChatStatus (uint8_t channelNum, ChatStatus newStatus) {
   updateChatDashboard();
+}
+
+void ControlMode::updateChatStatus (const char* statusMessage) {
+  showStatus(statusMessage);
 }
 
 void ControlMode::showStatus (const char* status) {

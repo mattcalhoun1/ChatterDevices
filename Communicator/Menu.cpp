@@ -45,13 +45,14 @@ void Menu::populateIteratorMenu () {
 void Menu::mainMenu() {
   resetMenu(); // clear any previous menu
   oledMenu.menuId = MENU_ID_MAIN;
-  oledMenu.noOfmenuItems = 6;
+  oledMenu.noOfmenuItems = 7;
   oledMenu.menuTitle = "Main Menu";
   oledMenu.menuItems[MENU_MAIN_DIRECT_MESSAGE] = "Direct Message";
   oledMenu.menuItems[MENU_MAIN_SECURE_BROADCAST] = "Secure Broadcast";
   //oledMenu.menuItems[MENU_MAIN_OPEN_BROADCAST] = "Open Broadcast";
   oledMenu.menuItems[MENU_MAIN_ANNOUNCE_PRESENCE] = "Announce Presence";
   oledMenu.menuItems[MENU_CHOOSE_CLUSTER] = "Choose Cluster";
+  oledMenu.menuItems[MENU_MAIN_ONBOARDING] = "Onboarding";
   oledMenu.menuItems[MENU_MAIN_ADMIN] = "Admin";
   oledMenu.menuItems[MENU_MAIN_CANCEL] = "Cancel";
 }
@@ -59,17 +60,31 @@ void Menu::mainMenu() {
 void Menu::adminMenu() {
   resetMenu(); // clear any previous menu
   oledMenu.menuId = MENU_ID_ADMIN;
-  oledMenu.noOfmenuItems = 8;
+  oledMenu.noOfmenuItems = 6;
   oledMenu.menuTitle = "Admin";
 
   oledMenu.menuItems[MENU_ADMIN_PING_LORA_BRIDGE] = "Ping Lora Bridge";
-  oledMenu.menuItems[MENU_ADMIN_JOIN_CLUSTER] = "Join Cluster";
-  oledMenu.menuItems[MENU_ADMIN_ONBOARD_DEVICE] = "Onboard Device";
   oledMenu.menuItems[MENU_ADMIN_CREATE_CLUSTER] = "Create Cluster";
   oledMenu.menuItems[MENU_ADMIN_DELETE_CLUSTER] = "Delete Cluster";
   oledMenu.menuItems[MENU_ADMIN_SET_TIME] = "Set Time";
   oledMenu.menuItems[MENU_ADMIN_FACTORY_RESET] = "Factory Reset";
   oledMenu.menuItems[MENU_ADMIN_CANCEL] = "Cancel";
+}
+
+void Menu::onboardingMenu() {
+  resetMenu(); // clear any previous menu
+  oledMenu.menuId = MENU_ID_ONBOARDING;
+  oledMenu.menuTitle = "Onboard";
+
+  if (onboardAllowed) {
+    oledMenu.noOfmenuItems = 2;
+    oledMenu.menuItems[MENU_ONBOARDING_JOIN_CLUSTER] = "Join Cluster";
+    oledMenu.menuItems[MENU_ONBOARDING_ONBOARD_DEVICE] = "Onboard Device";
+  }
+  else {
+    oledMenu.noOfmenuItems = 1;
+    oledMenu.menuItems[MENU_ONBOARDING_JOIN_CLUSTER] = "Join Cluster";
+  }
 }
 
 void Menu::adminActions() {
@@ -78,14 +93,6 @@ void Menu::adminActions() {
       case MENU_ADMIN_PING_LORA_BRIDGE:
         resetMenu();
         handler->queueEvent(PingLoraBridge);
-        break;
-      case MENU_ADMIN_JOIN_CLUSTER:
-        resetMenu();
-        handler->handleEvent(UserRequestBleJoinCluster);
-        break;
-      case MENU_ADMIN_ONBOARD_DEVICE:
-        resetMenu();
-        handler->handleEvent(UserRequestBleOnboard);
         break;
       case MENU_ADMIN_DELETE_CLUSTER:
         resetMenu();
@@ -105,6 +112,7 @@ void Menu::adminActions() {
       case MENU_ADMIN_CANCEL:
         mode = MenuOff;
         resetMenu();
+        break;
       case MENU_ADMIN_SET_TIME:
         resetMenu();
         mode = MenuValueEntry;
@@ -131,7 +139,24 @@ void Menu::adminActions() {
         resetMenu();
         mainMenu();
         mode = MenuOff;
+        break;
 
+    }
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
+void Menu::onboardingActions() {
+  if (oledMenu.menuId == MENU_ID_ONBOARDING) {  
+    switch (oledMenu.selectedMenuItem) {
+      case MENU_ONBOARDING_JOIN_CLUSTER:
+        resetMenu();
+        handler->handleEvent(UserRequestBleJoinCluster);
+        break;
+      case MENU_ONBOARDING_ONBOARD_DEVICE:
+        resetMenu();
+        handler->handleEvent(UserRequestBleOnboard);
+        break;
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
   }
@@ -191,6 +216,9 @@ void Menu::menuActions () {
   else if (oledMenu.menuId == MENU_ID_ADMIN) {
     adminActions();
   }
+  else if (oledMenu.menuId == MENU_ID_ONBOARDING) {
+    onboardingActions();
+  }
   else if (oledMenu.menuId == MENU_ID_ITERATOR) {
     iteratorActions();
   }
@@ -198,8 +226,6 @@ void Menu::menuActions () {
 
 void Menu::mainActions() {
   if (oledMenu.menuId == MENU_ID_MAIN) {  
-
-    String tList[]={"Back", "2", "3", "4", "5", "6"};
 
     switch (oledMenu.selectedMenuItem) {
       case MENU_MAIN_DIRECT_MESSAGE:
@@ -218,6 +244,11 @@ void Menu::mainActions() {
         resetMenu();
         handler->queueEvent(UserRequestSelfAnnounce);
         break;
+      case MENU_MAIN_ONBOARDING:
+        onboardingMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;        
       case MENU_MAIN_ADMIN:
         adminMenu();
         mode = MenuActive;
@@ -272,16 +303,18 @@ void Menu::menuValues() {
 }
 
 void Menu::notifyButtonPressed () {
-    // if no menu is up, perform default action, rather than showing menu
-    if (mode == MenuOff) {
-        //mode = MenuActive;
-        //resetMenu();
-        handler->queueEvent(UserRequestSelfAnnounce);
-    }
-    else {
-      //needsRepainted = true;
-      buttonPressed = true;
-      oledMenu.lastMenuActivity = millis();
+    if (millis() - oledMenu.lastMenuActivity > minButtonDelay) {
+      // if no menu is up, perform default action, rather than showing menu
+      if (mode == MenuOff) {
+          //mode = MenuActive;
+          //resetMenu();
+          handler->queueEvent(UserRequestSelfAnnounce);
+      }
+      else {
+        //needsRepainted = true;
+        buttonPressed = true;
+        oledMenu.lastMenuActivity = millis();
+      }
     }
 }
 
@@ -307,7 +340,7 @@ void Menu::menuUpdate() {
     }
 
     switch (mode) {
-        Serial.println(mode);
+        //Serial.println(mode);
 
       // if there is an active menu
       case MenuActive:

@@ -108,6 +108,11 @@ void ControlMode::updateChatStatus (uint8_t channelNum, ChatStatus newStatus) {
   updateChatDashboard();
 }
 
+void ControlMode::updateChatStatus (const char* statusMessage) {
+  showStatus(statusMessage);
+}
+
+
 void ControlMode::showStatus (const char* status) {
   logConsole(status);
 }

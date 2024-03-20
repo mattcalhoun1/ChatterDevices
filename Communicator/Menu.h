@@ -15,22 +15,25 @@
 //#define MENU_MAIN_OPEN_BROADCAST 3
 #define MENU_MAIN_ANNOUNCE_PRESENCE 3
 #define MENU_CHOOSE_CLUSTER 4
-#define MENU_MAIN_ADMIN 5
-#define MENU_MAIN_CANCEL 6
+#define MENU_MAIN_ONBOARDING 5
+#define MENU_MAIN_ADMIN 6
+#define MENU_MAIN_CANCEL 7
 
 #define MENU_ADMIN_PING_LORA_BRIDGE 1
-#define MENU_ADMIN_JOIN_CLUSTER 2
-#define MENU_ADMIN_ONBOARD_DEVICE 3
-#define MENU_ADMIN_CREATE_CLUSTER 4
-#define MENU_ADMIN_DELETE_CLUSTER 5
-#define MENU_ADMIN_SET_TIME 6
-#define MENU_ADMIN_FACTORY_RESET 7
-#define MENU_ADMIN_CANCEL 8
+#define MENU_ADMIN_CREATE_CLUSTER 2
+#define MENU_ADMIN_DELETE_CLUSTER 3
+#define MENU_ADMIN_SET_TIME 4
+#define MENU_ADMIN_FACTORY_RESET 5
+#define MENU_ADMIN_CANCEL 6
+
+#define MENU_ONBOARDING_JOIN_CLUSTER 1
+#define MENU_ONBOARDING_ONBOARD_DEVICE 2
 
 #define MENU_ID_MAIN 0
 #define MENU_ID_MESSAGES 1
-#define MENU_ID_ADMIN 2
-#define MENU_ID_ITERATOR 3
+#define MENU_ID_ONBOARDING 2
+#define MENU_ID_ADMIN 3
+#define MENU_ID_ITERATOR 4
 
 #define ITERATOR_MAX_NAME_SIZE 16
 #define ITERATOR_SELECTION_NONE 255
@@ -61,21 +64,21 @@ struct OledMenu {
 
 class Menu {
     public:
-        Menu(MenuEnabledDisplay* _display, RotaryEncoder* _rotary, CommunicatorEventHandler* _handler) { display = _display; rotary = _rotary; handler = _handler; }
+        Menu(MenuEnabledDisplay* _display, RotaryEncoder* _rotary, CommunicatorEventHandler* _handler, bool _onboardAllowed) { display = _display; rotary = _rotary; handler = _handler; onboardAllowed = _onboardAllowed; }
 
         bool init ();
         void defaultMenu ();
 
         void mainMenu ();
         void adminMenu();
-        
-
+        void onboardingMenu ();
         void iteratorMenu ();
         void iteratorActions ();        
 
         // leftover from demo
         void demoMenu ();
         void menuActions ();
+        void onboardingActions ();
 
 
         //void value1 ();
@@ -107,7 +110,8 @@ class Menu {
         bool buttonPressed = false;
         bool rotaryChanged = false;
         //unsigned long lastRotaryChange = 0;
-        int minRotaryDelay = 250; // ignore rotary changes that come in more quickly than this
+        int minRotaryDelay = 100; // ignore rotary changes that come in more quickly than this
+        int minButtonDelay = 200; // ignore button presses taht come in more quickly than this
 
         const int menuTimeout = 10;               // menu inactivity timeout (seconds)
         const bool menuLargeText = 0;             // show larger text when possible (if struggling to read the small text)
@@ -137,6 +141,8 @@ class Menu {
         char itemNameBuffer[ITERATOR_MAX_NAME_SIZE];
         uint8_t iteratorOffset = 0; // if we go past the max number of menu items, need to slide this offset forward
         uint8_t iteratorSelection = ITERATOR_SELECTION_NONE;
+
+        bool onboardAllowed = false;
 };
 
 #endif

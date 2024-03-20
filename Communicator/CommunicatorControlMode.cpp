@@ -137,33 +137,11 @@ void CommunicatorControlMode::sendEchoText () {
   }
 }
 
-/*
-bool CommunicatorControlMode::sendUserText (CommunicatorEvent* event) {
-  logConsole("Sending user text..");
-  ChatterMessageFlags flags;
-  flags.Flag0 = EncodingTypeText;
-  flags.Flag1 = BridgeRequestEcho;//BridgeRequestEcho / BridgeRequestBridge
-  flags.Flag2 = AckRequestTrue;
-  flags.Flag3 = 4;
-  flags.Flag4 = 5;
-  flags.Flag5 = 6;
-
-  logConsole("Calling chatter->send()");
-
-  if (chatter->send(event->EventData, event->EventDataLength, event->EventTarget, &flags)) {
-    logConsole("Message successfully sent");
-    return true;
-  }
-
-  logConsole("Message not sent");
-  return false;
-}
-*/
 void CommunicatorControlMode::sleepOrBackground(unsigned long sleepTime) {
   unsigned long startTime = millis();
   delay(sleepTime);
 
-  if (adminEnabled) {
+  /*if (adminEnabled) {
     if (Serial1.available() > 0) {
       Serial.println("Incoming Admin Data...");
       while (Serial1.available() > 0) {
@@ -171,7 +149,7 @@ void CommunicatorControlMode::sleepOrBackground(unsigned long sleepTime) {
       }
       Serial.println("");
     }
-  }
+  }*/
 
 }
 
@@ -278,16 +256,26 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEvent* event) {
   return false;
 }
 
+void CommunicatorControlMode::disableMessaging () {
+  listeningForMessages = false;
+
+  // put radio in sleep mode
+  chatter->getChannel(0)->putToSleep();
+}
+
 bool CommunicatorControlMode::onboardNewClient (unsigned long timeout) {
+  disableMessaging();
   unsigned long startTime = millis();
   while (millis() - startTime < timeout) {
     if(handleConnectedDevice ()) {
       showClusterOk();
       logConsole("Onboarded a device successfully");
+      enableMessaging();
       return true;
     }
   }
 
+  enableMessaging();
   return false;
 }
 
