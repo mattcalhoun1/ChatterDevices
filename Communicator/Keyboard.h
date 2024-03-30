@@ -14,13 +14,20 @@
 
 #define KEY_HOLD_REPEAT_IGNORE_MILLIS 500
 
+enum CharacterFilter {
+  CharacterFilterNumeric = 0,
+  CharacterFilterAlpha = 1,
+  CharacterFilterAlphaNumeric = 2,
+  CharacterFilterNone = 3
+};
+
 class Keyboard : public TouchListener {
   public:
     Keyboard(TouchEnabledDisplay* _display);
     bool init ();
 
-    void showKeyboard ();
-    void showKeyboard (char* defaultValue);
+    void showKeyboard (CharacterFilter _filter, int maxLength);
+    void showKeyboard (CharacterFilter _filter, int maxLength, char* defaultValue);
     void hideKeyboard ();
 
     const char* getUserInput () { return inputBuffer; }
@@ -31,9 +38,12 @@ class Keyboard : public TouchListener {
     bool handleScreenTouched (int touchX, int touchY);
     bool wasBufferEdited () { return bufferEdited; }
     void resetBufferEditFlag () { bufferEdited = false; }
+    bool isShowing () {return showing;}
 
   protected:
     TouchEnabledDisplay* display;
+    CharacterFilter filter;
+    int currMaxLength;
 
     uint8_t keyWidth;
     uint8_t keyHeight;
@@ -52,6 +62,7 @@ class Keyboard : public TouchListener {
     char lastKey = 0;
 
     char getLetterAt (int touchX, int touchY);
+    bool isFiltered (char symbol);
     
     int8_t getVerticalPadding(char symbol);
     int8_t getHorizontalPadding(char symbol);

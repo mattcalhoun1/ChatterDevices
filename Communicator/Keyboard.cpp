@@ -29,11 +29,14 @@ bool Keyboard::init () {
   }
 }
 
-void Keyboard::showKeyboard () {
-  showKeyboard("");
+void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength) {
+  showKeyboard(_filter, maxLength, "");
 }
 
-void Keyboard::showKeyboard (char* defaultValue) {
+void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength, char* defaultValue) {
+  filter = _filter;
+  currMaxLength = maxLength;
+
   // recalculate screen positions, based on orientation
   init();
 
@@ -63,10 +66,12 @@ void Keyboard::showKeyboard (char* defaultValue) {
     // draw the keys
     for (uint8_t rowCount = 0; rowCount < KEYBOARD_ROWS - 1; rowCount++) {
       for (uint8_t colCount = 0; colCount < KEYBOARD_COLS; colCount++) {
-        display->showSymbol(
-          keys[rowCount][colCount], 
-          x + (colCount * keyWidth) + .3 * keyWidth + getHorizontalPadding(keys[rowCount][colCount]), 
-          y + (rowCount * keyHeight) + .2 * keyHeight + getVerticalPadding(keys[rowCount][colCount]) + display->getTextUpperVerticalOffset(TextSmall), White);//, fontSize, White);
+        if (!isFiltered(keys[rowCount][colCount])) {
+          display->showSymbol(
+            keys[rowCount][colCount], 
+            x + (colCount * keyWidth) + .3 * keyWidth + getHorizontalPadding(keys[rowCount][colCount]), 
+            y + (rowCount * keyHeight) + .2 * keyHeight + getVerticalPadding(keys[rowCount][colCount]) + display->getTextUpperVerticalOffset(TextSmall), White);//, fontSize, White);
+        }
       }
     }
 
@@ -125,10 +130,18 @@ void Keyboard::hideKeyboard () {
 }
 
 bool Keyboard::handleScreenTouched (int touchX, int touchY) {
-  if (touchX == 0 || touchY == 0 || touchX == display->getScreenWidth() || touchY == display->getScreenHeight()) {
+  /*if (touchX == 0 || touchX <= x || touchX >= x + width) {
     // ignore, it's at an edge and likely misreading
+    Serial.print("ignoring x ("); Serial.print(touchX); Serial.print(",");Serial.print(touchY); Serial.println(")");
+    Serial.print("x: "); Serial.print(x); Serial.print(", width: "); Serial.println(width);
     return false;
   }
+  if (touchY == 0 || touchY <= y || touchY >= y + height) {
+    // ignore, it's at an edge and likely misreading
+    Serial.print("ignoring y ("); Serial.print(touchX); Serial.print(",");Serial.print(touchY); Serial.println(")");
+    Serial.print("y: "); Serial.print(y); Serial.print(", height: "); Serial.println(height);
+    return false;
+  }*/
 
   char typedKey = getLetterAt(touchX, touchY);
   if (typedKey == lastKey && millis() - lastTouch < KEY_HOLD_REPEAT_IGNORE_MILLIS) {
@@ -147,7 +160,7 @@ bool Keyboard::handleScreenTouched (int touchX, int touchY) {
       bufferEdited = true;
       inputBufferLength = 0;
     }
-    else {
+    else if (getUserInputLength() < currMaxLength && !isFiltered(typedKey)) {
       // if previous key was a space, display should be repainted
       if (inputBufferLength > 0 && inputBuffer[inputBufferLength-1] == ' ') {
         bufferEdited = true;
@@ -247,4 +260,31 @@ int8_t Keyboard::getHorizontalPadding(char symbol) {
       return 2;
   }
   return 0;
+}
+
+bool Keyboard::isFiltered (char symbol) {
+  if (filter == CharacterFilterNone) {
+    return false;
+  }
+
+  // send/cancel are never filtered
+  if (symbol == KEY_CANCEL || symbol == KEY_SEND) {
+    return false;
+  }
+  
+  if (symbol >= '0' && symbol <= '9') {
+    return filter == CharacterFilterAlpha;
+  }
+
+  if (symbol >= 'a' && symbol <= 'z') {
+    return filter == CharacterFilterNumeric;
+  }
+  
+  // '.' is allowed in numeric or alphanumeric
+  if (symbol == '.') {
+    return !CharacterFilterAlpha;
+  }
+
+  // all the punctuation chars are only allowed if in none
+  return true;
 }

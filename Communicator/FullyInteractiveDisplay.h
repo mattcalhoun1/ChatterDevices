@@ -6,13 +6,6 @@
 #ifndef FULLYINTERACTIVEDISPLAY_H
 #define FULLYINTERACTIVEDISPLAY_H
 
-enum CharacterFilter {
-  CharacterFilterNumeric = 0,
-  CharacterFilterAlpha = 1,
-  CharacterFilterAlphaNumeric = 2,
-  CharacterFilterNone = 3
-};
-
 class FullyInteractiveDisplay : public TouchEnabledDisplay {
     public:
         virtual int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer) = 0;

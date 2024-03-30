@@ -47,13 +47,19 @@ void Display_TFT::showSymbol (int gfxChar, int x, int y, DisplayColor color) {
 bool Display_TFT::handleIfTouched () {
   if (touch.touched()) {
       TS_Point p = touch.getPoint();
+      // ignore edges
+      if (p.y <= 0 || p.y >= DISPLAY_TFT_HEIGHT || p.x <= 0 || p.x >= DISPLAY_TFT_WIDTH) {
+        return false;
+      }
 
       // x/y will be different depending on how screen is rotated
-      if (rotation == Landscape) {
-        return listener->handleScreenTouched(DISPLAY_TFT_HEIGHT - p.y, p.x);
-      }
-      else {
-        return listener->handleScreenTouched(DISPLAY_TFT_WIDTH - p.x, DISPLAY_TFT_HEIGHT - p.y);
+      if (defaultKeyboard->isShowing()) {
+        if (keyboardOrientation == Landscape) {
+          return listener->handleScreenTouched(DISPLAY_TFT_HEIGHT - p.y, p.x);
+        }
+        else {
+          return listener->handleScreenTouched(DISPLAY_TFT_WIDTH - p.x, DISPLAY_TFT_HEIGHT - p.y);
+        }
       }
   } 
 
@@ -71,11 +77,13 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
 
 int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue, Keyboard* keyboard) {
 
-  // rotate the screen
-  setRotation(Landscape);
+  // rotate the screen if configured
+  if (keyboardOrientation != Portrait) {
+    setRotation(keyboardOrientation);
+  }
 
   // pop up the keyboard
-  keyboard->showKeyboard(defaultValue);
+  keyboard->showKeyboard(charFilter, maxLength, defaultValue);
 
   // pop up the input modal
 
@@ -110,8 +118,10 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
   // clear text area
   clearArea(getModalInputX(),getModalInputY() - getTextUpperVerticalOffset(TextSmall), getModalInputWidth(), getModalInputHeight());
 
-  // rotate the screen back
-  setRotation(Portrait);
+  // rotate the screen back if necessary
+  if (keyboardOrientation != Portrait) {
+    setRotation(Portrait);
+  }
 
   int finalInputLength = keyboard->getUserInputLength();
   if (keyboard->userCompletedInput() && finalInputLength > 0) {

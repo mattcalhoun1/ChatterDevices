@@ -18,12 +18,14 @@ class TouchEnabledDisplay : public MenuEnabledDisplay {
         virtual int getKeyboardAreaY () = 0;
         virtual int getKeyboardAreaWidth () = 0;
         virtual int getKeyboardAreaHeight () = 0;
+        void setKeyboardOrientation (ScreenRotation _rotation) {keyboardOrientation = _rotation; }
 
         virtual void setTouchListener (TouchListener* _listener) {listener = _listener;}
         virtual bool handleIfTouched () = 0;
       
     protected:
       TouchListener* listener;
+      ScreenRotation keyboardOrientation = Landscape; // default set here
 };
 
 #endif

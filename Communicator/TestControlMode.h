@@ -6,4 +6,7 @@ class TestControlMode : public GuiControlMode {
         TestControlMode(DeviceType _deviceType, bool _admin) : GuiControlMode (_deviceType, _admin) {}
         void loop ();
         bool init ();
+
+    protected:
+        void testKeyboard ();
 };
