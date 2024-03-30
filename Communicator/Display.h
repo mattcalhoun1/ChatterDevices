@@ -29,6 +29,13 @@ enum AlertType {
     AlertActivity = 3
 };
 
+enum ScreenRotation {
+  Portrait = 0,
+  Landscape = 1,
+  PortraitFlip = 2,
+  LandscapeFlip = 3
+};
+
 class Display {
   public:
     virtual void showThermal (const float* frame, int resHeight, int resWidth, int xOffset, int yOffset) = 0;
@@ -63,6 +70,8 @@ class Display {
     virtual void drawLine (int lineX, int lineY, int lineEndX, int lineEndY, DisplayColor color) = 0;     
     virtual void drawCircle (int circleX, int circleY, int radius, DisplayColor color) = 0;     
     virtual void fillCircle (int circleX, int circleY, int radius, DisplayColor color) = 0;     
+    virtual void setRotation (ScreenRotation rotation) = 0;
+    ScreenRotation getRotation () {return rotation;}
 
     virtual void clearAll ();
 
@@ -74,12 +83,12 @@ class Display {
     virtual int getTextUpperVerticalOffset (TextSize textSize) { return 14 * (uint8_t)textSize; }
     virtual int getTextLowerVerticalOffset (TextSize textSize) { return 4 * (uint8_t)textSize; }
 
+    virtual int getScreenWidth () = 0;
+    virtual int getScreenHeight () = 0;
+
   protected:
     float currentProgress = 0; // placeholder for progress spinner
     void logConsole (String msg);
-
-    virtual int getScreenWidth () = 0;
-    virtual int getScreenHeight () = 0;
 
     virtual int getStatusX() = 0;
     virtual int getStatusY() = 0;
@@ -126,5 +135,6 @@ class Display {
     virtual int getAlertAreaHeight() = 0;
 
     ThermalEncoder* encoder;
+    ScreenRotation rotation = Portrait;
 };
 #endif

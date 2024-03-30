@@ -41,15 +41,21 @@ class Keyboard : public TouchListener {
     bool bufferEdited = false; // if the user edited (not appended) buffer, so know to repaint. example, backspace
 
 
-    uint8_t height;
-    uint8_t width;
-    uint8_t x;
-    uint8_t y;
+    int height;
+    int width;
+    int x;
+    int y;
+    float keyCenterXFactor = 0.4;
+    float keyCenterYFactor = 0.2;
     bool showing = false;
 
     char lastKey = 0;
 
     char getLetterAt (int touchX, int touchY);
+    
+    int8_t getVerticalPadding(char symbol);
+    int8_t getHorizontalPadding(char symbol);
+
     char inputBuffer[KEYBOARD_BUFFER_SIZE];
     int inputBufferLength = 0;
     unsigned long lastTouch = 0;
@@ -62,7 +68,7 @@ class Keyboard : public TouchListener {
         'q','w','e','r','t','y','u','i','o','p'
       },
       {
-        'a','s','d','f','g','h','j','k','l',';'
+        'a','s','d','f','g','h','j','k','l','@'
       },
       {
         'z','x','c','v','b','n','m',',','.','?'

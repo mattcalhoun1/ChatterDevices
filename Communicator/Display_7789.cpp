@@ -80,6 +80,10 @@ void Display_7789::fillCircle (int circleX, int circleY, int radius, DisplayColo
   display.fillCircle(circleX, circleY, radius, get7789Color(color));
 }
 
+void Display_7789::setRotation (ScreenRotation rotation) {
+  display.setRotation((uint8_t)rotation);
+}
+
 void Display_7789::showInterpolatedThermalRow (const float* interpolatedRow, int xOffset, int yOffset) {
   for (int w = 0; w < encoder->getInterpolatedResolutionWidth(); w++) {
       float t = interpolatedRow[w];

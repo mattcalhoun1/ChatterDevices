@@ -4,6 +4,7 @@
 #include "CommunicatorControlMode.h"
 #include "HeadlessControlMode.h"
 #include "GuiControlMode.h"
+#include "TestControlMode.h"
 
 CommunicatorControlMode* controlMode;
 
@@ -34,8 +35,9 @@ void setup() {
 
   SPI.begin();
 
-  controlMode = new GuiControlMode(selectDeviceType(), isAdmin());
-
+  //controlMode = new GuiControlMode(selectDeviceType(), isAdmin());
+  controlMode = new TestControlMode(selectDeviceType(), isAdmin());
+  
   if(!controlMode->init()) {
     logConsole("Error initializing!");
   }

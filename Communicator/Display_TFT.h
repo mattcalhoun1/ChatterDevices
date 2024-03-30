@@ -32,16 +32,17 @@ class Display_TFT : public FullyInteractiveDisplay {
     void drawLine (int lineX, int lineY, int lineEndX, int lineEndY, DisplayColor color);
     void drawCircle (int circleX, int circleY, int radius, DisplayColor color);
     void fillCircle (int circleX, int circleY, int radius, DisplayColor color);
+    void setRotation (ScreenRotation _rotation);
 
     bool handleIfTouched ();
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer);
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue);
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue, Keyboard* keyboard);
 
-  protected:
     int getScreenWidth () { return DISPLAY_TFT_WIDTH; }
     int getScreenHeight () { return DISPLAY_TFT_HEIGHT; }
 
+  protected:
     int getStatusX();
     int getStatusY();
     int getStatusWidth();
@@ -81,11 +82,11 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getDashboardAreaY () { return DISPLAY_TFT_DASHBOARD_Y; }
     int getDashboardAreaHeight() { return DISPLAY_TFT_DASHBOARD_HEIGHT; }
 
-    int getKeyboardAreaX () { return DISPLAY_TFT_KEYBOARD_X; }
-    int getKeyboardAreaY () { return DISPLAY_TFT_KEYBOARD_Y; }
+    int getKeyboardAreaX () { return rotation == Landscape ? DISPLAY_TFT_LS_KEYBOARD_X : DISPLAY_TFT_KEYBOARD_X; }
+    int getKeyboardAreaY () { return rotation == Landscape ? DISPLAY_TFT_LS_KEYBOARD_Y : DISPLAY_TFT_KEYBOARD_Y; }
 
-    int getKeyboardAreaHeight () { return DISPLAY_TFT_KEYBOARD_HEIGHT; }
-    int getKeyboardAreaWidth () { return DISPLAY_TFT_KEYBOARD_WIDTH; }
+    int getKeyboardAreaHeight () { return rotation == Landscape ? DISPLAY_TFT_LS_KEYBOARD_HEIGHT : DISPLAY_TFT_KEYBOARD_HEIGHT; }
+    int getKeyboardAreaWidth () { return rotation == Landscape ? DISPLAY_TFT_LS_KEYBOARD_WIDTH : DISPLAY_TFT_KEYBOARD_WIDTH; }
 
     TextSize getTitleTextSize () { return TextSmall; }
     DisplayColor getTitleColor() { return White; }
@@ -97,20 +98,22 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getSpinnerY () { return DISPLAY_TFT_SPINNER_Y; }
     int getSpinnerRadius () { return DISPLAY_TFT_SPINNER_RADIUS; }
 
-    int getModalTitleX () { return DISPLAY_TFT_MODAL_TITLE_X; }
-    int getModalTitleY () { return DISPLAY_TFT_MODAL_TITLE_Y; }
-    int getModalTitleHeight () { return DISPLAY_TFT_MODAL_TITLE_HEIGHT; }
-    int getModalInputX () { return DISPLAY_TFT_MODAL_INPUT_X; }
-    int getModalInputY () { return DISPLAY_TFT_MODAL_INPUT_Y; }
-    int getModalInputWidth () { return DISPLAY_TFT_MODAL_INPUT_WIDTH; }
-    int getModalInputHeight () { return DISPLAY_TFT_MODAL_INPUT_HEIGHT; }
+    int getModalTitleX () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_TITLE_X :  DISPLAY_TFT_MODAL_TITLE_X; }
+    int getModalTitleY () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_TITLE_Y : DISPLAY_TFT_MODAL_TITLE_Y; }
+    int getModalTitleHeight () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_TITLE_HEIGHT : DISPLAY_TFT_MODAL_TITLE_HEIGHT; }
+    int getModalInputX () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_INPUT_X : DISPLAY_TFT_MODAL_INPUT_X; }
+    int getModalInputY () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_INPUT_Y : DISPLAY_TFT_MODAL_INPUT_Y; }
+    int getModalInputWidth () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_INPUT_WIDTH : DISPLAY_TFT_MODAL_INPUT_WIDTH; }
+    int getModalInputHeight () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_INPUT_HEIGHT : DISPLAY_TFT_MODAL_INPUT_HEIGHT; }
 
-    int getAlertAreaX() { return DISPLAY_TFT_ALERT_X; }
-    int getAlertAreaY() { return DISPLAY_TFT_ALERT_Y; }
-    int getAlertAreaHeight() { return DISPLAY_TFT_ALERT_HEIGHT; }
+    int getAlertAreaX() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_X : DISPLAY_TFT_ALERT_X; }
+    int getAlertAreaY() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_Y: DISPLAY_TFT_ALERT_Y; }
+    int getAlertAreaHeight() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_HEIGHT : DISPLAY_TFT_ALERT_HEIGHT; }
 
   private:
   
+    int calculateModalTitleX (const char* titleText);
+
     Adafruit_ILI9341 display = Adafruit_ILI9341(Display_TFT_CS, Display_TFT_DC, Display_TFT_RS);
     Adafruit_FT6206 touch = Adafruit_FT6206();  
 

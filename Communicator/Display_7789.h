@@ -23,11 +23,12 @@ class Display_7789 : public MenuEnabledDisplay {
     void clearArea (int x, int y, int width, int height, DisplayColor color);
     void repaint ();
     void fillRect(int lineX, int lineY, int lineWidth, int lineHeight, DisplayColor color);
+    void setRotation (ScreenRotation rotation);
 
-  protected:
     int getScreenWidth () { return DISPLAY_7789_WIDTH; }
     int getScreenHeight () { return DISPLAY_7789_HEIGHT; }
 
+  protected:
     int getStatusX();
     int getStatusY();
     int getStatusWidth();

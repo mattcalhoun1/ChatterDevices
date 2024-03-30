@@ -3,19 +3,30 @@
 Keyboard::Keyboard(TouchEnabledDisplay* _display) {
   display = _display;
 
-  width = display->getKeyboardAreaWidth();
-  height = display->getKeyboardAreaHeight();
-  x = display->getKeyboardAreaX();
-  y = display->getKeyboardAreaY();
-
   display->setTouchListener(this);
 }
 
 
 bool Keyboard::init () {
+  // the height/width/etc may be different depending on how screen
+  // is rotated, so it must be calculated every time we show
+  width = display->getKeyboardAreaWidth();
+  height = display->getKeyboardAreaHeight();
+  x = display->getKeyboardAreaX();
+  y = display->getKeyboardAreaY();
+
   keyWidth = width / KEYBOARD_COLS;
   keyHeight = height / KEYBOARD_ROWS;
   fontSize = TextSmall;
+
+  if (display->getRotation() == Landscape) {
+    keyCenterXFactor = 0.2;
+    keyCenterYFactor = 0.2;
+  }
+  else {
+    keyCenterXFactor = 0.4;
+    keyCenterYFactor = 0.2;
+  }
 }
 
 void Keyboard::showKeyboard () {
@@ -23,6 +34,9 @@ void Keyboard::showKeyboard () {
 }
 
 void Keyboard::showKeyboard (char* defaultValue) {
+  // recalculate screen positions, based on orientation
+  init();
+
   inputBufferLength = strlen(defaultValue);
   memcpy(inputBuffer, defaultValue, strlen(defaultValue));
 
@@ -49,7 +63,10 @@ void Keyboard::showKeyboard (char* defaultValue) {
     // draw the keys
     for (uint8_t rowCount = 0; rowCount < KEYBOARD_ROWS - 1; rowCount++) {
       for (uint8_t colCount = 0; colCount < KEYBOARD_COLS; colCount++) {
-        display->showSymbol(keys[rowCount][colCount], x + (colCount * keyWidth) + .3 * keyWidth, y + (rowCount * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall), White);//, fontSize, White);
+        display->showSymbol(
+          keys[rowCount][colCount], 
+          x + (colCount * keyWidth) + .3 * keyWidth + getHorizontalPadding(keys[rowCount][colCount]), 
+          y + (rowCount * keyHeight) + .2 * keyHeight + getVerticalPadding(keys[rowCount][colCount]) + display->getTextUpperVerticalOffset(TextSmall), White);//, fontSize, White);
       }
     }
 
@@ -101,7 +118,6 @@ int Keyboard::getUserInputLength() {
 
 void Keyboard::hideKeyboard () {
   if (showing) {
-
     display->clearArea(x, y, width + 1, height + 1, Black);
 
     showing = false;
@@ -109,7 +125,7 @@ void Keyboard::hideKeyboard () {
 }
 
 bool Keyboard::handleScreenTouched (int touchX, int touchY) {
-  if (touchX == 0 || touchY == 0 || touchX == 270 || touchY == 320) {
+  if (touchX == 0 || touchY == 0 || touchX == display->getScreenWidth() || touchY == display->getScreenHeight()) {
     // ignore, it's at an edge and likely misreading
     return false;
   }
@@ -168,22 +184,23 @@ bool Keyboard::userCompletedInput() {
 }
 
 char Keyboard::getLetterAt (int touchX, int touchY) {
-
   // the touch should be toward the center of the key. otherwise we dont count it
-
-  float frow = ((touchY - (.2*keyHeight) - y) / (float)keyHeight);
-  float fcol = ((touchX - (.4*keyWidth) - x) / (float)keyWidth) - 1;
+  float frow = ((touchY - (keyCenterYFactor*keyHeight) - y) / (float)keyHeight);
+  float fcol = ((touchX - (keyCenterXFactor*keyWidth) - x) / (float)keyWidth) - (display->getRotation() == Portrait ? 1 : 0);
 
   fcol = max(.1, fcol);
   fcol = min(KEYBOARD_COLS + .1, fcol);
-  //frow = max(.5, frow);
+  frow = max(0, frow); // can't be < 0
 
   // get the row
   uint8_t row = floor(frow);
   uint8_t col = floor(fcol);
 
   //Serial.print("Touched: ");Serial.print(touchX); Serial.print(", ");Serial.println(touchY);
+  //Serial.print("FCol: ");Serial.print(fcol); Serial.print(", FRow: ");Serial.println(frow);
+  //Serial.print("Col: ");Serial.print(col); Serial.print(", Row: ");Serial.println(row);
 
+  // get touch center distance from expected center of key
   int xDistFromCenter = abs((int)(round(fcol*10)) - (col*10));
   int yDistFromCenter = abs((int)(round(frow*10)) - (row*10));
 
@@ -202,5 +219,32 @@ char Keyboard::getLetterAt (int touchX, int touchY) {
   }
 
 
+  return 0;
+}
+
+int8_t Keyboard::getVerticalPadding(char symbol) {
+  switch (symbol) {
+    case '.':
+    case ',':
+      return -3;
+    case ';':
+      return -2;
+  }
+  return 0;
+}
+
+int8_t Keyboard::getHorizontalPadding(char symbol) {
+  switch (symbol) {
+    case '.':
+    case ',':
+    case ';':
+    case 'r':
+    case 't':
+    case 'i':
+    case 'f':
+    case 'j':
+    case 'l':
+      return 2;
+  }
   return 0;
 }

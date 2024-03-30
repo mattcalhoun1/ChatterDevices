@@ -47,7 +47,14 @@ void Display_TFT::showSymbol (int gfxChar, int x, int y, DisplayColor color) {
 bool Display_TFT::handleIfTouched () {
   if (touch.touched()) {
       TS_Point p = touch.getPoint();
-      return listener->handleScreenTouched(DISPLAY_TFT_WIDTH - p.x, DISPLAY_TFT_HEIGHT - p.y);
+
+      // x/y will be different depending on how screen is rotated
+      if (rotation == Landscape) {
+        return listener->handleScreenTouched(DISPLAY_TFT_HEIGHT - p.y, p.x);
+      }
+      else {
+        return listener->handleScreenTouched(DISPLAY_TFT_WIDTH - p.x, DISPLAY_TFT_HEIGHT - p.y);
+      }
   } 
 
   return false;
@@ -64,6 +71,9 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
 
 int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue, Keyboard* keyboard) {
 
+  // rotate the screen
+  setRotation(Landscape);
+
   // pop up the keyboard
   keyboard->showKeyboard(defaultValue);
 
@@ -72,7 +82,7 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
   // clear title area
   clearArea(getModalInputX(),getModalTitleY() - getTextUpperVerticalOffset(TextMedium), getModalInputWidth(), getModalTitleHeight());
   drawLine (getModalInputX(), getModalTitleY() - getTextUpperVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), getModalTitleY() - getTextUpperVerticalOffset(TextMedium), White);
-  showText(title, getModalTitleX(), getModalTitleY(), TextMedium);
+  showText(title, calculateModalTitleX(title), getModalTitleY(), TextMedium);
   drawLine (getModalInputX(), getModalTitleY() + getTextLowerVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), getModalTitleY() + getTextLowerVerticalOffset(TextMedium), White);
 
   // clear text area
@@ -99,6 +109,9 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
 
   // clear text area
   clearArea(getModalInputX(),getModalInputY() - getTextUpperVerticalOffset(TextSmall), getModalInputWidth(), getModalInputHeight());
+
+  // rotate the screen back
+  setRotation(Portrait);
 
   int finalInputLength = keyboard->getUserInputLength();
   if (keyboard->userCompletedInput() && finalInputLength > 0) {
@@ -138,6 +151,11 @@ void Display_TFT::drawCircle (int circleX, int circleY, int radius, DisplayColor
 
 void Display_TFT::fillCircle (int circleX, int circleY, int radius, DisplayColor color) {
   display.fillCircle(circleX, circleY, radius, getTFTColor(color));
+}
+
+void Display_TFT::setRotation (ScreenRotation _rotation) {
+  rotation = _rotation;
+  display.setRotation((uint8_t)_rotation);
 }
 
 void Display_TFT::showInterpolatedThermalRow (const float* interpolatedRow, int xOffset, int yOffset) {
@@ -272,3 +290,15 @@ int Display_TFT::getImageSubtitleY (bool isAlt) {
   return DISPLAY_TFT_MAIN_IMAGE_SUBTITLE_Y;
 }
 
+int Display_TFT::calculateModalTitleX (const char* titleText) {
+  // bump it right until it's roughly centered
+  uint8_t charsPerRow = 20;
+
+  // roughly 20 chars wide in landscape
+  if (rotation == Landscape) {
+    return DISPLAY_TFT_LS_MODAL_TITLE_X + max(0,((charsPerRow - strlen(titleText)) / 2) * (getScreenWidth()/charsPerRow));
+  }
+
+  // portrait mode, keep hardcoded value
+  return DISPLAY_TFT_MODAL_TITLE_X;
+}
