@@ -7,7 +7,7 @@
 class TestIterator : public ItemIterator {
     public:
         TestIterator (uint8_t numTestItems) { numItems = numTestItems; }
-        bool init (const char* _clusterId);
+        bool init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc);
         uint8_t getNumItems ();
         bool loadItemName (uint8_t itemNum, char* nameBuffer);
         uint8_t getItemVal (uint8_t itemNum);

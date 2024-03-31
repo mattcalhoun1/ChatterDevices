@@ -25,11 +25,14 @@ bool GuiControlMode::init() {
       }
       else {
         deviceIterator = new DeviceAliasIterator(chatter->getTrustStore());
-        //deviceIterator = new TestIterator (90);
+
+        // load message history, if allowed/configured
+        messageIterator = new MessageIterator(chatter->getMessageStore(), chatter->getTrustStore());
 
         memset(title, 0, 32);
         sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
         showTitle(title);
+        showMessageHistory();
         showStatus("Ready");
       }
 
@@ -59,12 +62,42 @@ void GuiControlMode::loop () {
       display->clearAll();
       showTitle(title);
       showTime();
+      showMessageHistory();
       showReady();
     }
 
     // execute main loop
     HeadsUpControlMode::loop();
   }
+}
+
+void GuiControlMode::showMessageHistory() {
+  logConsole("=== Current Message History ===");
+
+  // reload from message store
+  messageIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+  memset(messageTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE);
+  sprintf(messageTitleBuffer, "%s Messages: %d", chatter->getClusterId(), messageIterator->getNumItems());
+  logConsole(messageTitleBuffer);
+
+  for (int msg = 0; msg < messageIterator->getNumItems(); msg++) {
+    memset(messageTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE);
+    messageIterator->loadItemName(msg, messageTitleBuffer);
+
+    // if it's a small message, go ahead and print. otherwise, user will have to look
+    if (messageIterator->isPreviewable(msg)) {
+      memset(messagePreviewBuffer, 0, MESSAGE_PREVIEW_BUFFER_SIZE+1);
+      chatter->getMessageStore()->loadMessage (messageIterator->getItemVal(msg), (uint8_t*)messagePreviewBuffer, MESSAGE_PREVIEW_BUFFER_SIZE);
+      logConsole(messageTitleBuffer + 3);
+      logConsole(messagePreviewBuffer);
+    }
+    else {
+      logConsole(messageTitleBuffer + 3);
+      logConsole(" [large message]");
+    }
+  }
+
+  logConsole("=== End Message History === ");
 }
 
 bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
@@ -75,7 +108,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       memset(otherDeviceId, 0, CHATTER_DEVICE_ID_SIZE+1);
       if (isFullyInteractive()) {
         // select a recipient (or broadcast)
-        deviceIterator->init(chatter->getClusterId());
+        deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
         menu->setItemIterator(deviceIterator);
         menu->iteratorMenu(); // modal
 

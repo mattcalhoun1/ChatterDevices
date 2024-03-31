@@ -7,7 +7,7 @@
 class DeviceAliasIterator : public ItemIterator {
     public:
         DeviceAliasIterator (TrustStore* _trustStore) {trustStore = _trustStore; }
-        bool init (const char* _clusterId);
+        bool init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc);
         uint8_t getNumItems ();
         bool loadItemName (uint8_t itemNum, char* nameBuffer);
         uint8_t getItemVal (uint8_t itemNum);

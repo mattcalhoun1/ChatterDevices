@@ -5,11 +5,17 @@
 #include <RotaryEncoder.h>
 #include "Menu.h"
 #include "DeviceAliasIterator.h"
+#include "MessageIterator.h"
 #include "TestIterator.h"
 #include "ItemIterator.h"
 
 #ifndef GUICONTROLMODE_H
 #define GUICONTROLMODE_H
+
+//                                status/etc   ts       :          alias               (           send/rcpient     )   sp  >>  term
+#define MESSAGE_TITLE_BUFFER_SIZE 3 + STORAGE_TS_SIZE + 1 +  CHATTER_ALIAS_NAME_SIZE + 1 + CHATTER_DEVICE_ID_SIZE + 1 + 1 + 2 + 2
+
+#define MESSAGE_PREVIEW_BUFFER_SIZE 32
 
 class GuiControlMode : public HeadsUpControlMode {
     public:
@@ -42,6 +48,8 @@ class GuiControlMode : public HeadsUpControlMode {
         // managing state
         void showAdminMenu ();
 
+        void showMessageHistory();
+
     private:
         bool fullRepaint = false;
         uint8_t lastChannel = 0;
@@ -61,7 +69,10 @@ class GuiControlMode : public HeadsUpControlMode {
         char newFreq[7];
 
         ItemIterator* deviceIterator;
+        ItemIterator* messageIterator;
 
+        char messageTitleBuffer[MESSAGE_TITLE_BUFFER_SIZE];
+        char messagePreviewBuffer[MESSAGE_PREVIEW_BUFFER_SIZE + 1];
 };
 
 #endif

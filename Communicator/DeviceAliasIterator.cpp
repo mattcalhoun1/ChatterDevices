@@ -1,7 +1,8 @@
 #include "DeviceAliasIterator.h"
 
-bool DeviceAliasIterator::init (const char* _clusterId) {
-    numTrusts = trustStore->populateDeviceIndices (_clusterId, trustSlots);
+bool DeviceAliasIterator::init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc) {
+    numTrusts = trustStore->populateDeviceIndices (_clusterId, _thisDeviceId, _sortAsc, trustSlots);
+
     //Serial.print("Iterator loaded "); Serial.print(numTrusts); Serial.print(" devices for cluster ");Serial.println(_clusterId);
 }
 
