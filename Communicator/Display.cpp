@@ -32,7 +32,8 @@ void Display::showAlert (const char* alertText, AlertType alertType) {
     else if (alertType == AlertActivity) {
       color = Blue;
     }
-    clearArea(0, getAlertAreaY() - getTextUpperVerticalOffset(TextMedium), getScreenWidth(), getAlertAreaHeight());
+    clearAll();
+    //clearArea(0, getAlertAreaY() - getTextUpperVerticalOffset(TextMedium), getScreenWidth(), getAlertAreaHeight());
     showText(alertText, getAlertAreaX(), getAlertAreaY(), TextMedium, color);
 }
 
