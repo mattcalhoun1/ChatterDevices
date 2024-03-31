@@ -45,7 +45,10 @@ class Display_7789 : public MenuEnabledDisplay {
     int getMessageAreaX () {return DISPLAY_7789_MSG_X; }
     int getMessageAreaY () {return DISPLAY_7789_MSG_Y; }
     int getMessageAreaWidth () {return DISPLAY_7789_MSG_WIDTH; }
-    int getMessageAreaHeight () {return DISPLAY_7789_MSG_HEIGHT; }
+    int getMessageAreaHeight () {return DISPLAY_7789_MSG_AREA_HEIGHT; }
+    int getMessageHeight () {return DISPLAY_7789_MSG_HEIGHT; }
+    int getMessageTitleHeight () {return DISPLAY_7789_MSG_TITLE_HEIGHT; }
+    uint8_t getMaxDisplayableMessages() { return DISPLAY_7789_MSG_MAX_DISPLAY; }
 
     int getMenuAreaX () { return DISPLAY_7789_MENU_X; }
     int getMenuAreaY () { return DISPLAY_7789_MENU_Y; }

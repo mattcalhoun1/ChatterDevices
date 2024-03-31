@@ -57,8 +57,13 @@ class Display {
     virtual void repaint () = 0;
     virtual void showStatus (String text, DisplayColor color);
     virtual void clearStatus ();
-    virtual void showMessage (const char* text, DisplayColor color);
-    virtual void clearMessage ();
+
+    virtual void showMessage (const char* text, DisplayColor color, uint8_t position);
+    virtual void showMessageAndTitle (const char* title, const char* text, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
+
+    virtual void clearMessageArea ();
+    virtual uint8_t getMaxDisplayableMessages () = 0;
+
     virtual void clearDashboard ();
 
     virtual void showInterpolatedThermal (const uint8_t* image, bool isAlt, String subtitle);
@@ -106,6 +111,8 @@ class Display {
     virtual int getMessageAreaY () = 0;
     virtual int getMessageAreaWidth () = 0;
     virtual int getMessageAreaHeight () = 0;
+    virtual int getMessageHeight () = 0;
+    virtual int getMessageTitleHeight () = 0;
 
     virtual int getTitleAreaX () = 0;
     virtual int getTitleAreaY () = 0;

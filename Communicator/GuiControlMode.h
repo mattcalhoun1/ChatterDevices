@@ -70,8 +70,9 @@ class GuiControlMode : public HeadsUpControlMode {
 
         ItemIterator* deviceIterator;
         ItemIterator* messageIterator;
+        uint8_t messagePreviewOffset = 0;
 
-        char messageTitleBuffer[MESSAGE_TITLE_BUFFER_SIZE];
+        char messageTitleBuffer[MESSAGE_TITLE_BUFFER_SIZE + 1];
         char messagePreviewBuffer[MESSAGE_PREVIEW_BUFFER_SIZE + 1];
 };
 

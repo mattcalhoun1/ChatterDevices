@@ -32,12 +32,13 @@ bool GuiControlMode::init() {
         memset(title, 0, 32);
         sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
         showTitle(title);
-        showMessageHistory();
         showStatus("Ready");
       }
 
       menu = new Menu((MenuEnabledDisplay*)display, rotary, this, chatter->isRootDevice(chatter->getDeviceId()));
       menu->init();
+
+      showMessageHistory();
 
       return true;
     }
@@ -50,9 +51,6 @@ bool GuiControlMode::init() {
 
 void GuiControlMode::loop () {
   // check for input
-  /*if (updateSelection()) {
-    logConsole("Selection changed to : " + String(selection));
-  }*/
   menu->menuUpdate();
 
   // if the user is interacting, skip the main loop
@@ -76,25 +74,30 @@ void GuiControlMode::showMessageHistory() {
 
   // reload from message store
   messageIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
-  memset(messageTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE);
-  sprintf(messageTitleBuffer, "%s Messages: %d", chatter->getClusterId(), messageIterator->getNumItems());
-  logConsole(messageTitleBuffer);
+  //sprintf(messagePreviewBuffer, "%s Messages: %d", chatter->getClusterId(), messageIterator->getNumItems());
 
-  for (int msg = 0; msg < messageIterator->getNumItems(); msg++) {
-    memset(messageTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE);
+  // set the offset (if necessary) so that the newest messages are shown by default
+  // and the user would have to scroll up to see older ones
+  if (messageIterator->getNumItems() > display->getMaxDisplayableMessages()) {
+    messagePreviewOffset = messageIterator->getNumItems() - display->getMaxDisplayableMessages();
+  }
+
+  for (int msg = messagePreviewOffset; msg < messageIterator->getNumItems(); msg++) {
+    memset(messageTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE + 1);
+    memset(messagePreviewBuffer, 0, MESSAGE_PREVIEW_BUFFER_SIZE + 1);
     messageIterator->loadItemName(msg, messageTitleBuffer);
+
+    logConsole(messageTitleBuffer);
 
     // if it's a small message, go ahead and print. otherwise, user will have to look
     if (messageIterator->isPreviewable(msg)) {
-      memset(messagePreviewBuffer, 0, MESSAGE_PREVIEW_BUFFER_SIZE+1);
       chatter->getMessageStore()->loadMessage (messageIterator->getItemVal(msg), (uint8_t*)messagePreviewBuffer, MESSAGE_PREVIEW_BUFFER_SIZE);
-      logConsole(messageTitleBuffer + 3);
-      logConsole(messagePreviewBuffer);
     }
     else {
-      logConsole(messageTitleBuffer + 3);
-      logConsole(" [large message]");
+      sprintf(messagePreviewBuffer, "%s", "[large message]");
     }
+    logConsole(messagePreviewBuffer);
+    display->showMessageAndTitle(messageTitleBuffer+3, messagePreviewBuffer, messageTitleBuffer[0] == SentViaBroadcast ? Blue : Yellow, White, msg - messagePreviewOffset);
   }
 
   logConsole("=== End Message History === ");
@@ -104,6 +107,9 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   bool result = false;
   bool sentViaBridge = false;
   switch(eventType) {
+    case MenuClosed:
+      fullRepaint = true;
+      return true;
     case UserRequestDirectMessage:
       memset(otherDeviceId, 0, CHATTER_DEVICE_ID_SIZE+1);
       if (isFullyInteractive()) {
@@ -214,6 +220,20 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
 
       fullRepaint = true;
       return result;
+    case UserDeleteAllMessages:
+      if (isFullyInteractive()) {
+        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Delete All (y/n)", 10, CharacterFilterAlpha, (char*)messageBuffer);
+        if (newMessageLength > 0 && (messageBuffer[0] == 'y' || messageBuffer[0] == 'Y')) {
+          chatter->getMessageStore()->clearAllMessages();
+          fullRepaint = true;
+        }
+        else {
+          logConsole("delete all canceled.");
+          fullRepaint = true;
+        }
+      }
+      return true;
+
     case UserRequestFactoryReset:
       if (isFullyInteractive()) {
         int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Confirm (y/n)", 10, CharacterFilterAlpha, (char*)messageBuffer);
@@ -226,7 +246,6 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
           fullRepaint = true;
           return true;
         }
-
       }
   }
 
@@ -235,7 +254,9 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
 }
 
 void GuiControlMode::showLastMessage () {
-  display->showMessage((const char*)messageBuffer, Green);
+  //display->showMessage((const char*)messageBuffer, Green, 0);
+  // refresh the message history if enabled
+  showMessageHistory();
 }
 
 
@@ -356,7 +377,7 @@ bool GuiControlMode::onboardNewClient (unsigned long timeout) {
 
   display->clearAll();
   display->showTitle("Onboarding...");
-  display->showMessage("Waiting for device to join...", Green);
+  display->showMessage("Waiting for device to join...", Green, 0);
 
   unsigned long startTime = millis();
   while (millis() - startTime < timeout) {

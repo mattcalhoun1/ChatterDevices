@@ -59,7 +59,10 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getMessageAreaX () {return DISPLAY_TFT_MSG_X; }
     int getMessageAreaY () {return DISPLAY_TFT_MSG_Y; }
     int getMessageAreaWidth () {return DISPLAY_TFT_MSG_WIDTH; }
-    int getMessageAreaHeight () {return DISPLAY_TFT_MSG_HEIGHT; }
+    int getMessageAreaHeight () {return DISPLAY_TFT_MSG_AREA_HEIGHT; }
+    int getMessageHeight () {return DISPLAY_TFT_MSG_HEIGHT; }
+    int getMessageTitleHeight () {return DISPLAY_TFT_MSG_TITLE_HEIGHT; }
+    uint8_t getMaxDisplayableMessages() { return DISPLAY_TFT_MSG_MAX_DISPLAY; }
 
     int getMenuAreaX () { return DISPLAY_TFT_MENU_X; }
     int getMenuAreaY () { return DISPLAY_TFT_MENU_Y; }

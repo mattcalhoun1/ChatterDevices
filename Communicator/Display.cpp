@@ -16,10 +16,15 @@ void Display::clearStatus () {
   clearArea(getStatusX(), getStatusY() - getTextUpperVerticalOffset(TextSmall), getStatusWidth(), getStatusHeight() - getTextLowerVerticalOffset(TextSmall));
 }
 
-void Display::showMessage (const char* message, DisplayColor color) {
-  clearMessage();
-  showText(message, getMessageAreaX(), getMessageAreaY(), TextSmall, color);
+void Display::showMessage (const char* message, DisplayColor color, uint8_t position) {
+  showText(message, getMessageAreaX(), getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, color);
 }
+
+void Display::showMessageAndTitle (const char* title, const char* text, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
+  showText(title, getMessageAreaX(), getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, titleColor);
+  showText(text, getMessageAreaX(), getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, messageColor);
+}
+
 
 void Display::showAlert (const char* alertText, AlertType alertType) {
     DisplayColor color = Green;
@@ -37,7 +42,7 @@ void Display::showAlert (const char* alertText, AlertType alertType) {
     showText(alertText, getAlertAreaX(), getAlertAreaY(), TextMedium, color);
 }
 
-void Display::clearMessage () {
+void Display::clearMessageArea () {
   clearArea(getMessageAreaX(), getMessageAreaY() - getTextUpperVerticalOffset(TextSmall), getMessageAreaWidth(), getMessageAreaHeight() - getTextLowerVerticalOffset(TextSmall));
 }
 

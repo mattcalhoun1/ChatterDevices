@@ -19,7 +19,7 @@ class MessageIterator : public ItemIterator {
 
         uint8_t messageSlots[STORAGE_MAX_STORED_MESSAGES];
         bool previewable[STORAGE_MAX_STORED_MESSAGES];
-        
+
         uint8_t numMessages = 0;
         char messageIdBuffer[CHATTER_MESSAGE_ID_SIZE +1];
         char senderIdBuffer[CHATTER_DEVICE_ID_SIZE + 1];
@@ -29,6 +29,7 @@ class MessageIterator : public ItemIterator {
         MessageSendMethod sendMethodBuffer;
         MessageStatus statusBuffer;
         char timestampBuffer[STORAGE_TS_SIZE+1];
+        char readableTimestampBuffer[12]; // mm/dd hh:mm
         char thisDeviceId[CHATTER_DEVICE_ID_SIZE + 1];
 };
 

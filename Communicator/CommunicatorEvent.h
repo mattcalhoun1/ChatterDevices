@@ -18,7 +18,9 @@ enum CommunicatorEventType {
     PingLoraBridge = 8,
     CommunicatorEventNone = 9,
     UserRequestSecureBroadcast = 10,
-    UserRequestOpenBroadcast = 11
+    UserRequestOpenBroadcast = 11,
+    MenuClosed = 12,
+    UserDeleteAllMessages = 13
 };
 
 struct CommunicatorEvent {

@@ -45,7 +45,7 @@ void Menu::populateIteratorMenu () {
 void Menu::mainMenu() {
   resetMenu(); // clear any previous menu
   oledMenu.menuId = MENU_ID_MAIN;
-  oledMenu.noOfmenuItems = 7;
+  oledMenu.noOfmenuItems = 8;
   oledMenu.menuTitle = "Main Menu";
   oledMenu.menuItems[MENU_MAIN_DIRECT_MESSAGE] = "Direct Message";
   oledMenu.menuItems[MENU_MAIN_SECURE_BROADCAST] = "Secure Broadcast";
@@ -53,6 +53,7 @@ void Menu::mainMenu() {
   oledMenu.menuItems[MENU_MAIN_ANNOUNCE_PRESENCE] = "Announce Presence";
   oledMenu.menuItems[MENU_CHOOSE_CLUSTER] = "Choose Cluster";
   oledMenu.menuItems[MENU_MAIN_ONBOARDING] = "Onboarding";
+  oledMenu.menuItems[MENU_MAIN_CLEAR_MESSAGES] = "Clear Messages";
   oledMenu.menuItems[MENU_MAIN_ADMIN] = "Admin";
   oledMenu.menuItems[MENU_MAIN_CANCEL] = "Cancel";
 }
@@ -249,6 +250,10 @@ void Menu::mainActions() {
         mode = MenuActive;
         needsRepainted = true;
         break;        
+      case MENU_MAIN_CLEAR_MESSAGES:
+        resetMenu();
+        handler->handleEvent(UserDeleteAllMessages);
+        break;
       case MENU_MAIN_ADMIN:
         adminMenu();
         mode = MenuActive;
@@ -586,8 +591,11 @@ void Menu::resetMenu() {
   oledMenu.lastMenuActivity = millis();   // log time
 
   // clear oled display
-  display->clearMenuTitle();
+    display->clearMenuTitle();
     display->clearMenu();
+
+    // trigger full repaint
+    handler->handleEvent(MenuClosed);
 }
 
 
