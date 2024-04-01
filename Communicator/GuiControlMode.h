@@ -2,6 +2,7 @@
 #include "HeadsUpControlMode.h"
 #include "Display.h"
 #include "Display_7789.h"
+#include "TouchEnabledDisplay.h"
 #include <RotaryEncoder.h>
 #include "Menu.h"
 #include "DeviceAliasIterator.h"
@@ -17,7 +18,7 @@
 
 #define MESSAGE_PREVIEW_BUFFER_SIZE 32
 
-class GuiControlMode : public HeadsUpControlMode {
+class GuiControlMode : public HeadsUpControlMode, public TouchListener {
     public:
         GuiControlMode(DeviceType _deviceType, bool _admin) : HeadsUpControlMode (_deviceType, _admin) {}
         bool init ();
@@ -42,18 +43,15 @@ class GuiControlMode : public HeadsUpControlMode {
         bool sendDirectMessage ();
         bool sendViaBridge ();
 
+        bool handleScreenTouched (int touchX, int touchY);
     protected:
-        void adminLoop ();
-
-        // managing state
-        void showAdminMenu ();
-
-        void showMessageHistory();
+        bool updateMessagePreviewsIfNecessary ();
+        void showMessageHistory(bool resetOffset);
+        void sleepOrBackground (unsigned long sleepTime);
 
     private:
         bool fullRepaint = false;
         uint8_t lastChannel = 0;
-        bool adminMode = false;
         RotaryEncoder *rotary = nullptr;
         Menu* menu;
 
@@ -71,6 +69,7 @@ class GuiControlMode : public HeadsUpControlMode {
         ItemIterator* deviceIterator;
         ItemIterator* messageIterator;
         uint8_t messagePreviewOffset = 0;
+        uint8_t messageHistorySize = 0;
 
         char messageTitleBuffer[MESSAGE_TITLE_BUFFER_SIZE + 1];
         char messagePreviewBuffer[MESSAGE_PREVIEW_BUFFER_SIZE + 1];

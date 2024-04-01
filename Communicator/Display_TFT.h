@@ -113,6 +113,8 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getAlertAreaY() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_Y: DISPLAY_TFT_ALERT_Y; }
     int getAlertAreaHeight() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_HEIGHT : DISPLAY_TFT_ALERT_HEIGHT; }
 
+    bool isTouchEnabled () {return true;}
+
   private:
   
     int calculateModalTitleX (const char* titleText);

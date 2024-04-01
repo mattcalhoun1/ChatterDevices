@@ -5,6 +5,8 @@
 #ifndef TOUCHENABLEDDISPLAY_H
 #define TOUCHENABLEDDISPLAY_H
 
+#define MAX_TOUCH_LISTENERS 3
+
 class TouchListener {
   public:
     virtual bool handleScreenTouched (int touchX, int touchY) = 0;
@@ -20,11 +22,12 @@ class TouchEnabledDisplay : public MenuEnabledDisplay {
         virtual int getKeyboardAreaHeight () = 0;
         void setKeyboardOrientation (ScreenRotation _rotation) {keyboardOrientation = _rotation; }
 
-        virtual void setTouchListener (TouchListener* _listener) {listener = _listener;}
+        virtual void addTouchListener (TouchListener* _listener) {listeners[(numListeners >= MAX_TOUCH_LISTENERS-1 ? 0 : numListeners++)] = _listener;}
         virtual bool handleIfTouched () = 0;
       
     protected:
-      TouchListener* listener;
+      uint8_t numListeners = 0;
+      TouchListener* listeners[MAX_TOUCH_LISTENERS];
       ScreenRotation keyboardOrientation = Landscape; // default set here
 };
 

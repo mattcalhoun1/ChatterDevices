@@ -36,6 +36,8 @@ enum ScreenRotation {
   LandscapeFlip = 3
 };
 
+#define DISPLAY_MESSAGE_POSITION_NULL 255
+
 class Display {
   public:
     virtual void showThermal (const float* frame, int resHeight, int resWidth, int xOffset, int yOffset) = 0;
@@ -60,6 +62,7 @@ class Display {
 
     virtual void showMessage (const char* text, DisplayColor color, uint8_t position);
     virtual void showMessageAndTitle (const char* title, const char* text, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
+    virtual uint8_t getMessagePosition (int positionX, int positionY);
 
     virtual void clearMessageArea ();
     virtual uint8_t getMaxDisplayableMessages () = 0;
@@ -90,6 +93,7 @@ class Display {
 
     virtual int getScreenWidth () = 0;
     virtual int getScreenHeight () = 0;
+    virtual bool isTouchEnabled () {return false;}
 
   protected:
     float currentProgress = 0; // placeholder for progress spinner

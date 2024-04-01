@@ -40,7 +40,7 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         virtual bool onboardNewClient (unsigned long timeout);
 
     protected:
-        void sleepOrBackground(unsigned long sleepTime);
+        virtual void sleepOrBackground(unsigned long sleepTime);
         bool sendText = false;
         uint8_t messageBuffer[GUI_MESSAGE_BUFFER_SIZE];
         int messageBufferLength = 0;

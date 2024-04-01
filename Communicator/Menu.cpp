@@ -1,11 +1,7 @@
 #include "Menu.h"
 
-void Menu::defaultMenu () {
-    mainMenu();
-}
-
 bool Menu::init() {
-    defaultMenu();
+    mainMenu(false);
 
   return true;
 }
@@ -42,8 +38,8 @@ void Menu::populateIteratorMenu () {
   }
 }
 
-void Menu::mainMenu() {
-  resetMenu(); // clear any previous menu
+void Menu::mainMenu(bool fullRepaint) {
+  resetMenu(fullRepaint); // clear any previous menu
   oledMenu.menuId = MENU_ID_MAIN;
   oledMenu.noOfmenuItems = 8;
   oledMenu.menuTitle = "Main Menu";
@@ -59,7 +55,7 @@ void Menu::mainMenu() {
 }
 
 void Menu::adminMenu() {
-  resetMenu(); // clear any previous menu
+  resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_ADMIN;
   oledMenu.noOfmenuItems = 6;
   oledMenu.menuTitle = "Admin";
@@ -73,7 +69,7 @@ void Menu::adminMenu() {
 }
 
 void Menu::onboardingMenu() {
-  resetMenu(); // clear any previous menu
+  resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_ONBOARDING;
   oledMenu.menuTitle = "Onboard";
 
@@ -270,7 +266,7 @@ void Menu::mainActions() {
     // back to main menu
     if (oledMenu.selectedMenuItem == 1) {
       if (serialDebug) Serial.println("View messages: back to main menu");
-      defaultMenu();
+      mainMenu();
       mode = MenuActive;
     }
 
@@ -301,7 +297,7 @@ void Menu::menuValues() {
   // action for "on or off"
   if (oledMenu.menuTitle == "on or off") {
     if (serialDebug) Serial.println("demo_menu: on off selection was " + String(oledMenu.mValueEntered));
-    defaultMenu();
+    mainMenu();
     mode = MenuActive;
   }
 
@@ -309,11 +305,11 @@ void Menu::menuValues() {
 
 void Menu::notifyButtonPressed () {
     if (millis() - oledMenu.lastMenuActivity > minButtonDelay) {
-      // if no menu is up, perform default action, rather than showing menu
+      // if no menu is up, open default menu
       if (mode == MenuOff) {
-          //mode = MenuActive;
-          //resetMenu();
-          handler->queueEvent(UserRequestSelfAnnounce);
+          mainMenu(true);
+          mode = MenuActive;
+          needsRepainted = true;
       }
       else {
         //needsRepainted = true;
@@ -325,8 +321,10 @@ void Menu::notifyButtonPressed () {
 
 void Menu::notifyRotaryChanged () {
     if (mode == MenuOff) {
-        mainMenu(); // restart main menu
-        mode = MenuActive;
+      // ignore, main screen or other function may be using the rotary
+      return;
+      //  mainMenu(); // restart main menu
+      //  mode = MenuActive;
     }
     //needsRepainted = true;
     if (millis() - oledMenu.lastMenuActivity > minRotaryDelay) {
@@ -367,7 +365,7 @@ void Menu::menuUpdate() {
       case MenuMessage:
         if (buttonPressed) {
             buttonPressed = false; // reset button flag
-            defaultMenu();    // if button has been pressed return to default menu
+            mainMenu();    // if button has been pressed return to default menu
             mode = MenuActive;
         } 
         break;
@@ -508,6 +506,7 @@ int Menu::serviceValue(bool _blocking) {
 
     if (needsRepainted) {
       needsRepainted = false;
+        display->drawMenuBorder();
         display->clearMenu();
         display->clearMenuTitle();
         display->showMenuTitle(oledMenu.menuTitle);
@@ -575,7 +574,12 @@ void Menu::createList(String _title, int _noOfElements, String *_list) {
 //                        -reset menu system
 // ----------------------------------------------------------------
 
-void Menu::resetMenu() {
+void Menu::resetMenu(bool repaint) {
+  bool wasClosed = false;
+  if (mode != MenuOff) {
+    wasClosed = true;
+  }
+
   // reset all menu variables / flags
     mode = MenuOff;
     oledMenu.selectedMenuItem = 0;
@@ -591,42 +595,16 @@ void Menu::resetMenu() {
   oledMenu.lastMenuActivity = millis();   // log time
 
   // clear oled display
+  if (repaint) {
+    display->drawMenuBorder();
+
     display->clearMenuTitle();
     display->clearMenu();
 
+  }
+  
+  if (wasClosed) {
     // trigger full repaint
     handler->handleEvent(MenuClosed);
+  }
 }
-
-
-    /*
-
-    // demonstrate usage of 'enter a value' (blocking) which is quick and easy but stops all other tasks until the value is entered
-    if (oledMenu.selectedMenuItem == 6) {
-      if (serialDebug) Serial.println("demo_menu: blocking enter a value");
-      // set perameters
-        resetMenu();
-        mode = MenuValueEntry;
-        oledMenu.menuTitle = "Select Message";
-        oledMenu.mValueLow = 0;
-        oledMenu.mValueHigh = 50;
-        oledMenu.mValueStep = 1;
-        oledMenu.mValueEntered = 5;
-      int tEntered = serviceValue(1);      // request value
-      Serial.println("The value entered was " + String(tEntered));
-      defaultMenu();
-      mode = MenuActive;
-    }
-
-    // demonstrate usage of message
-    if (oledMenu.selectedMenuItem == 7) {
-      if (serialDebug) Serial.println("demo_menu: message");
-      displayMessage("Message", "Hello\nThis is a demo\nmessage.");    // 21 chars per line, "\n" = next line
-    }
-
-    // turn menu/oLED off
-    else if (oledMenu.selectedMenuItem == 8) {
-      if (serialDebug) Serial.println("demo_menu: menu off");
-      resetMenu();    // turn menus off
-    }
-    */

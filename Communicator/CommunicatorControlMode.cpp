@@ -140,17 +140,6 @@ void CommunicatorControlMode::sendEchoText () {
 void CommunicatorControlMode::sleepOrBackground(unsigned long sleepTime) {
   unsigned long startTime = millis();
   delay(sleepTime);
-
-  /*if (adminEnabled) {
-    if (Serial1.available() > 0) {
-      Serial.println("Incoming Admin Data...");
-      while (Serial1.available() > 0) {
-        Serial.print((char)Serial1.read());
-      }
-      Serial.println("");
-    }
-  }*/
-
 }
 
 bool CommunicatorControlMode::sendPacketBatchAir () {

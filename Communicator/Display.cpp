@@ -25,6 +25,22 @@ void Display::showMessageAndTitle (const char* title, const char* text, DisplayC
   showText(text, getMessageAreaX(), getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, messageColor);
 }
 
+uint8_t Display::getMessagePosition (int positionX, int positionY) {
+  // look mainly at y position, as that's what identifies one position versus another
+
+  // subtract message start
+  int shiftedY = positionY - getMessageAreaY();
+
+  if (shiftedY > 0) {
+    // divide by message height to get the position
+    uint8_t selected = shiftedY / (getMessageHeight() + getMessageTitleHeight());
+    if (selected < getMaxDisplayableMessages()) {
+      return selected;
+    }
+  }
+
+  return DISPLAY_MESSAGE_POSITION_NULL;
+}
 
 void Display::showAlert (const char* alertText, AlertType alertType) {
     DisplayColor color = Green;

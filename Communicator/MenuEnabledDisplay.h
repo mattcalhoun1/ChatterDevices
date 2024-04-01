@@ -16,10 +16,14 @@ class MenuEnabledDisplay : public Display {
         virtual int getMenuMaxItemLength () = 0;
         virtual int getMenuItemIndent() = 0;
 
+        virtual int getMenuBorderSize() {return 2;}
+
         void clearMenuTitle ();
         void clearMenu ();
         void showMenuTitle (String& title);
         void showMenuItem (uint8_t itemNumber, String& text, DisplayColor textColor, DisplayColor backgroundColor);
+
+        void drawMenuBorder ();
 };
 
 #endif

@@ -2,54 +2,41 @@
 
 bool GuiControlMode::init() {
     logConsole("GuiControlMode Initializing");
-
-    //joystick = new Joystick(VRX_PIN, VRY_PIN);
-    //joystick->refresh();
-    //if (joystick->getDirection() == JoystickUp) {
-    //  adminMode = true;
-    //}
-    //Serial.println("Starting rotary encoder...");
-
     rotary = new RotaryEncoder(PIN_ROTARY_IN1, PIN_ROTARY_IN2, RotaryEncoder::LatchMode::TWO03);
-    //rotary = new RotaryEncoder(PIN_ROTARY_IN1, PIN_ROTARY_IN2, RotaryEncoder::LatchMode::FOUR3); // or FOUR0
-    //rotary->tick();
-    //selection = rotary->getPosition();
-
-    //Serial.println("Rotary encoder started");
 
     // make sure parent is initialized
-    if (HeadsUpControlMode::init()) {
-      if (adminMode) {
-        showTitle("Admin Mode");
-        showStatus("Ready");
-      }
-      else {
-        deviceIterator = new DeviceAliasIterator(chatter->getTrustStore());
+    bool parentInitialized = HeadsUpControlMode::init();
 
-        // load message history, if allowed/configured
-        messageIterator = new MessageIterator(chatter->getMessageStore(), chatter->getTrustStore());
-
-        memset(title, 0, 32);
-        sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
-        showTitle(title);
-        showStatus("Ready");
-      }
-
-      menu = new Menu((MenuEnabledDisplay*)display, rotary, this, chatter->isRootDevice(chatter->getDeviceId()));
-      menu->init();
-
-      showMessageHistory();
-
-      return true;
-    }
-
+    // setup the menu
     menu = new Menu((MenuEnabledDisplay*)display, rotary, this, chatter->isRootDevice(chatter->getDeviceId()));
     menu->init();
 
-    return false;
+    // add self as a touch listener
+    if (display->isTouchEnabled()) {
+      ((TouchEnabledDisplay*)display)->addTouchListener(this);
+    }
+
+    if (parentInitialized) {
+      deviceIterator = new DeviceAliasIterator(chatter->getTrustStore());
+
+      // load message history, if allowed/configured
+      messageIterator = new MessageIterator(chatter->getMessageStore(), chatter->getTrustStore());
+
+      memset(title, 0, 32);
+      sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
+      showTitle(title);
+      showStatus("Ready");
+
+      showMessageHistory(true);
+    }
+
+    return parentInitialized;
 }
 
 void GuiControlMode::loop () {
+  // scroll message
+  updateMessagePreviewsIfNecessary();
+
   // check for input
   menu->menuUpdate();
 
@@ -60,7 +47,7 @@ void GuiControlMode::loop () {
       display->clearAll();
       showTitle(title);
       showTime();
-      showMessageHistory();
+      showMessageHistory(true);
       showReady();
     }
 
@@ -69,17 +56,20 @@ void GuiControlMode::loop () {
   }
 }
 
-void GuiControlMode::showMessageHistory() {
-  logConsole("=== Current Message History ===");
+void GuiControlMode::showMessageHistory(bool resetOffset) {
+  //logConsole("=== Current Message History ===");
 
-  // reload from message store
-  messageIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
-  //sprintf(messagePreviewBuffer, "%s Messages: %d", chatter->getClusterId(), messageIterator->getNumItems());
+  if (resetOffset) {
+    // reload from message store
+    messageIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+    //sprintf(messagePreviewBuffer, "%s Messages: %d", chatter->getClusterId(), messageIterator->getNumItems());
 
-  // set the offset (if necessary) so that the newest messages are shown by default
-  // and the user would have to scroll up to see older ones
-  if (messageIterator->getNumItems() > display->getMaxDisplayableMessages()) {
-    messagePreviewOffset = messageIterator->getNumItems() - display->getMaxDisplayableMessages();
+    // set the offset (if necessary) so that the newest messages are shown by default
+    // and the user would have to scroll up to see older ones
+    messageHistorySize = messageIterator->getNumItems();
+    if (messageIterator->getNumItems() > display->getMaxDisplayableMessages()) {
+      messagePreviewOffset = messageIterator->getNumItems() - display->getMaxDisplayableMessages();
+    }
   }
 
   for (int msg = messagePreviewOffset; msg < messageIterator->getNumItems(); msg++) {
@@ -87,7 +77,7 @@ void GuiControlMode::showMessageHistory() {
     memset(messagePreviewBuffer, 0, MESSAGE_PREVIEW_BUFFER_SIZE + 1);
     messageIterator->loadItemName(msg, messageTitleBuffer);
 
-    logConsole(messageTitleBuffer);
+    //logConsole(messageTitleBuffer);
 
     // if it's a small message, go ahead and print. otherwise, user will have to look
     if (messageIterator->isPreviewable(msg)) {
@@ -96,11 +86,11 @@ void GuiControlMode::showMessageHistory() {
     else {
       sprintf(messagePreviewBuffer, "%s", "[large message]");
     }
-    logConsole(messagePreviewBuffer);
+    //logConsole(messagePreviewBuffer);
     display->showMessageAndTitle(messageTitleBuffer+3, messagePreviewBuffer, messageTitleBuffer[0] == SentViaBroadcast ? Blue : Yellow, White, msg - messagePreviewOffset);
   }
 
-  logConsole("=== End Message History === ");
+  //logConsole("=== End Message History === ");
 }
 
 bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
@@ -253,10 +243,24 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   return HeadsUpControlMode::handleEvent(eventType);
 }
 
+bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
+  if (messageHistorySize > 0) {
+    uint8_t selectedMessage = display->getMessagePosition(touchX, touchY);
+    if (selectedMessage != DISPLAY_MESSAGE_POSITION_NULL && selectedMessage < messageHistorySize) {
+      uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedMessage + messagePreviewOffset);
+      Serial.print("Selected message at fram slot: "); Serial.println(selectedMessageSlot);
+      
+      // queue a reply event to that message slot
+    }
+  }
+
+  return true;
+}
+
 void GuiControlMode::showLastMessage () {
   //display->showMessage((const char*)messageBuffer, Green, 0);
   // refresh the message history if enabled
-  showMessageHistory();
+  showMessageHistory(true);
 }
 
 
@@ -303,27 +307,39 @@ void GuiControlMode::buttonAPressed () {
   //sendText = true;
 }
 
-bool GuiControlMode::updateSelection () {
+bool GuiControlMode::updateMessagePreviewsIfNecessary () {
   // get current rotary position
-  /*if (rotaryMoved) {
+  if (rotaryMoved) {
     rotaryMoved = false;
-    //rotary->tick();
     int newRotaryPostion = rotary->getPosition();
-    Serial.print("Rotary moved to: ");
-    Serial.println(newRotaryPostion);
+    if (newRotaryPostion > selection) {
+      if (messagePreviewOffset + display->getMaxDisplayableMessages() < messageHistorySize) {
+        messagePreviewOffset++;
+        showMessageHistory(false);
+      }
+    }
+    else if (newRotaryPostion < selection) {
+      // if the offset is > 0, decrement
+      if (messagePreviewOffset > 0) {
+        messagePreviewOffset--;
+        showMessageHistory(false);
+      }
+    }
     selection = newRotaryPostion;
     return true;
-  }*/
+  }
 
   return false;
 }
 
 void GuiControlMode::handleRotary () {
   rotary->tick(); // just call tick() to check the state.
+  if (menu->isActive()) {
     menu->notifyRotaryChanged();
-
-  //rotaryMoved = true;
-
+  }
+  else {
+    rotaryMoved = true;
+  }
 }
 
 bool GuiControlMode::initializeNewDevice () {
@@ -401,36 +417,17 @@ bool GuiControlMode::onboardNewClient (unsigned long timeout) {
   return false;
 }
 
-void GuiControlMode::adminLoop () {
-  //if (admin == nullptr) {
-  //  //admin = new ChatterAdmin(chatter);
-  //  logConsole("New admin object initialized");
-  //}
-  
-  display->showStatus("Admin Mode", Yellow);
-  showAdminMenu();
+void GuiControlMode::sleepOrBackground(unsigned long sleepTime) {
+  unsigned long startTime = millis();
 
-  /*if(joystick->refresh()) {
-    if (joystick->getDirection() == JoystickLeft) {
-      admin->genesis();
+  while (millis() - startTime < sleepTime) {
+    if (menu->isActive() == false) {
+      if (display->isTouchEnabled()) {
+        ((TouchEnabledDisplay*)display)->handleIfTouched();
+      }
     }
-    else if (joystick->getDirection() == JoystickDown) {
-      admin->syncDevice();
-    }
-  }*/
-
-  // wait for input
-  delay(100);
+    delay(50);
+  }
 }
-
-void GuiControlMode::showAdminMenu () {
-  // up = onboard
-  // right = trust
-  // down = sync truststore
-  // left = genesis (randomly generate ids)
-
-  // after better ui / screen: allow alias, guest access, rename alias, choose network name
-}
-
 
 

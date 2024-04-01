@@ -3,7 +3,7 @@
 Keyboard::Keyboard(TouchEnabledDisplay* _display) {
   display = _display;
 
-  display->setTouchListener(this);
+  display->addTouchListener(this);
 }
 
 

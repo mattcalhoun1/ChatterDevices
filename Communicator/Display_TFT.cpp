@@ -45,6 +45,8 @@ void Display_TFT::showSymbol (int gfxChar, int x, int y, DisplayColor color) {
 
 
 bool Display_TFT::handleIfTouched () {
+  bool success = true;
+
   if (touch.touched()) {
       TS_Point p = touch.getPoint();
       // ignore edges
@@ -52,18 +54,24 @@ bool Display_TFT::handleIfTouched () {
         return false;
       }
 
+      int transposedX = DISPLAY_TFT_WIDTH - p.x;
+      int transposedY = DISPLAY_TFT_HEIGHT - p.y;
+
       // x/y will be different depending on how screen is rotated
       if (defaultKeyboard->isShowing()) {
         if (keyboardOrientation == Landscape) {
-          return listener->handleScreenTouched(DISPLAY_TFT_HEIGHT - p.y, p.x);
+          transposedX = DISPLAY_TFT_HEIGHT - p.y;
+          transposedY = p.x;
         }
-        else {
-          return listener->handleScreenTouched(DISPLAY_TFT_WIDTH - p.x, DISPLAY_TFT_HEIGHT - p.y);
-        }
+      }
+
+      // notify all listeners
+      for (uint8_t l = 0; l < numListeners; l++) {
+        success = listeners[l]->handleScreenTouched(transposedX, transposedY) && success;
       }
   } 
 
-  return false;
+  return success;
 }
 
 int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue) {

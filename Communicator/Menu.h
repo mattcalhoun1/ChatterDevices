@@ -68,9 +68,8 @@ class Menu {
         Menu(MenuEnabledDisplay* _display, RotaryEncoder* _rotary, CommunicatorEventHandler* _handler, bool _onboardAllowed) { display = _display; rotary = _rotary; handler = _handler; onboardAllowed = _onboardAllowed; }
 
         bool init ();
-        void defaultMenu ();
 
-        void mainMenu ();
+        void mainMenu (bool fullRepaint = false);
         void adminMenu();
         void onboardingMenu ();
         void iteratorMenu ();
@@ -84,7 +83,7 @@ class Menu {
 
         //void value1 ();
         void menuValues ();
-        void resetMenu ();
+        void resetMenu (bool repaint = false);
         void displayMessage(String _title, String _message);
         void createList(String _title, int _noOfElements, String *_list);
         int serviceValue(bool _blocking);
