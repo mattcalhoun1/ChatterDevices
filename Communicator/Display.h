@@ -10,6 +10,13 @@ enum TextSize {
   TextLarge = 3
 };
 
+enum FontType {
+  FontNormal = 1,
+  FontItalic = 2,
+  FontBold = 3,
+  FontTiny = 4
+};
+
 enum DisplayColor {
   Black = 0,
   Blue = 1,
@@ -61,8 +68,10 @@ class Display {
     virtual void clearStatus ();
 
     virtual void showMessage (const char* text, DisplayColor color, uint8_t position);
-    virtual void showMessageAndTitle (const char* title, const char* text, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
+    virtual void showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
     virtual uint8_t getMessagePosition (int positionX, int positionY);
+    virtual void showHasMessagesBefore ();
+    virtual void showHasMessagesAfter ();
 
     virtual void clearMessageArea ();
     virtual uint8_t getMaxDisplayableMessages () = 0;
@@ -94,6 +103,8 @@ class Display {
     virtual int getScreenWidth () = 0;
     virtual int getScreenHeight () = 0;
     virtual bool isTouchEnabled () {return false;}
+
+    virtual void changeFont (FontType fontType) {}
 
   protected:
     float currentProgress = 0; // placeholder for progress spinner

@@ -9,6 +9,8 @@
 #include <Adafruit_ILI9341.h> // Hardware-specific library
 #include <Adafruit_FT6206.h> // capacative touch
 #include <Fonts/FreeSans9pt7b.h> // default font
+#include <Fonts/FreeSansOblique9pt7b.h> // italic sort of
+#include <Fonts/FreeSansBold9pt7b.h> // italic sort of
 
 #ifndef DISPLAY_TFT_H
 #define DISPLAY_TFT_H
@@ -41,6 +43,9 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     int getScreenWidth () { return DISPLAY_TFT_WIDTH; }
     int getScreenHeight () { return DISPLAY_TFT_HEIGHT; }
+
+    void changeFont (FontType fontType);
+
 
   protected:
     int getStatusX();
@@ -125,5 +130,7 @@ class Display_TFT : public FullyInteractiveDisplay {
     uint16_t getTFTColor(DisplayColor color);
     DisplayColor getTemperatureColor(uint8_t temperature);
     DisplayColor getTemperatureColor(float temperature);
+
+    FontType currFontType = FontNormal;
 };
 #endif

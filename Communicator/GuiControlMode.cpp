@@ -72,11 +72,24 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
     }
   }
 
-  for (int msg = messagePreviewOffset; msg < messageIterator->getNumItems(); msg++) {
+  // clear the message area
+  display->clearMessageArea();
+
+  for (int msg = messagePreviewOffset; msg < messageIterator->getNumItems() && (msg - messagePreviewOffset) < display->getMaxDisplayableMessages(); msg++) {
     memset(messageTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE + 1);
     memset(messagePreviewBuffer, 0, MESSAGE_PREVIEW_BUFFER_SIZE + 1);
+    memset(messageTsBuffer, 0, 12);
+
     messageIterator->loadItemName(msg, messageTitleBuffer);
 
+    // timestamp is in position5 and 11 chars long
+    memcpy(messageTsBuffer, messageTitleBuffer + 5, 11);
+
+    // shift the rest of the title left, so we wipe the timestamp
+    for (uint8_t c = 5; c + 12 < MESSAGE_TITLE_BUFFER_SIZE + 1; c++) {
+      messageTitleBuffer[c] = messageTitleBuffer[c+12];
+    }
+ 
     //logConsole(messageTitleBuffer);
 
     // if it's a small message, go ahead and print. otherwise, user will have to look
@@ -87,7 +100,15 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
       sprintf(messagePreviewBuffer, "%s", "[large message]");
     }
     //logConsole(messagePreviewBuffer);
-    display->showMessageAndTitle(messageTitleBuffer+3, messagePreviewBuffer, messageTitleBuffer[0] == SentViaBroadcast ? Blue : Yellow, White, msg - messagePreviewOffset);
+    display->showMessageAndTitle(messageTitleBuffer+5, messagePreviewBuffer, messageTsBuffer, messageTitleBuffer[3] == '<', messageTitleBuffer[0] == SentViaBroadcast ? Blue : Yellow, White, msg - messagePreviewOffset);
+  }
+
+  // if there are more messages, indicate that
+  if (messagePreviewOffset > 0) {
+    display->showHasMessagesBefore();
+  }
+  if (messageHistorySize > messagePreviewOffset + display->getMaxDisplayableMessages()) {
+    display->showHasMessagesAfter();
   }
 
   //logConsole("=== End Message History === ");
@@ -95,7 +116,6 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
 
 bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   bool result = false;
-  bool sentViaBridge = false;
   switch(eventType) {
     case MenuClosed:
       fullRepaint = true;
@@ -135,7 +155,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         display->clearAll();
 
         // pop up the keyboard
-        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Message", 120, CharacterFilterNone, (char*)messageBuffer);
+        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Message", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer);
 
         // send it
         if(messageBufferLength > 0) {
@@ -148,18 +168,14 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
             result = chatter->broadcastUnencrypted(messageBuffer, messageBufferLength, nullptr);
           }
           else {
-            display->showAlert("Send DM", AlertActivity);
-            result = sendDirectMessage();
-
-            if (!result && chatter->clusterHasDevice(ChatterDeviceBridgeLora)) {
-              sentViaBridge = sendViaBridge();
+            result = attemptDirectSend();
+            if (result) {
+              fullRepaint = true;
             }
+            return result;
           }
 
-          if (sentViaBridge) {
-            display->showAlert("Sent (Bridge)", AlertWarning);
-          }
-          else if(result) {
+          if(result) {
             display->showAlert("Sent", AlertSuccess);
           } 
           else {
@@ -243,26 +259,34 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   return HeadsUpControlMode::handleEvent(eventType);
 }
 
-bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
-  if (messageHistorySize > 0) {
-    uint8_t selectedMessage = display->getMessagePosition(touchX, touchY);
-    if (selectedMessage != DISPLAY_MESSAGE_POSITION_NULL && selectedMessage < messageHistorySize) {
-      uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedMessage + messagePreviewOffset);
-      Serial.print("Selected message at fram slot: "); Serial.println(selectedMessageSlot);
-      
-      // queue a reply event to that message slot
-    }
+// Sends a direct message and executes any other logic
+// as necessary to trigger routing. shows result to user
+bool GuiControlMode::attemptDirectSend () {
+  bool sentViaBridge = false;
+  bool result = false;
+  display->showAlert("Send DM", AlertActivity);
+
+  result = sendDirectMessage();
+
+  if (!result && chatter->clusterHasDevice(ChatterDeviceBridgeLora)) {
+    sentViaBridge = sendViaBridge();
   }
 
-  return true;
-}
+  if (sentViaBridge) {
+    display->showAlert("Sent (Bridge)", AlertWarning);
+  }
+  else if(result) {
+    display->showAlert("Sent", AlertSuccess);
+  } 
+  else {
+    display->showAlert("Not Sent!", AlertError);
+  }
 
-void GuiControlMode::showLastMessage () {
-  //display->showMessage((const char*)messageBuffer, Green, 0);
-  // refresh the message history if enabled
-  showMessageHistory(true);
+  // full repaint
+  delay(1000);
+  fullRepaint = true;
+  return result;
 }
-
 
 bool GuiControlMode::sendDirectMessage () {
   logConsole("Sending DM..");
@@ -280,7 +304,7 @@ bool GuiControlMode::sendDirectMessage () {
 }
 
 bool GuiControlMode::sendViaBridge() {
- logConsole("Sending via bridge..");
+  logConsole("Sending via bridge..");
   ChatterMessageFlags flags;
   flags.Flag0 = EncodingTypeText;
   flags.Flag1 = BridgeRequestEcho;//BridgeRequestEcho / BridgeRequestBridge
@@ -292,15 +316,87 @@ bool GuiControlMode::sendViaBridge() {
   memcpy(fullDeviceId + CHATTER_LOCAL_NET_ID_SIZE + CHATTER_GLOBAL_NET_ID_SIZE, BRIDGE_LORA_DEVICE_ID, 3);
   fullDeviceId[CHATTER_DEVICE_ID_SIZE] = '\0';
 
-  // attempt to bridge or echo a message to myself
-  //      sendViaIntermediary(uint8_t *message, int length, const char* recipientDeviceId, const char* intermediaryDeviceId, ChatterMessageFlags* flags, ChatterChannel* channel);
+  // attempt to bridge
   if(chatter->sendViaIntermediary(messageBuffer, messageBufferLength, otherDeviceId, fullDeviceId, &flags, chatter->getChannel(lastChannel))) { // send a message to the bridge
     logConsole("Message successfully sent via bridge");
+    return true;
   }
   else {
     logConsole("Message not sent!");
+    return false;
   }
 }
+
+
+bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
+  switch (event->EventType) {
+    case UserRequestReply:
+      if (isFullyInteractive()) {
+        display->clearAll();
+
+        // pop up the keyboard
+        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput((const char*)eventBuffer.EventData, chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer);
+        if (messageBufferLength > 0) {
+          // send it
+          return attemptDirectSend();
+        }
+        else {
+          fullRepaint = true;
+        }
+      }
+      break;
+  }
+
+  // let base handle
+  return HeadsUpControlMode::handleEvent(event);
+}
+
+bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
+  // if the keyboard is showing, it gets the event
+  if (fullyInteractive) {
+    if (((FullyInteractiveDisplay*)display)->isKeyboardShowing()) {
+      return true;
+    }
+  }
+  if (messageHistorySize > 0) {
+    uint8_t selectedMessage = display->getMessagePosition(touchX, touchY);
+    if (selectedMessage != DISPLAY_MESSAGE_POSITION_NULL && selectedMessage < messageHistorySize) {
+      uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedMessage + messagePreviewOffset);
+     
+      // queue a reply event to that message slot
+      if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
+        // whichever is not this device becomes the target
+        if (memcmp(chatter->getDeviceId(), histSenderId, CHATTER_DEVICE_ID_SIZE) != 0) {
+          memcpy(eventBuffer.EventTarget, histSenderId, CHATTER_DEVICE_ID_SIZE);
+        }
+        else {
+          memcpy(eventBuffer.EventTarget, histRecipientId, CHATTER_DEVICE_ID_SIZE);
+        }
+
+        // if it's a broadcast, let the generic broadcast handle it
+        if (memcmp(chatter->getClusterBroadcastId(), eventBuffer.EventTarget, CHATTER_DEVICE_ID_SIZE) == 0) {
+          return handleEvent(UserRequestSecureBroadcast);
+        }
+
+        // put the alias into event data
+        memset(eventBuffer.EventData, 0, EVENT_DATA_SIZE);
+        eventBuffer.EventData[0] = '@';
+        chatter->getTrustStore()->loadAlias(eventBuffer.EventTarget, (char*)eventBuffer.EventData + 1);
+        eventBuffer.EventType = UserRequestReply;
+        return handleEvent(&eventBuffer);
+      }
+    }
+  }
+
+  return true;
+}
+
+void GuiControlMode::showLastMessage () {
+  //display->showMessage((const char*)messageBuffer, Green, 0);
+  // refresh the message history if enabled
+  showMessageHistory(true);
+}
+
 
 void GuiControlMode::buttonAPressed () {
   menu->notifyButtonPressed();

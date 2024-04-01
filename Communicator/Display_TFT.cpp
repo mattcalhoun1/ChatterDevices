@@ -11,6 +11,28 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
   clear();
 }
 
+void Display_TFT::changeFont (FontType fontType) {
+  if (fontType != currFontType) {
+    switch (fontType) {
+      case FontItalic:
+        currFontType = FontItalic;
+        display.setFont(&FreeSansOblique9pt7b);
+        break;
+      case FontBold:
+        currFontType = FontBold;
+        display.setFont(&FreeSansBold9pt7b);
+        break;
+      case FontTiny:
+        currFontType = FontTiny;
+        display.setFont(); // default fixed size
+        break;
+      default:
+        currFontType = FontNormal;
+        display.setFont(&FreeSans9pt7b);
+    }
+  }
+}
+
 void Display_TFT::clear () {
   display.fillScreen(BLACK);
 }

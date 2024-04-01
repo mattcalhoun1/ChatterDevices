@@ -36,6 +36,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void loop ();
 
         bool handleEvent (CommunicatorEventType eventType);
+        bool handleEvent (CommunicatorEvent* event);
+
         bool initializeNewDevice ();
 
         bool onboardNewClient (unsigned long timeout);
@@ -48,6 +50,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         bool updateMessagePreviewsIfNecessary ();
         void showMessageHistory(bool resetOffset);
         void sleepOrBackground (unsigned long sleepTime);
+
+        bool attemptDirectSend ();
 
     private:
         bool fullRepaint = false;
@@ -73,6 +77,11 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         char messageTitleBuffer[MESSAGE_TITLE_BUFFER_SIZE + 1];
         char messagePreviewBuffer[MESSAGE_PREVIEW_BUFFER_SIZE + 1];
+        char messageTsBuffer[12];
+
+        CommunicatorEvent eventBuffer;
+        char histSenderId[CHATTER_DEVICE_ID_SIZE+1];
+        char histRecipientId[CHATTER_DEVICE_ID_SIZE+1];
 };
 
 #endif

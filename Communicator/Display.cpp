@@ -20,16 +20,44 @@ void Display::showMessage (const char* message, DisplayColor color, uint8_t posi
   showText(message, getMessageAreaX(), getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, color);
 }
 
-void Display::showMessageAndTitle (const char* title, const char* text, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
-  showText(title, getMessageAreaX(), getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, titleColor);
+void Display::showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
+  // show a line above the message for separation
+  if (position != 0) {
+    int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2);
+    drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, White);
+  }
+
+  changeFont(FontTiny);
+  showText(received ? ">>" : "<<", getMessageAreaX(), getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall)*2, TextSmall, titleColor);
+
+  changeFont(FontBold);
+  showText(title, getMessageAreaX() + 15, getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, titleColor);
+
+  // add message timestamp
+  changeFont(FontTiny);
+  showText(readableTS, getMessageAreaX() + getMessageAreaWidth() - 65, getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), TextSmall, titleColor);
+
+  changeFont(FontNormal);
   showText(text, getMessageAreaX(), getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, messageColor);
+}
+
+void Display::showHasMessagesBefore () {
+  for (uint8_t pxWide = 0; pxWide < 4; pxWide++) {
+    showText("<", pxWide + getMessageAreaX() + getMessageAreaWidth() - 40, getMessageAreaY() + getMessageAreaHeight() - getTextUpperVerticalOffset(TextSmall), TextSmall, Cyan);
+  }
+}
+
+void Display::showHasMessagesAfter () {
+  for (uint8_t pxWide = 0; pxWide < 4; pxWide++) {
+    showText(">", pxWide + getMessageAreaX() + getMessageAreaWidth() - 20, getMessageAreaY() + getMessageAreaHeight() - getTextUpperVerticalOffset(TextSmall), TextSmall, Cyan);
+  }
 }
 
 uint8_t Display::getMessagePosition (int positionX, int positionY) {
   // look mainly at y position, as that's what identifies one position versus another
 
   // subtract message start
-  int shiftedY = positionY - getMessageAreaY();
+  int shiftedY = positionY - (getMessageAreaY() - getTextUpperVerticalOffset(TextSmall));
 
   if (shiftedY > 0) {
     // divide by message height to get the position
@@ -59,7 +87,7 @@ void Display::showAlert (const char* alertText, AlertType alertType) {
 }
 
 void Display::clearMessageArea () {
-  clearArea(getMessageAreaX(), getMessageAreaY() - getTextUpperVerticalOffset(TextSmall), getMessageAreaWidth(), getMessageAreaHeight() - getTextLowerVerticalOffset(TextSmall));
+  clearArea(getMessageAreaX(), getMessageAreaY() - getTextUpperVerticalOffset(TextSmall), getMessageAreaWidth(), getMessageAreaHeight() + 1);
 }
 
 void Display::showInterpolatedThermal (const uint8_t* image, bool isAlt, String subtitle) {

@@ -11,6 +11,7 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         virtual int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer) = 0;
         virtual int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue) = 0;
         void setDefaultKeyboard (Keyboard* _defaultKeyboard) { defaultKeyboard = _defaultKeyboard; }
+        virtual bool isKeyboardShowing () {return defaultKeyboard->isShowing();}
 
     protected:
         virtual int getModalTitleX () = 0;

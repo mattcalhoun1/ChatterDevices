@@ -20,7 +20,8 @@ enum CommunicatorEventType {
     UserRequestSecureBroadcast = 10,
     UserRequestOpenBroadcast = 11,
     MenuClosed = 12,
-    UserDeleteAllMessages = 13
+    UserDeleteAllMessages = 13,
+    UserRequestReply = 14
 };
 
 struct CommunicatorEvent {
