@@ -41,31 +41,32 @@ void Menu::populateIteratorMenu () {
 void Menu::mainMenu(bool fullRepaint) {
   resetMenu(fullRepaint); // clear any previous menu
   oledMenu.menuId = MENU_ID_MAIN;
-  oledMenu.noOfmenuItems = 8;
+  oledMenu.noOfmenuItems = 7;
   oledMenu.menuTitle = "Main Menu";
   oledMenu.menuItems[MENU_MAIN_DIRECT_MESSAGE] = "Direct Message";
   oledMenu.menuItems[MENU_MAIN_SECURE_BROADCAST] = "Secure Broadcast";
-  //oledMenu.menuItems[MENU_MAIN_OPEN_BROADCAST] = "Open Broadcast";
   oledMenu.menuItems[MENU_MAIN_ANNOUNCE_PRESENCE] = "Announce Presence";
   oledMenu.menuItems[MENU_CHOOSE_CLUSTER] = "Choose Cluster";
   oledMenu.menuItems[MENU_MAIN_ONBOARDING] = "Onboarding";
   oledMenu.menuItems[MENU_MAIN_CLEAR_MESSAGES] = "Clear Messages";
   oledMenu.menuItems[MENU_MAIN_ADMIN] = "Admin";
-  oledMenu.menuItems[MENU_MAIN_CANCEL] = "Cancel";
 }
 
 void Menu::adminMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_ADMIN;
-  oledMenu.noOfmenuItems = 6;
+  oledMenu.noOfmenuItems = 7;
   oledMenu.menuTitle = "Admin";
 
   oledMenu.menuItems[MENU_ADMIN_PING_LORA_BRIDGE] = "Ping Lora Bridge";
   oledMenu.menuItems[MENU_ADMIN_CREATE_CLUSTER] = "Create Cluster";
   oledMenu.menuItems[MENU_ADMIN_DELETE_CLUSTER] = "Delete Cluster";
   oledMenu.menuItems[MENU_ADMIN_SET_TIME] = "Set Time";
+
+  oledMenu.menuItems[MENU_ADMIN_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
+  oledMenu.menuItems[MENU_ADMIN_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
+
   oledMenu.menuItems[MENU_ADMIN_FACTORY_RESET] = "Factory Reset";
-  oledMenu.menuItems[MENU_ADMIN_CANCEL] = "Cancel";
 }
 
 void Menu::onboardingMenu() {
@@ -87,6 +88,26 @@ void Menu::onboardingMenu() {
 void Menu::adminActions() {
   if (oledMenu.menuId == MENU_ID_ADMIN) {  
     switch (oledMenu.selectedMenuItem) {
+      // preference toggles
+      case MENU_ADMIN_KEYBOARD_ORIENTATION:
+        if (prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape)) {
+          prefHandler->disablePreference(PreferenceKeyboardLandscape);
+        }
+        else {
+          prefHandler->enablePreference(PreferenceKeyboardLandscape);
+        }
+        resetMenu();
+        break;
+      case MENU_ADMIN_MESSAGE_HISTORY:
+        // a change to message history will trigger a reboot
+        if (prefHandler->isPreferenceEnabled(PreferenceMessageHistory)) {
+          prefHandler->disablePreference(PreferenceMessageHistory);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceMessageHistory);
+        }
+        resetMenu();
+        break;
       case MENU_ADMIN_PING_LORA_BRIDGE:
         resetMenu();
         handler->queueEvent(PingLoraBridge);
@@ -105,10 +126,6 @@ void Menu::adminActions() {
         resetMenu();
         Serial.println("Create cluster...");
         handler->handleEvent(UserRequestNewCluster);
-        break;
-      case MENU_ADMIN_CANCEL:
-        mode = MenuOff;
-        resetMenu();
         break;
       case MENU_ADMIN_SET_TIME:
         resetMenu();
@@ -255,9 +272,6 @@ void Menu::mainActions() {
         mode = MenuActive;
         needsRepainted = true;
         break;        
-      case MENU_MAIN_CANCEL:
-        mode = MenuOff;
-        resetMenu();
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
   }

@@ -46,6 +46,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         bool sendViaBridge ();
 
         bool handleScreenTouched (int touchX, int touchY);
+
+        uint8_t promptForPassword (char* passwordBuffer, uint8_t maxPasswordLength);
     protected:
         bool updateMessagePreviewsIfNecessary ();
         void showMessageHistory(bool resetOffset);

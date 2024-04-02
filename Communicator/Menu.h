@@ -2,6 +2,7 @@
 #include <RotaryEncoder.h>
 #include "CommunicatorEventHandler.h"
 #include "CommunicatorEvent.h"
+#include "CommunicatorPreferenceHandler.h"
 #include "Arduino.h"
 #include "ItemIterator.h"
 
@@ -12,20 +13,19 @@
 
 #define MENU_MAIN_DIRECT_MESSAGE 1
 #define MENU_MAIN_SECURE_BROADCAST 2
-//#define MENU_MAIN_OPEN_BROADCAST 3
 #define MENU_MAIN_ANNOUNCE_PRESENCE 3
 #define MENU_CHOOSE_CLUSTER 4
 #define MENU_MAIN_ONBOARDING 5
 #define MENU_MAIN_CLEAR_MESSAGES 6
 #define MENU_MAIN_ADMIN 7
-#define MENU_MAIN_CANCEL 8
 
 #define MENU_ADMIN_PING_LORA_BRIDGE 1
 #define MENU_ADMIN_CREATE_CLUSTER 2
 #define MENU_ADMIN_DELETE_CLUSTER 3
 #define MENU_ADMIN_SET_TIME 4
-#define MENU_ADMIN_FACTORY_RESET 5
-#define MENU_ADMIN_CANCEL 6
+#define MENU_ADMIN_KEYBOARD_ORIENTATION 5
+#define MENU_ADMIN_MESSAGE_HISTORY 6
+#define MENU_ADMIN_FACTORY_RESET 7
 
 #define MENU_ONBOARDING_JOIN_CLUSTER 1
 #define MENU_ONBOARDING_ONBOARD_DEVICE 2
@@ -65,7 +65,7 @@ struct OledMenu {
 
 class Menu {
     public:
-        Menu(MenuEnabledDisplay* _display, RotaryEncoder* _rotary, CommunicatorEventHandler* _handler, bool _onboardAllowed) { display = _display; rotary = _rotary; handler = _handler; onboardAllowed = _onboardAllowed; }
+        Menu(MenuEnabledDisplay* _display, RotaryEncoder* _rotary, CommunicatorEventHandler* _handler, bool _onboardAllowed, CommunicatorPreferenceHandler* _prefHandler) { display = _display; rotary = _rotary; handler = _handler; onboardAllowed = _onboardAllowed; prefHandler = _prefHandler;}
 
         bool init ();
 
@@ -130,6 +130,7 @@ class Menu {
         bool needsRepainted = false; // during interaction, dont repaint unless something changes
 
         CommunicatorEventHandler* handler;
+        CommunicatorPreferenceHandler* prefHandler;
         CommunicatorEvent eventBuffer;  
 
         void setDatePartOptionsFor(uint8_t datePartId);

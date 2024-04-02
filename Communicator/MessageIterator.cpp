@@ -50,7 +50,7 @@ bool MessageIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
 
     // if it was a sent broadcast, the recipient is everyone (*)
     if (thisDeviceSent && sendMethodBuffer == SentViaBroadcast) {
-        aliasBuffer[0] = '*';
+        sprintf(aliasBuffer, "%s", "* all *");
     }
     else {
         // load the alias of the other device

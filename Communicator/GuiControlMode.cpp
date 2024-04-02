@@ -8,12 +8,15 @@ bool GuiControlMode::init() {
     bool parentInitialized = HeadsUpControlMode::init();
 
     // setup the menu
-    menu = new Menu((MenuEnabledDisplay*)display, rotary, this, chatter->isRootDevice(chatter->getDeviceId()));
+    menu = new Menu((MenuEnabledDisplay*)display, rotary, this, chatter->isRootDevice(chatter->getDeviceId()), this);
     menu->init();
 
     // add self as a touch listener
     if (display->isTouchEnabled()) {
       ((TouchEnabledDisplay*)display)->addTouchListener(this);
+
+      // set keyboard orientation
+      ((TouchEnabledDisplay*)display)->setKeyboardOrientation(chatter->getDeviceStore()->getKeyboardOrientedLandscape() ? Landscape : Portrait);
     }
 
     if (parentInitialized) {
@@ -42,6 +45,7 @@ void GuiControlMode::loop () {
 
   // if the user is interacting, skip the main loop
   if (!menu->isActive()) {
+    //display->showProgress(((float)(millis() % 100)) / 100.0);
     if (fullRepaint) {
       fullRepaint = false;
       display->clearAll();
@@ -511,6 +515,23 @@ bool GuiControlMode::onboardNewClient (unsigned long timeout) {
   fullRepaint = true;
 
   return false;
+}
+
+uint8_t GuiControlMode::promptForPassword (char* passwordBuffer, uint8_t maxPasswordLength) {
+  if (!fullyInteractive) {
+    // non-interactive password entry not currently supported.
+    // loop infinitely for now
+    logConsole("Error: need password, but not interactive!");
+    while(true) {
+      delay(1000);
+    }
+  }
+
+  uint8_t pwLength = 0;
+  while (pwLength == 0) {
+    pwLength = ((FullyInteractiveDisplay*)display)->getModalInput("Password", maxPasswordLength, CharacterFilterNone, passwordBuffer);
+  }
+  return pwLength;
 }
 
 void GuiControlMode::sleepOrBackground(unsigned long sleepTime) {

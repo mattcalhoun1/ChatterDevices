@@ -123,3 +123,62 @@ void HeadsUpControlMode::showClusterOnboard () {
 void HeadsUpControlMode::loop () {
     CommunicatorControlMode::loop();
 }
+
+bool HeadsUpControlMode::isPreferenceEnabled (CommunicatorPreference pref) {
+  switch (pref) {
+    case PreferenceMessageHistory:
+      return chatter->getDeviceStore()->getMessageHistoryEnabled();
+    case PreferenceKeyboardLandscape:
+      return chatter->getDeviceStore()->getKeyboardOrientedLandscape();
+  }
+
+  logConsole("Unknown preference read attempt");
+  return false;
+}
+
+void HeadsUpControlMode::enablePreference (CommunicatorPreference pref) {
+  switch (pref) {
+    case PreferenceMessageHistory:
+      chatter->getDeviceStore()->setMessageHistoryEnabled(true);
+      logConsole("Message history enabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceKeyboardLandscape:
+      chatter->getDeviceStore()->setKeyboardOrientedLandscape(true);
+      if (display->isTouchEnabled()) {
+        // set keyboard orientation
+        ((TouchEnabledDisplay*)display)->setKeyboardOrientation(Landscape);
+      }
+
+      logConsole("Keyboard landscape enabled");
+      break;
+    default:
+      logConsole("Unknown preference enable attempt");
+  }
+}
+
+void HeadsUpControlMode::disablePreference (CommunicatorPreference pref) {
+  switch (pref) {
+    case PreferenceMessageHistory:
+      chatter->getDeviceStore()->setMessageHistoryEnabled(false);
+      logConsole("Message history disabled");
+
+      // reset device
+      restartDevice();
+      break;
+    case PreferenceKeyboardLandscape:
+      chatter->getDeviceStore()->setKeyboardOrientedLandscape(false);
+      if (display->isTouchEnabled()) {
+        // set keyboard orientation
+        ((TouchEnabledDisplay*)display)->setKeyboardOrientation(Portrait);
+      }
+
+      logConsole("Keyboard landscape disabled");
+      break;
+    default:
+      logConsole("Unknown preference disable attempt");
+  }
+}

@@ -4,11 +4,12 @@
 #include "Display_TFT.h"
 #include "Menu.h"
 #include "Keyboard.h"
+#include "CommunicatorPreferenceHandler.h"
 
 #ifndef HEADSUPCONTROLMODE_H
 #define HEADSUPCONTROLMODE_H
 
-class HeadsUpControlMode : public CommunicatorControlMode {
+class HeadsUpControlMode : public CommunicatorControlMode, public CommunicatorPreferenceHandler {
     public:
         HeadsUpControlMode (DeviceType _deviceType, bool _admin) : CommunicatorControlMode (_deviceType, _admin) {}
         bool init ();
@@ -29,6 +30,10 @@ class HeadsUpControlMode : public CommunicatorControlMode {
         void loop ();
 
         bool isFullyInteractive () { return fullyInteractive; }
+
+        bool isPreferenceEnabled (CommunicatorPreference pref);
+        void enablePreference (CommunicatorPreference pref);
+        void disablePreference (CommunicatorPreference pref);                
     protected:
         bool fullyInteractive = false;
         ThermalEncoder* encoder;
