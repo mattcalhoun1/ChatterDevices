@@ -119,6 +119,12 @@ void Display::showInterpolatedThermal (const float* image, bool isAlt, String su
 void Display::showTitle (const char* text) {
   clearArea(getTitleAreaX(), getTitleAreaY() - getTextUpperVerticalOffset(getTitleTextSize()), getTitleAreaWidth(), getTitleAreaHeight() - getTextLowerVerticalOffset(getTitleTextSize()));
   showText(text, getTitleAreaX(), getTitleAreaY(), getTitleTextSize(), getTitleColor());
+
+  // frame the title area
+  drawLine(1,1, getScreenWidth() - 2, 1, White);
+  drawLine(1, getTitleAreaHeight() + getSubtitleAreaHeight(), getScreenWidth() - 2, getTitleAreaHeight() + getSubtitleAreaHeight(), White);
+  drawLine(1,1, 1, getTitleAreaHeight() + getSubtitleAreaHeight(), White);
+  drawLine(getScreenWidth() - 2,1, getScreenWidth() - 2, getTitleAreaHeight() + getSubtitleAreaHeight(), White);
 }
 
 void Display::showSubtitle (const char* text) {

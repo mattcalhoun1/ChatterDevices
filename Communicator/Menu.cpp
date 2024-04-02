@@ -243,7 +243,7 @@ void Menu::mainActions() {
 
     switch (oledMenu.selectedMenuItem) {
       case MENU_MAIN_DIRECT_MESSAGE:
-        resetMenu();
+        resetMenu(true);
         handler->handleEvent(UserRequestDirectMessage);
         break;
       case MENU_MAIN_SECURE_BROADCAST:
