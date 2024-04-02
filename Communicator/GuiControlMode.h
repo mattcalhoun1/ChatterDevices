@@ -48,6 +48,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         bool handleScreenTouched (int touchX, int touchY);
 
         uint8_t promptForPassword (char* passwordBuffer, uint8_t maxPasswordLength);
+        void promptFactoryReset();
     protected:
         bool updateMessagePreviewsIfNecessary ();
         void showMessageHistory(bool resetOffset);
@@ -70,6 +71,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         // for onboarding input
         char newDeviceAlias[CHATTER_ALIAS_NAME_SIZE+1];
         char newClusterAlias[CHATTER_ALIAS_NAME_SIZE+1];
+        char newDevicePassword[CHATTER_PASSWORD_MAX_LENGTH + 1];
         char newFreq[7];
 
         ItemIterator* deviceIterator;

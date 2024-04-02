@@ -56,9 +56,7 @@ bool ControlMode::init() {
   // if we get down here, something didn't initialize properly
   logConsole("Error: init did not complete");
   showStatus("ERROR!");
-  while(true) {
-    delay(500);
-  }
+  return false;
 }
 
 void ControlMode::updateChatDashboard () {

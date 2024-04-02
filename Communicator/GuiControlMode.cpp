@@ -32,6 +32,18 @@ bool GuiControlMode::init() {
 
       showMessageHistory(true);
     }
+    else {
+      // force landscape for easier user input
+      if (fullyInteractive) {
+        ((FullyInteractiveDisplay*)display)->setKeyboardOrientation(Landscape);
+      }
+
+      display->showAlert("Startup Error!", AlertError);
+      delay(5000);
+
+      // prompt factory reset
+      handleEvent(UserRequestFactoryReset);
+    }
 
     return parentInitialized;
 }
@@ -232,7 +244,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       return result;
     case UserDeleteAllMessages:
       if (isFullyInteractive()) {
-        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Delete All (y/n)", 10, CharacterFilterAlpha, (char*)messageBuffer);
+        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Delete All?", 1, CharacterFilterYesNo, (char*)messageBuffer);
         if (newMessageLength > 0 && (messageBuffer[0] == 'y' || messageBuffer[0] == 'Y')) {
           chatter->getMessageStore()->clearAllMessages();
           fullRepaint = true;
@@ -246,7 +258,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
 
     case UserRequestFactoryReset:
       if (isFullyInteractive()) {
-        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Confirm (y/n)", 10, CharacterFilterAlpha, (char*)messageBuffer);
+        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Factory Reset?", 1, CharacterFilterYesNo, (char*)messageBuffer);
         if (newMessageLength > 0 && (messageBuffer[0] == 'y' || messageBuffer[0] == 'Y')) {
           logConsole("Factory reset confirmed");
           fullRepaint = true;
@@ -443,12 +455,35 @@ void GuiControlMode::handleRotary () {
 }
 
 bool GuiControlMode::initializeNewDevice () {
+  // default to landscape keyboard
+  if (fullyInteractive) {
+    ((FullyInteractiveDisplay*)display)->setKeyboardOrientation(Landscape);
+  }
+
+  // does the user want to password protect
+  int passwordLength = 0;
+  memset(newDevicePassword, 0, CHATTER_PASSWORD_MAX_LENGTH + 1);
+  while (passwordLength == 0) {
+    passwordLength = ((FullyInteractiveDisplay*)display)->getModalInput("Set Password?", 1, CharacterFilterYesNo, newDevicePassword);
+  }
+  if (newDevicePassword[0] == 'y') {
+    passwordLength = 0;
+    while (passwordLength == 0) {
+      passwordLength = ((FullyInteractiveDisplay*)display)->getModalInput("Password", CHATTER_PASSWORD_MAX_LENGTH, CharacterFilterNone, newDevicePassword);
+    }
+    Serial.println("User chose password protection.");
+  }
+  else {
+    Serial.println("User chose NO password protection.");
+    passwordLength = 0;
+  }
+
   int deviceAliasLength = 0;
   memset(newDeviceAlias, 0, CHATTER_ALIAS_NAME_SIZE+1);
 
   // prompt for device name
   while (deviceAliasLength == 0) {
-    deviceAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Alias", 12, CharacterFilterAlphaNumeric, newDeviceAlias);
+    deviceAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Unique Name", 12, CharacterFilterAlphaNumeric, newDeviceAlias);
   }
   newDeviceAlias[deviceAliasLength] = 0;//term it, if the user backspaced some
   Serial.print("New Device name: "); Serial.println(newDeviceAlias);
@@ -483,7 +518,7 @@ bool GuiControlMode::initializeNewDevice () {
   Serial.print("New Device name (later): "); Serial.println(newDeviceAlias);
 
   display->showAlert("Initializing", AlertWarning);
-  return admin->genesis(newDeviceAlias, newClusterAlias, newFrequency);
+  return admin->genesis(newDeviceAlias, newDevicePassword, passwordLength, newClusterAlias, newFrequency);
 }
 
 bool GuiControlMode::onboardNewClient (unsigned long timeout) {
@@ -532,6 +567,10 @@ uint8_t GuiControlMode::promptForPassword (char* passwordBuffer, uint8_t maxPass
     pwLength = ((FullyInteractiveDisplay*)display)->getModalInput("Password", maxPasswordLength, CharacterFilterNone, passwordBuffer);
   }
   return pwLength;
+}
+
+void GuiControlMode::promptFactoryReset () {
+  handleEvent(UserRequestFactoryReset);
 }
 
 void GuiControlMode::sleepOrBackground(unsigned long sleepTime) {

@@ -160,7 +160,7 @@ bool Keyboard::handleScreenTouched (int touchX, int touchY) {
       bufferEdited = true;
       inputBufferLength = 0;
     }
-    else if (getUserInputLength() < currMaxLength && !isFiltered(typedKey)) {
+    else if ((getUserInputLength() < currMaxLength || isControlKey(typedKey)) && !isFiltered(typedKey)) {
       // if previous key was a space, display should be repainted
       if (inputBufferLength > 0 && inputBuffer[inputBufferLength-1] == ' ') {
         bufferEdited = true;
@@ -263,15 +263,24 @@ int8_t Keyboard::getHorizontalPadding(char symbol) {
 }
 
 bool Keyboard::isFiltered (char symbol) {
+  // if its 'none' filter, nohting will be filtered
   if (filter == CharacterFilterNone) {
     return false;
   }
 
-  // send/cancel are never filtered
-  if (symbol == KEY_CANCEL || symbol == KEY_SEND) {
+  // control keys are never filtered
+  if (isControlKey(symbol)) {
     return false;
   }
-  
+
+  // for y/n filter, has to be y or n
+  if (filter == CharacterFilterYesNo) {
+    if (symbol == 'y' || symbol == 'n') {
+      return false;
+    }
+    return true;
+  }
+ 
   if (symbol >= '0' && symbol <= '9') {
     return filter == CharacterFilterAlpha;
   }
@@ -287,4 +296,8 @@ bool Keyboard::isFiltered (char symbol) {
 
   // all the punctuation chars are only allowed if in none
   return true;
+}
+
+bool Keyboard::isControlKey (char symbol) {
+  return symbol == KEY_CANCEL || symbol == KEY_SEND || symbol == KEY_BACKSPACE || symbol == KEY_CLEAR;
 }

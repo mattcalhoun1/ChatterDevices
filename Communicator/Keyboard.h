@@ -18,7 +18,8 @@ enum CharacterFilter {
   CharacterFilterNumeric = 0,
   CharacterFilterAlpha = 1,
   CharacterFilterAlphaNumeric = 2,
-  CharacterFilterNone = 3
+  CharacterFilterNone = 3,
+  CharacterFilterYesNo = 4
 };
 
 class Keyboard : public TouchListener {
@@ -63,6 +64,7 @@ class Keyboard : public TouchListener {
 
     char getLetterAt (int touchX, int touchY);
     bool isFiltered (char symbol);
+    bool isControlKey (char symbol);
     
     int8_t getVerticalPadding(char symbol);
     int8_t getHorizontalPadding(char symbol);

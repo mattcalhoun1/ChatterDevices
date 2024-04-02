@@ -106,6 +106,7 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
 }
 
 int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue, Keyboard* keyboard) {
+  clearAll();
 
   // rotate the screen if configured
   if (keyboardOrientation != Portrait) {
@@ -156,9 +157,11 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
   int finalInputLength = keyboard->getUserInputLength();
   if (keyboard->userCompletedInput() && finalInputLength > 0) {
     memcpy(buffer, keyboard->getUserInput(), finalInputLength);
+    clearAll();
     return finalInputLength;
   }
 
+  clearAll();
   return 0;
 }
 
