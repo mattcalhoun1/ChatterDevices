@@ -36,9 +36,17 @@
 
 #define COMMUNICATOR_MESSAGE_BUFFER_SIZE 128
 
+// Button Pins (need interrupts)
+// Nano
+#if defined (ARDUINO_SAMD_NANO_33_IOT)
 #define BUTTON_A_PIN 2  // d2 on nano iot33
 #define PIN_ROTARY_IN1 A1
 #define PIN_ROTARY_IN2 A7
+#elif defined (ARDUINO_SAMD_MKRWAN1310)
+#define BUTTON_A_PIN 5  // d5 on mkr wan 1310
+#define PIN_ROTARY_IN1 A1
+#define PIN_ROTARY_IN2 A2
+#endif
 
 #define GUI_MESSAGE_BUFFER_SIZE 1025
 #define GUI_MAX_MESSAGE_LENGTH 1024
@@ -72,11 +80,16 @@
 #define LORA_RFM9X_CS 4
 #define LORA_RFM9X_INT 3
 #define LORA_RFM9X_RST 5
+#elif defined (ARDUINO_SAMD_MKRWAN1310)
+// https://github.com/sandeepmistry/arduino-LoRa/blob/master/src/LoRa.h
+#define LORA_RFM9X_CS LORA_IRQ_DUMB
+#define LORA_RFM9X_INT LORA_IRQ
+#define LORA_RFM9X_RST -1
 #endif
 
 
-//#define LORA_RFM9X_FREQ 915.0
-
+/** Display pins */
+// wifi spi settings (if used)
 // Configure the pins used for the ESP32 connection
 //#define SPIWIFI     SPI
 #define SPIWIFI_SS    5  // Chip select pin : A5/D20
@@ -84,6 +97,24 @@
 #define ESP32_RESETN  4   // Reset pin : A1 / D16
 #define ESP32_GPIO0   -1  // Not connected
 
+#if defined (ARDUINO_SAMD_NANO_33_IOT)
+#define Display_TFT_RS 9
+#define Display_TFT_DC 10
+#define Display_TFT_CS 8
+#elif defined (ARDUINO_SAMD_MKRWAN1310)
+#define Display_TFT_RS 3
+#define Display_TFT_DC 1
+#define Display_TFT_CS 2
+#endif
+
+// 7789 pins: sckl (SCL); mosi (SDA); cs(CS); rst (RES); dc (DC)
+#define Display_7789_SCLK 8
+#define Display_7789_MOSI 9
+#define Display_7789_CS   6 // nano
+#define Display_7789_RST  7
+#define Display_7789_DC   10
+
+/** end Display pins */
 
 #define THERMAL_INTERPOLATE_BUFFER_SIZE 768
 #define THERMAL_INTERPOLATE_LEVEL 2 // Each interpolation level (max 2) doubles image size, requiring larger interpolation buffer
@@ -95,18 +126,6 @@
 
 #define THERMAL_INTERPOLATED_WIDTH 64
 #define THERMAL_INTERPOLATED_HEIGHT 48
-
-// TFT = 240x320
-#define Display_TFT_RS 9
-#define Display_TFT_DC 10
-#define Display_TFT_CS 8
-
-// 7789 pins: sckl (SCL); mosi (SDA); cs(CS); rst (RES); dc (DC)
-#define Display_7789_SCLK 8
-#define Display_7789_MOSI 9
-#define Display_7789_CS   6 // nano
-#define Display_7789_RST  7
-#define Display_7789_DC   10
 
 #define DISPLAY_7789_WIDTH 170
 #define DISPLAY_7789_HEIGHT 320

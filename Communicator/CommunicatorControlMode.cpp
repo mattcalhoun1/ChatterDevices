@@ -290,6 +290,7 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
 
       break;
     case UserRequestBleJoinCluster:
+      #if defined(ARDUINO_SAMD_NANO_33_IOT)
       if (assistantEnabled) {
         assistant = new BleClusterAssistant(chatter);
         if(assistant->init()) {
@@ -299,6 +300,9 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
           logConsole("Assistant failed to init");
         }
       }
+      #else
+        logConsole("No Onboard implementation on this device");
+      #endif
       break;
     case UserRequestSelfAnnounce:
       // announce self
@@ -335,6 +339,7 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
 
 bool CommunicatorControlMode::handleConnectedDevice () {
   if (cluster == nullptr) {
+    #if defined(ARDUINO_SAMD_NANO_33_IOT)
     cluster = new BleClusterAdminInterface(chatter);
     if (cluster->init()) {
       logConsole("BLE Cluster Admin Interface Initialized");
@@ -343,6 +348,9 @@ bool CommunicatorControlMode::handleConnectedDevice () {
       logConsole("BLE Cluster Admin Interface failed to initialize");
       return false;
     }
+    #else
+      logConsole("Onboarding not supported on this device");
+    #endif
 
   }
   else if (cluster->isConnected()) {

@@ -6,7 +6,8 @@ bool ControlMode::init() {
   rtc = new R4RtClock();
 #elif defined(ARDUINO_SAM_DUE)
   rtc = new DueRtClock();
-#elif defined(ARDUINO_SAMD_MKRZERO) || defined (ARDUINO_SAMD_NANO_33_IOT)
+#elif defined(ARDUINO_SAMD_MKRZERO) || defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_MKRWAN1310)
+  logConsole("ZeroRtClock selected");
   rtc = new ZeroRtClock();
 #endif
 
@@ -46,6 +47,11 @@ bool ControlMode::init() {
         assistantEnabled = true;
         return true;
       }
+#else
+  logConsole("No onboarding capabilities are on this device!");
+  adminEnabled = false;
+  return true;
+
 #endif
     }
     else {
