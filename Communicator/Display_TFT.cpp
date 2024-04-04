@@ -4,7 +4,9 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
   encoder = _encoder;
 
   display.begin();
-  touch.begin(); 
+
+  touch = new TouchControlAdafruit();
+  touch->init(); 
 
   display.setFont(&FreeSans9pt7b);
 
@@ -68,25 +70,10 @@ void Display_TFT::showSymbol (int gfxChar, int x, int y, DisplayColor color) {
 
 bool Display_TFT::handleIfTouched () {
   bool success = true;
+  int transposedX;
+  int transposedY;
 
-  if (touch.touched()) {
-      TS_Point p = touch.getPoint();
-      // ignore edges
-      if (p.y <= 0 || p.y >= DISPLAY_TFT_HEIGHT || p.x <= 0 || p.x >= DISPLAY_TFT_WIDTH) {
-        return false;
-      }
-
-      int transposedX = DISPLAY_TFT_WIDTH - p.x;
-      int transposedY = DISPLAY_TFT_HEIGHT - p.y;
-
-      // x/y will be different depending on how screen is rotated
-      if (defaultKeyboard->isShowing()) {
-        if (keyboardOrientation == Landscape) {
-          transposedX = DISPLAY_TFT_HEIGHT - p.y;
-          transposedY = p.x;
-        }
-      }
-
+  if (touch->wasTouched(transposedX, transposedY, defaultKeyboard->isShowing(), keyboardOrientation)) {
       // notify all listeners
       for (uint8_t l = 0; l < numListeners; l++) {
         success = listeners[l]->handleScreenTouched(transposedX, transposedY) && success;

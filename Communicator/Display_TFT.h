@@ -7,7 +7,9 @@
 
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ILI9341.h> // Hardware-specific library
-#include <Adafruit_FT6206.h> // capacative touch
+//#include <Adafruit_FT6206.h> // capacative touch
+#include "TouchControl.h"
+#include "TouchControlAdafruit.h"
 #include <Fonts/FreeSans9pt7b.h> // default font
 #include <Fonts/FreeSansOblique9pt7b.h> // italic sort of
 #include <Fonts/FreeSansBold9pt7b.h> // italic sort of
@@ -125,7 +127,8 @@ class Display_TFT : public FullyInteractiveDisplay {
     int calculateModalTitleX (const char* titleText);
 
     Adafruit_ILI9341 display = Adafruit_ILI9341(Display_TFT_CS, Display_TFT_DC, Display_TFT_RS);
-    Adafruit_FT6206 touch = Adafruit_FT6206();  
+    //Adafruit_FT6206 touch = Adafruit_FT6206();  
+    TouchControl* touch;
 
     uint16_t getTFTColor(DisplayColor color);
     DisplayColor getTemperatureColor(uint8_t temperature);

@@ -31,7 +31,7 @@
 #define COMMUNICATOR_MESSAGE_BUFFER_SIZE 128
 
 
-#if defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_ZERO)
+#if defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_SAMD_MKRZERO)
     #define ROTARY_ENABLED
 #endif
 
@@ -41,7 +41,7 @@
 #define BUTTON_A_PIN 2  // d2 on nano iot33
 #define PIN_ROTARY_IN1 A1
 #define PIN_ROTARY_IN2 A7
-#elif defined (ARDUINO_SAMD_MKRWAN1310)
+#elif defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_MKRZERO)
 #define BUTTON_A_PIN 5  // d5 on mkr wan 1310
 #define PIN_ROTARY_IN1 A1
 #define PIN_ROTARY_IN2 A2
@@ -96,6 +96,11 @@
 #define LORA_RFM9X_CS 8
 #define LORA_RFM9X_INT 3
 #define LORA_RFM9X_RST 4
+//mkrzero
+#elif defined (ARDUINO_SAMD_MKRZERO)
+#define LORA_RFM9X_CS 20
+#define LORA_RFM9X_INT 4
+#define LORA_RFM9X_RST 21
 #endif
 
 
@@ -112,7 +117,7 @@
 #define Display_TFT_RS 9
 #define Display_TFT_DC 10
 #define Display_TFT_CS 8
-#elif defined (ARDUINO_SAMD_MKRWAN1310)
+#elif defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_MKRZERO)
 #define Display_TFT_RS 3
 #define Display_TFT_DC 1
 #define Display_TFT_CS 2
