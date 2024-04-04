@@ -2,7 +2,10 @@
 
 bool GuiControlMode::init() {
     logConsole("GuiControlMode Initializing");
-    rotary = new RotaryEncoder(PIN_ROTARY_IN1, PIN_ROTARY_IN2, RotaryEncoder::LatchMode::TWO03);
+    #ifdef ROTARY_ENABLED
+      logConsole("Rotary control is enabled");
+      rotary = new RotaryEncoder(PIN_ROTARY_IN1, PIN_ROTARY_IN2, RotaryEncoder::LatchMode::TWO03);
+    #endif
 
     // make sure parent is initialized
     bool parentInitialized = HeadsUpControlMode::init();

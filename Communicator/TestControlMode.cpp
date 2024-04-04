@@ -3,6 +3,7 @@
 bool TestControlMode::init () {
     GuiControlMode::init();
     logConsole("Test Mode");
+    return true;
 }
 
 void TestControlMode::loop () {

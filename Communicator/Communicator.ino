@@ -1,3 +1,4 @@
+#include "Globals.h" // load first, to make sure settings propegate into chatter library
 #include <Arduino.h>
 #include <stdint.h>
 #include "ControlMode.h"
@@ -23,12 +24,14 @@ void setup() {
   delay(100);
 
   // the bridge type test pins
-  pinMode(CLUSTER_ADMIN_PIN, INPUT_PULLUP);
-  pinMode(DEVICE_TYPE_PIN_MINI, INPUT_PULLUP);
-  pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
+  //pinMode(CLUSTER_ADMIN_PIN, INPUT_PULLUP);
+  //pinMode(DEVICE_TYPE_PIN_MINI, INPUT_PULLUP);
+  //pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
 
-  pinMode(BUTTON_A_PIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(BUTTON_A_PIN), buttonAPressed, LOW);
+  #ifdef ROTARY_ENABLED
+    pinMode(BUTTON_A_PIN, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(BUTTON_A_PIN), buttonAPressed, LOW);
+  #endif
 
   //Wire.setClock(400000L); // enc chip wants 400khz
   Wire.begin();
@@ -43,28 +46,30 @@ void setup() {
   }
 
   // register interrupt routine
-  attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN1), handleRotary, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN2), handleRotary, CHANGE);
+  #ifdef ROTARY_ENABLED
+    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN1), handleRotary, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN2), handleRotary, CHANGE);
+  #endif
 
 }
 
 DeviceType selectDeviceType () {
-  if (!digitalRead(DEVICE_TYPE_PIN_MINI)) {
+  /*if (!digitalRead(DEVICE_TYPE_PIN_MINI)) {
     logConsole("Device Type: Communicator Mini");
     return DeviceTypeCommunicatorMini;
   }
-  
+  */
   logConsole("Device Type: Communicator");
   return DeviceTypeCommunicator;
 }
 
 bool isAdmin () {
-  if (!digitalRead(CLUSTER_ADMIN_PIN)) {
+  /*if (!digitalRead(CLUSTER_ADMIN_PIN)) {
     logConsole("This is an admin device");
     return true;
   }
 
-  logConsole("This is a non-admin device");
+  logConsole("This is a non-admin device");*/
   return false;
 }
 

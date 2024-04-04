@@ -64,7 +64,7 @@ void CommunicatorControlMode::loop () {
   }
 
   if (loopCount % 10 == 0) {
-    //Serial.print("Free Memory: "); Serial.println(freeMemory());
+    Serial.print("Free Memory: "); Serial.println(freeMemory());
     showTime();
   }
   else if (sendText) {
@@ -204,6 +204,7 @@ bool CommunicatorControlMode::sendPacketBatchAir () {
     }
 
   }
+  return true;
 }
 
 bool CommunicatorControlMode::sendPacketBatchBridge () {
@@ -228,6 +229,7 @@ bool CommunicatorControlMode::sendPacketBatchBridge () {
       queuedBridgeTraffic = false;
     }
   }
+  return true;
 }
 
 bool CommunicatorControlMode::handleEvent (CommunicatorEvent* event) {

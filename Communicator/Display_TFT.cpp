@@ -136,12 +136,13 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
     }
 
     if (keyboard->getUserInputLength() > 0) {
-      if (keyboard->getUserInputLength() > 0 && keyboard->getUserInput()[keyboard->getUserInputLength()-1] == ' ') {
-        showText(String(keyboard->getUserInput(), keyboard->getUserInputLength()-1) + "_", getModalInputX(), getModalInputY(), TextSmall, Green);
-      }
-      else {
-        showText(String(keyboard->getUserInput(), keyboard->getUserInputLength()), getModalInputX(), getModalInputY(), TextSmall, Green);
-      }
+      //if (keyboard->getUserInputLength() > 0 && keyboard->getUserInput()[keyboard->getUserInputLength()-1] == ' ') {
+      //  showText(String(keyboard->getUserInput(), keyboard->getUserInputLength()-1) + "_", getModalInputX(), getModalInputY(), TextSmall, Green);
+      //}
+      //else {
+        // set the null indicator
+        showText(keyboard->getUserInput(), getModalInputX(), getModalInputY(), TextSmall, Green);
+      //}
     }
   }
   keyboard->hideKeyboard();

@@ -27,6 +27,8 @@ bool Keyboard::init () {
     keyCenterXFactor = 0.4;
     keyCenterYFactor = 0.2;
   }
+
+  return true;
 }
 
 void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength) {
@@ -36,6 +38,9 @@ void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength) {
 void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength, char* defaultValue) {
   filter = _filter;
   currMaxLength = maxLength;
+
+  // clear the buffer
+  memset(inputBuffer, 0, maxLength+1);
 
   // recalculate screen positions, based on orientation
   init();
@@ -153,6 +158,7 @@ bool Keyboard::handleScreenTouched (int touchX, int touchY) {
     if (typedKey == KEY_BACKSPACE) {
       bufferEdited = true;
       if (inputBufferLength > 0) {
+        inputBuffer[inputBufferLength - 1] = 0; // term
         inputBufferLength--;
       }
     }
@@ -164,6 +170,10 @@ bool Keyboard::handleScreenTouched (int touchX, int touchY) {
       // if previous key was a space, display should be repainted
       if (inputBufferLength > 0 && inputBuffer[inputBufferLength-1] == ' ') {
         bufferEdited = true;
+
+        // show cursor position
+        inputBuffer[inputBufferLength] = '_';
+
       }
       else {
         bufferEdited = false;
@@ -174,6 +184,8 @@ bool Keyboard::handleScreenTouched (int touchX, int touchY) {
     lastTouch = millis();
     return true;
   }
+
+  return false;
 }
 
 bool Keyboard::userTerminatedInput() {

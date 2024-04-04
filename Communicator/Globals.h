@@ -22,19 +22,18 @@
 // how long for ui ot wait for initial connect
 #define CLUSTER_ONBOARD_TIMEOUT 30000
 
-//#define BRIDGE_ID_PIN_LORA A0
-//#define BRIDGE_ID_PIN_WIFI A1
-
-// if using din switches where pin 1 is a0
-//#define FACTORY_RESET_PIN A0
-//
+// ------ deprecated -------
 #define FACTORY_RESET_PIN 2
-
 #define CLUSTER_ADMIN_PIN A2 // if turned on, this is the cluster owner
-//#define CLUSTER_SYNC_PIN A3
 #define DEVICE_TYPE_PIN_MINI A3
+// ----------------------------
 
 #define COMMUNICATOR_MESSAGE_BUFFER_SIZE 128
+
+
+#if defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_ZERO)
+    #define ROTARY_ENABLED
+#endif
 
 // Button Pins (need interrupts)
 // Nano
@@ -44,6 +43,10 @@
 #define PIN_ROTARY_IN2 A7
 #elif defined (ARDUINO_SAMD_MKRWAN1310)
 #define BUTTON_A_PIN 5  // d5 on mkr wan 1310
+#define PIN_ROTARY_IN1 A1
+#define PIN_ROTARY_IN2 A2
+#elif defined (ARDUINO_SAMD_ZERO)
+#define BUTTON_A_PIN A3  
 #define PIN_ROTARY_IN1 A1
 #define PIN_ROTARY_IN2 A2
 #endif
@@ -85,6 +88,14 @@
 #define LORA_RFM9X_CS LORA_IRQ_DUMB
 #define LORA_RFM9X_INT LORA_IRQ
 #define LORA_RFM9X_RST -1
+#elif defined (ARDUINO_SEEED_XIAO_M0)
+#define LORA_RFM9X_CS 0
+#define LORA_RFM9X_INT 1
+#define LORA_RFM9X_RST 2
+#elif defined (ARDUINO_SAMD_ZERO)
+#define LORA_RFM9X_CS 8
+#define LORA_RFM9X_INT 3
+#define LORA_RFM9X_RST 4
 #endif
 
 
@@ -105,6 +116,14 @@
 #define Display_TFT_RS 3
 #define Display_TFT_DC 1
 #define Display_TFT_CS 2
+#elif defined (ARDUINO_SEEED_XIAO_M0)
+#define Display_TFT_RS 0 // not used
+#define Display_TFT_DC 3
+#define Display_TFT_CS 6
+#elif defined (ARDUINO_SAMD_ZERO)
+#define Display_TFT_RS 5
+#define Display_TFT_DC 6
+#define Display_TFT_CS 9
 #endif
 
 // 7789 pins: sckl (SCL); mosi (SDA); cs(CS); rst (RES); dc (DC)

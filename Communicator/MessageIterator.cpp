@@ -6,6 +6,7 @@ bool MessageIterator::init (const char* _clusterId, const char* _thisDeviceId, b
 
     numMessages = messageStore->populateMessageIndices (_clusterId, messageSlots, _sortAsc);
     //Serial.print("Iterator loaded "); Serial.print(numMessages); Serial.print(" messages for cluster ");Serial.println(_clusterId);
+    return true;
 }
 
 uint8_t MessageIterator::getNumItems () {
