@@ -68,12 +68,19 @@ class Display_7789 : public MenuEnabledDisplay {
     int getSubtitleAreaHeight () { return DISPLAY_7789_SUBTITLE_HEIGHT; }
     int getSubtitleAreaWidth () { return DISPLAY_7789_SUBTITLE_WIDTH; }
 
+    int calculateSubtitleX (const char* titleText) {return getSubtitleAreaX();}
+    int calculateTitleX (const char* titleText) {return getTitleAreaX();}
+
     int getDashboardAreaY () { return DISPLAY_7789_DASHBOARD_Y; }
     int getDashboardAreaHeight() { return DISPLAY_7789_DASHBOARD_HEIGHT; }
 
     int getSpinnerX () { return DISPLAY_7789_SPINNER_X; }
     int getSpinnerY () { return DISPLAY_7789_SPINNER_Y; }
     int getSpinnerRadius () { return DISPLAY_7789_SPINNER_RADIUS; }
+
+    int getTickerX () { return DISPLAY_7789_TICKER_X; }
+    int getTickerY () { return DISPLAY_7789_TICKER_Y; }
+    int getTickerSize () { return DISPLAY_7789_TICKER_SIZE; }
 
     int getAlertAreaX() { return DISPLAY_7789_ALERT_X; }
     int getAlertAreaY() { return DISPLAY_7789_ALERT_Y; }

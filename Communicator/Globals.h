@@ -30,25 +30,35 @@
 
 #define COMMUNICATOR_MESSAGE_BUFFER_SIZE 128
 
-
-#if defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_SAMD_MKRZERO)
-    #define ROTARY_ENABLED
-#endif
-
 // Button Pins (need interrupts)
 // Nano
 #if defined (ARDUINO_SAMD_NANO_33_IOT)
-#define BUTTON_A_PIN 2  // d2 on nano iot33
-#define PIN_ROTARY_IN1 A1
-#define PIN_ROTARY_IN2 A7
+// nano does not have enough pins for both touch interrupt/rs and rotary
+//#define BUTTON_A_PIN 2  // d2 on nano iot33
+//#define PIN_ROTARY_IN1 A1
+//#define PIN_ROTARY_IN2 A7
+#define PIN_TOUCH_INT 2
+#define PIN_TOUCH_RS A1
+#define TOUCH_CONTROL_RAK // TOUCH_CONTROL_RAK, TOUCH_CONTROL_ADAFRUIT
+#define DISPLAY_TYPE_HOYSOND // DISPLAY_TYPE_ADAFRUIT / DISPLAY_TYPE_HOYSOND
 #elif defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_MKRZERO)
+#define ROTARY_ENABLED
 #define BUTTON_A_PIN 5  // d5 on mkr wan 1310
 #define PIN_ROTARY_IN1 A1
 #define PIN_ROTARY_IN2 A2
-#elif defined (ARDUINO_SAMD_ZERO)
+#define PIN_TOUCH_INT 0
+#define PIN_TOUCH_RS A4
+#define TOUCH_CONTROL_RAK // TOUCH_CONTROL_RAK, TOUCH_CONTROL_ADAFRUIT
+#define DISPLAY_TYPE_HOYSOND // DISPLAY_TYPE_ADAFRUIT / DISPLAY_TYPE_HOYSOND
+#elif defined (ARDUINO_SAMD_ZERO) // adafruit
+#define ROTARY_ENABLED
 #define BUTTON_A_PIN A3  
 #define PIN_ROTARY_IN1 A1
 #define PIN_ROTARY_IN2 A2
+#define PIN_TOUCH_INT 11
+#define PIN_TOUCH_RS 12
+#define TOUCH_CONTROL_RAK // TOUCH_CONTROL_RAK, TOUCH_CONTROL_ADAFRUIT
+#define DISPLAY_TYPE_HOYSOND // DISPLAY_TYPE_ADAFRUIT / DISPLAY_TYPE_HOYSOND
 #endif
 
 #define GUI_MESSAGE_BUFFER_SIZE 1025
@@ -102,7 +112,6 @@
 #define LORA_RFM9X_INT 4
 #define LORA_RFM9X_RST 21
 #endif
-
 
 /** Display pins */
 // wifi spi settings (if used)
@@ -220,6 +229,10 @@
 #define DISPLAY_7789_DASHBOARD_Y 287
 #define DISPLAY_7789_DASHBOARD_HEIGHT 18
 
+#define DISPLAY_7789_TICKER_X 220
+#define DISPLAY_7789_TICKER_Y 314
+#define DISPLAY_7789_TICKER_SIZE 4
+
 #define DISPLAY_TFT_MENU_X 15
 #define DISPLAY_TFT_MENU_Y 100
 #define DISPLAY_TFT_MENU_WIDTH 180
@@ -252,15 +265,15 @@
 #define DISPLAY_TFT_MSG_MAX_DISPLAY 4
 
 // title/subtitle locations
-#define DISPLAY_TFT_TITLE_X 60
-#define DISPLAY_TFT_TITLE_Y 15
-#define DISPLAY_TFT_TITLE_WIDTH 170
-#define DISPLAY_TFT_TITLE_HEIGHT 21
+#define DISPLAY_TFT_TITLE_X 5
+#define DISPLAY_TFT_TITLE_Y 17
+#define DISPLAY_TFT_TITLE_WIDTH 230
+#define DISPLAY_TFT_TITLE_HEIGHT 22
 
-#define DISPLAY_TFT_SUBTITLE_X 50
-#define DISPLAY_TFT_SUBTITLE_Y 37
-#define DISPLAY_TFT_SUBTITLE_WIDTH 170
-#define DISPLAY_TFT_SUBTITLE_HEIGHT 21
+#define DISPLAY_TFT_SUBTITLE_X 5
+#define DISPLAY_TFT_SUBTITLE_Y 41
+#define DISPLAY_TFT_SUBTITLE_WIDTH 230
+#define DISPLAY_TFT_SUBTITLE_HEIGHT 17
 
 #define DISPLAY_TFT_DASHBOARD_Y 287
 #define DISPLAY_TFT_DASHBOARD_HEIGHT 18
@@ -282,6 +295,10 @@
 #define DISPLAY_TFT_MODAL_INPUT_Y 60
 #define DISPLAY_TFT_MODAL_INPUT_HEIGHT 120
 #define DISPLAY_TFT_MODAL_INPUT_WIDTH 270
+
+#define DISPLAY_TFT_TICKER_X 230
+#define DISPLAY_TFT_TICKER_Y 305
+#define DISPLAY_TFT_TICKER_SIZE 4
 
 
 // landscape
@@ -316,5 +333,39 @@
 #define WHITE           0xFFFF
 #define GRAY            0x1111
 
+#define DARKBLUE 0x0B16
+#define LIGHTBLUE 0x451B
+#define BEIGE 0xF779
+
+#define DARKGREEN 0x12AA// 0x43AD//0xA613 // rgb(161, 195, 152)
+#define LIGHTGREEN 0xC758 // rgb(198, 235, 197)
+#define DARKRED 0xA208 // rgb(163, 67, 67)
+
+#define LIGHTGREY 0xC618   ///< 198, 195, 198
+
+#define BRIGHTGREEN 0x43AD // rgb(67, 118, 108)
+#define DARKGRAY 0x7BEF    ///< 123, 125, 123
+
+// tvt colors
+#define ILI9341_BLACK 0x0000       ///<   0,   0,   0
+#define ILI9341_NAVY 0x000F        ///<   0,   0, 123
+#define ILI9341_DARKGREEN 0x03E0   ///<   0, 125,   0
+#define ILI9341_DARKCYAN 0x03EF    ///<   0, 125, 123
+#define ILI9341_MAROON 0x7800      ///< 123,   0,   0
+#define ILI9341_PURPLE 0x780F      ///< 123,   0, 123
+#define ILI9341_OLIVE 0x7BE0       ///< 123, 125,   0
+#define ILI9341_BLUE 0x001F        ///<   0,   0, 255
+#define ILI9341_GREEN 0x07E0       ///<   0, 255,   0
+#define ILI9341_CYAN 0x07FF        ///<   0, 255, 255
+#define ILI9341_RED 0xF800         ///< 255,   0,   0
+#define ILI9341_MAGENTA 0xF81F     ///< 255,   0, 255
+#define ILI9341_YELLOW 0xFFE0      ///< 255, 255,   0
+#define ILI9341_WHITE 0xFFFF       ///< 255, 255, 255
+#define ILI9341_ORANGE 0xFD20      ///< 255, 165,   0
+#define ILI9341_GREENYELLOW 0xAFE5 ///< 173, 255,  41
+#define ILI9341_PINK 0xFC18        ///< 255, 130, 198
 
 #endif
+
+
+

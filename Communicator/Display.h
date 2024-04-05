@@ -26,7 +26,16 @@ enum DisplayColor {
   Magenta = 5,
   Yellow = 6,
   White = 7,
-  Gray = 8
+  Gray = 8,
+  DarkBlue = 9,
+  LightBlue = 10,
+  Beige = 11,
+  LightGreen = 12,
+  DarkGreen = 13,
+  LightGray = 14,
+  DarkRed = 15,
+  DarkGray = 16,
+  BrightGreen = 17
 };
 
 enum AlertType {
@@ -106,6 +115,10 @@ class Display {
 
     virtual void changeFont (FontType fontType) {}
 
+    // call it regularly so there is some indication on the screen
+    // that the device isn't frozen
+    virtual void showTick ();
+
   protected:
     float currentProgress = 0; // placeholder for progress spinner
     void logConsole (String msg);
@@ -134,6 +147,10 @@ class Display {
     virtual int getTitleAreaHeight () = 0;
     virtual int getTitleAreaWidth () = 0;
 
+    virtual int calculateSubtitleX (const char* titleText) = 0;
+    virtual int calculateTitleX (const char* titleText) = 0;
+
+
     virtual int getSubtitleAreaX () = 0;
     virtual int getSubtitleAreaY () = 0;
     virtual int getSubtitleAreaHeight () = 0;
@@ -145,6 +162,10 @@ class Display {
     virtual int getSpinnerX () = 0;
     virtual int getSpinnerY () = 0;
     virtual int getSpinnerRadius () = 0;
+
+    virtual int getTickerX () = 0;
+    virtual int getTickerY () = 0;
+    virtual int getTickerSize () = 0;
 
     virtual TextSize getTitleTextSize () = 0;
     virtual DisplayColor getTitleColor() = 0;
@@ -158,5 +179,7 @@ class Display {
 
     ThermalEncoder* encoder;
     ScreenRotation rotation = Portrait;
+
+    bool tickerShowing = false;
 };
 #endif

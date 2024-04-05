@@ -35,7 +35,7 @@ void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength) {
   showKeyboard(_filter, maxLength, "");
 }
 
-void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength, char* defaultValue) {
+void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength, const char* defaultValue) {
   filter = _filter;
   currMaxLength = maxLength;
 

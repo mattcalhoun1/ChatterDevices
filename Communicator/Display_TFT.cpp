@@ -5,12 +5,24 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
 
   display.begin();
 
+  #if defined(TOUCH_CONTROL_RAK)
+  touch = new TouchControlRak();
+  touch->init(); 
+  #elif defined(TOUCH_CONTROL_ADAFRUIT)
   touch = new TouchControlAdafruit();
   touch->init(); 
+  #else
+  touch = new TouchControlNone();
+  logConsole("No touch control defined");
+  #endif
 
   display.setFont(&FreeSans9pt7b);
 
   clear();
+}
+
+void Display_TFT::touchInterrupt() {
+  touch->touchInterrupt();
 }
 
 void Display_TFT::changeFont (FontType fontType) {
@@ -36,7 +48,7 @@ void Display_TFT::changeFont (FontType fontType) {
 }
 
 void Display_TFT::clear () {
-  display.fillScreen(BLACK);
+  display.fillScreen(ILI9341_BLACK);
 }
 
 void Display_TFT::clearArea (int x, int y, int width, int height) {
@@ -83,7 +95,7 @@ bool Display_TFT::handleIfTouched () {
   return success;
 }
 
-int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue) {
+int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue) {
   return getModalInput(title, maxLength, charFilter, buffer, defaultValue, defaultKeyboard);
 }
 
@@ -92,7 +104,7 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
   return getModalInput(title, maxLength, charFilter, buffer, "", defaultKeyboard);
 }
 
-int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue, Keyboard* keyboard) {
+int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, Keyboard* keyboard) {
   clearAll();
 
   // rotate the screen if configured
@@ -133,6 +145,9 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
     }
   }
   keyboard->hideKeyboard();
+
+  // clear the touch interrupt
+  touch->clearTouchInterrupt();
 
   // clear text area
   clearArea(getModalInputX(),getModalInputY() - getTextUpperVerticalOffset(TextSmall), getModalInputWidth(), getModalInputHeight());
@@ -249,23 +264,41 @@ DisplayColor Display_TFT::getTemperatureColor(uint8_t temperature) {
 uint16_t Display_TFT::getTFTColor(DisplayColor color) {
   switch (color) {
     case Black:
-      return BLACK;
+      return ILI9341_BLACK;
     case Blue:
-      return BLUE;
+      return ILI9341_BLUE;
     case Red:
-      return RED;
+      return ILI9341_RED;
     case Green:
-      return GREEN;
+      return ILI9341_GREEN;
     case Cyan:
-      return CYAN;
+      return ILI9341_CYAN;
     case Magenta:
-      return MAGENTA;
+      return ILI9341_MAGENTA;
     case Yellow:
-      return YELLOW;
+      return ILI9341_YELLOW;
     case Gray:
-      return GRAY;
+      return LIGHTGREY;
+    case DarkBlue:
+      return DARKBLUE;
+    case LightBlue:
+      return LIGHTBLUE;
+    case Beige:
+      return BEIGE;
+    case LightGreen:
+      return LIGHTGREEN;
+    case DarkGreen:
+      return DARKGREEN;
+    case LightGray:
+      return LIGHTGREY;
+    case DarkRed:
+      return DARKRED;
+    case DarkGray:
+      return DARKGRAY;
+    case BrightGreen:
+      return BRIGHTGREEN;
     default:
-      return WHITE;
+      return ILI9341_WHITE;
   }
 }
 
@@ -321,12 +354,38 @@ int Display_TFT::getImageSubtitleY (bool isAlt) {
   return DISPLAY_TFT_MAIN_IMAGE_SUBTITLE_Y;
 }
 
+int Display_TFT::calculateTitleX (const char* titleText) {
+  // bump it right until it's roughly centered
+  uint8_t charsPerRow = 30;
+
+  // roughly 20 chars wide in landscape
+  if (rotation == Landscape) {
+    return DISPLAY_TFT_TITLE_X + max(0,((charsPerRow - strlen(titleText)) / 2) * (getScreenHeight()/charsPerRow));
+  }
+  else {
+    return DISPLAY_TFT_TITLE_X + max(0,((charsPerRow - strlen(titleText)) / 2) * (getScreenWidth()/charsPerRow));
+  }
+}
+
+int Display_TFT::calculateSubtitleX (const char* titleText) {
+  // bump it right until it's roughly centered
+  uint8_t charsPerRow = 38;
+
+  // roughly 20 chars wide in landscape
+  if (rotation == Landscape) {
+    return DISPLAY_TFT_SUBTITLE_X + max(0,((charsPerRow - strlen(titleText)) / 2) * (getScreenHeight()/charsPerRow));
+  }
+  else {
+    return DISPLAY_TFT_SUBTITLE_X + max(0,((charsPerRow - strlen(titleText)) / 2) * (getScreenWidth()/charsPerRow));
+  }
+}
+
 int Display_TFT::calculateModalTitleX (const char* titleText) {
   // bump it right until it's roughly centered
   uint8_t charsPerRow = 20;
 
   // roughly 20 chars wide in landscape
-  if (rotation == Landscape) {
+  if (rotation == Landscape) { // is this right? should it be looking at screen height, not width?
     return DISPLAY_TFT_LS_MODAL_TITLE_X + max(0,((charsPerRow - strlen(titleText)) / 2) * (getScreenWidth()/charsPerRow));
   }
 

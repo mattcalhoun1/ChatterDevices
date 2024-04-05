@@ -22,13 +22,14 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
     public:
         GuiControlMode(DeviceType _deviceType, bool _admin) : HeadsUpControlMode (_deviceType, _admin) {}
         bool init ();
-        void buttonAPressed();
+        void buttonInterrupt();
+        void touchInterrupt();
         bool isInteractive () {return true;}
 
         void showLastMessage ();
 
-        // this is called via interrupt, so should not do anything except ping the rotary
-        void handleRotary ();
+        // these are called via interrupt, so should not do anything update flags
+        void handleRotaryInterrupt ();
 
         bool updateSelection ();
         int getSelection () {return selection;}
@@ -86,6 +87,9 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         CommunicatorEvent eventBuffer;
         char histSenderId[CHATTER_DEVICE_ID_SIZE+1];
         char histRecipientId[CHATTER_DEVICE_ID_SIZE+1];
+
+        unsigned long tickFrequency = 3000; // how often the ticker should blink
+        unsigned long lastTick = 0;
 };
 
 #endif

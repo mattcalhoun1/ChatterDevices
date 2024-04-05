@@ -30,7 +30,7 @@ void setup() {
 
   #ifdef ROTARY_ENABLED
     pinMode(BUTTON_A_PIN, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(BUTTON_A_PIN), buttonAPressed, LOW);
+    attachInterrupt(digitalPinToInterrupt(BUTTON_A_PIN), buttonInterrupt, LOW);
   #endif
 
   //Wire.setClock(400000L); // enc chip wants 400khz
@@ -49,6 +49,14 @@ void setup() {
   #ifdef ROTARY_ENABLED
     attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN1), handleRotary, CHANGE);
     attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN2), handleRotary, CHANGE);
+  #endif
+
+  #if defined(TOUCH_CONTROL_RAK) || defined(TOUCH_CONTROL_ADAFRUIT)
+    pinMode(PIN_TOUCH_INT, INPUT_PULLUP);
+    //attachInterrupt(digitalPinToInterrupt(PIN_TOUCH_INT), tpIntHandle, FALLING);
+    attachInterrupt(digitalPinToInterrupt(PIN_TOUCH_INT), handleTouch, FALLING);
+    #define PIN_TOUCH_INT 11
+    #define PIN_TOUCH_RS 12
   #endif
 
 }
@@ -73,17 +81,23 @@ bool isAdmin () {
   return false;
 }
 
-void buttonAPressed () {
+void buttonInterrupt () {
   // dial decides whether remote or live image requested
   if (controlMode->isInteractive()) {
-    ((GuiControlMode*)controlMode)->buttonAPressed();
+    ((GuiControlMode*)controlMode)->buttonInterrupt();
   }
 }
 
 void handleRotary () {
   // dial decides whether remote or live image requested
   if (controlMode->isInteractive()) {
-    ((GuiControlMode*)controlMode)->handleRotary();
+    ((GuiControlMode*)controlMode)->handleRotaryInterrupt();
+  }
+}
+
+void handleTouch () {
+  if (controlMode->isInteractive()) {
+    ((GuiControlMode*)controlMode)->touchInterrupt();
   }
 }
 

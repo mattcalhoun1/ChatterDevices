@@ -24,7 +24,7 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
   // show a line above the message for separation
   if (position != 0) {
     int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2);
-    drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, White);
+    drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, Beige);
   }
 
   changeFont(FontTiny);
@@ -118,18 +118,20 @@ void Display::showInterpolatedThermal (const float* image, bool isAlt, String su
 
 void Display::showTitle (const char* text) {
   clearArea(getTitleAreaX(), getTitleAreaY() - getTextUpperVerticalOffset(getTitleTextSize()), getTitleAreaWidth(), getTitleAreaHeight() - getTextLowerVerticalOffset(getTitleTextSize()));
-  showText(text, getTitleAreaX(), getTitleAreaY(), getTitleTextSize(), getTitleColor());
+  //changeFont(FontBold);
+  fillRect(1, 1, getScreenWidth() - 2, getTitleAreaHeight(), DarkGray);
+  showText(text, calculateTitleX(text), getTitleAreaY(), getTitleTextSize(), getTitleColor());
 
-  // frame the title area
-  drawLine(1,1, getScreenWidth() - 2, 1, White);
-  drawLine(1, getTitleAreaHeight() + getSubtitleAreaHeight(), getScreenWidth() - 2, getTitleAreaHeight() + getSubtitleAreaHeight(), White);
-  drawLine(1,1, 1, getTitleAreaHeight() + getSubtitleAreaHeight(), White);
-  drawLine(getScreenWidth() - 2,1, getScreenWidth() - 2, getTitleAreaHeight() + getSubtitleAreaHeight(), White);
+  // line at base of title/subtitle area
+  //fillRect(1, getTitleAreaHeight() + getSubtitleAreaHeight(), getScreenWidth() - 2, 2, Beige);
 }
 
 void Display::showSubtitle (const char* text) {
-  clearArea(getSubtitleAreaX(), getSubtitleAreaY() - getTextUpperVerticalOffset(TextSmall), getSubtitleAreaWidth(), getSubtitleAreaHeight() - getTextLowerVerticalOffset(TextSmall));
-  showText(text, getSubtitleAreaX(), getSubtitleAreaY(), getSubtitleTextSize(), getSubtitleColor());
+  // change to smaller font
+  clearArea(getSubtitleAreaX(), getSubtitleAreaY() - getTextUpperVerticalOffset(TextSmall), getSubtitleAreaWidth(), getSubtitleAreaHeight() - (getTextLowerVerticalOffset(TextSmall)+1));
+  changeFont(FontTiny);
+  showText(text, calculateSubtitleX(text), getSubtitleAreaY() - getTextUpperVerticalOffset(TextSmall), getSubtitleTextSize(), getSubtitleColor());
+  changeFont(FontNormal);
 }
 
 void Display::clearAll () {
@@ -137,7 +139,20 @@ void Display::clearAll () {
 }
 
 void Display::clearDashboard () {
-  clearArea(0, getDashboardAreaY() - getTextUpperVerticalOffset(TextSmall), getScreenWidth(), getDashboardAreaHeight(), Gray);
+  clearArea(0, getDashboardAreaY() - getTextUpperVerticalOffset(TextSmall), getScreenWidth(), getDashboardAreaHeight(), DarkGray);
+}
+
+void Display::showTick () {
+  // if the ticker is showing hide it
+  if (tickerShowing) {
+    fillCircle(getTickerX(), getTickerY(), getTickerSize(), Black);
+  }
+  else {
+    fillCircle(getTickerX(), getTickerY(), getTickerSize(), DarkGreen);
+  }
+
+  // toggle the ticker flag
+  tickerShowing = !tickerShowing;
 }
 
 void Display::showDashboardItems (const char* item[], DisplayColor itemColor[], uint8_t numItems) {

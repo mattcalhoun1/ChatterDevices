@@ -28,7 +28,7 @@ class Keyboard : public TouchListener {
     bool init ();
 
     void showKeyboard (CharacterFilter _filter, int maxLength);
-    void showKeyboard (CharacterFilter _filter, int maxLength, char* defaultValue);
+    void showKeyboard (CharacterFilter _filter, int maxLength, const char* defaultValue);
     void hideKeyboard ();
 
     const char* getUserInput () { return inputBuffer; }

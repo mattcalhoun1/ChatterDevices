@@ -72,6 +72,11 @@ void GuiControlMode::loop () {
 
     // execute main loop
     HeadsUpControlMode::loop();
+
+    if (millis() - lastTick > tickFrequency) {
+      display->showTick();
+      lastTick = tickFrequency;
+    }
   }
 }
 
@@ -119,7 +124,7 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
       sprintf(messagePreviewBuffer, "%s", "[large message]");
     }
     //logConsole(messagePreviewBuffer);
-    display->showMessageAndTitle(messageTitleBuffer+5, messagePreviewBuffer, messageTsBuffer, messageTitleBuffer[3] == '<', messageTitleBuffer[0] == SentViaBroadcast ? Blue : Yellow, White, msg - messagePreviewOffset);
+    display->showMessageAndTitle(messageTitleBuffer+5, messagePreviewBuffer, messageTsBuffer, messageTitleBuffer[3] == '<', messageTitleBuffer[0] == SentViaBroadcast ? DarkBlue : Yellow, LightBlue, msg - messagePreviewOffset);
   }
 
   // if there are more messages, indicate that
@@ -417,8 +422,15 @@ void GuiControlMode::showLastMessage () {
 }
 
 
-void GuiControlMode::buttonAPressed () {
+void GuiControlMode::buttonInterrupt () {
   menu->notifyButtonPressed();
+  //sendText = true;
+}
+
+void GuiControlMode::touchInterrupt () {
+  if (fullyInteractive) {
+    ((FullyInteractiveDisplay*)display)->touchInterrupt();
+  }
   //sendText = true;
 }
 
@@ -447,7 +459,7 @@ bool GuiControlMode::updateMessagePreviewsIfNecessary () {
   return false;
 }
 
-void GuiControlMode::handleRotary () {
+void GuiControlMode::handleRotaryInterrupt () {
   rotary->tick(); // just call tick() to check the state.
   if (menu->isActive()) {
     menu->notifyRotaryChanged();

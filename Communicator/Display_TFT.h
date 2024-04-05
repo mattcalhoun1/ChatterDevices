@@ -6,10 +6,15 @@
 #include "Keyboard.h"
 
 #include <Adafruit_GFX.h>    // Core graphics library
+#if defined(DISPLAY_TYPE_HOYSOND)
+#include <Adafruit_ST7796S_kbv.h>
+#elif defined(DISPLAY_TYPE_ADAFRUIT)
 #include <Adafruit_ILI9341.h> // Hardware-specific library
-//#include <Adafruit_FT6206.h> // capacative touch
+#endif
 #include "TouchControl.h"
 #include "TouchControlAdafruit.h"
+#include "TouchControlRak.h"
+#include "TouchControlNone.h"
 #include <Fonts/FreeSans9pt7b.h> // default font
 #include <Fonts/FreeSansOblique9pt7b.h> // italic sort of
 #include <Fonts/FreeSansBold9pt7b.h> // italic sort of
@@ -40,14 +45,15 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     bool handleIfTouched ();
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer);
-    int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue);
-    int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, char* defaultValue, Keyboard* keyboard);
+    int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue);
+    int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, Keyboard* keyboard);
 
     int getScreenWidth () { return DISPLAY_TFT_WIDTH; }
     int getScreenHeight () { return DISPLAY_TFT_HEIGHT; }
 
     void changeFont (FontType fontType);
 
+    void touchInterrupt();
 
   protected:
     int getStatusX();
@@ -99,14 +105,18 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getKeyboardAreaWidth () { return rotation == Landscape ? DISPLAY_TFT_LS_KEYBOARD_WIDTH : DISPLAY_TFT_KEYBOARD_WIDTH; }
 
     TextSize getTitleTextSize () { return TextSmall; }
-    DisplayColor getTitleColor() { return White; }
+    DisplayColor getTitleColor() { return Beige; }
 
     TextSize getSubtitleTextSize () { return TextSmall; }
-    DisplayColor getSubtitleColor() { return Green; }
+    DisplayColor getSubtitleColor() { return DarkRed; }
 
     int getSpinnerX () { return DISPLAY_TFT_SPINNER_X; }
     int getSpinnerY () { return DISPLAY_TFT_SPINNER_Y; }
     int getSpinnerRadius () { return DISPLAY_TFT_SPINNER_RADIUS; }
+
+    int getTickerX () { return DISPLAY_TFT_TICKER_X; }
+    int getTickerY () { return DISPLAY_TFT_TICKER_Y; }
+    int getTickerSize () { return DISPLAY_TFT_TICKER_SIZE; }
 
     int getModalTitleX () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_TITLE_X :  DISPLAY_TFT_MODAL_TITLE_X; }
     int getModalTitleY () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_TITLE_Y : DISPLAY_TFT_MODAL_TITLE_Y; }
@@ -115,6 +125,9 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getModalInputY () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_INPUT_Y : DISPLAY_TFT_MODAL_INPUT_Y; }
     int getModalInputWidth () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_INPUT_WIDTH : DISPLAY_TFT_MODAL_INPUT_WIDTH; }
     int getModalInputHeight () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_INPUT_HEIGHT : DISPLAY_TFT_MODAL_INPUT_HEIGHT; }
+
+    int calculateSubtitleX (const char* titleText);
+    int calculateTitleX (const char* titleText);
 
     int getAlertAreaX() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_X : DISPLAY_TFT_ALERT_X; }
     int getAlertAreaY() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_Y: DISPLAY_TFT_ALERT_Y; }
@@ -126,8 +139,11 @@ class Display_TFT : public FullyInteractiveDisplay {
   
     int calculateModalTitleX (const char* titleText);
 
+    #if defined(DISPLAY_TYPE_HOYSOND)
+    Adafruit_ST7796S_kbv display = Adafruit_ST7796S_kbv(Display_TFT_CS, Display_TFT_DC, Display_TFT_RS);
+    #elif defined(DISPLAY_TYPE_ADAFRUIT)
     Adafruit_ILI9341 display = Adafruit_ILI9341(Display_TFT_CS, Display_TFT_DC, Display_TFT_RS);
-    //Adafruit_FT6206 touch = Adafruit_FT6206();  
+    #endif
     TouchControl* touch;
 
     uint16_t getTFTColor(DisplayColor color);

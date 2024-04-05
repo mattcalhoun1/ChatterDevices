@@ -6,7 +6,7 @@ bool ControlMode::init() {
   rtc = new R4RtClock();
 #elif defined(ARDUINO_SAM_DUE)
   rtc = new DueRtClock();
-#elif defined(ARDUINO_SAMD_MKRZERO) || defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_MKRZERO)
+#elif defined(ARDUINO_SAMD_MKRZERO) || defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_ZERO)
   logConsole("ZeroRtClock selected");
   rtc = new ZeroRtClock();
 #endif

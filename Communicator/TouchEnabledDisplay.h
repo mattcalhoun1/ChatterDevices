@@ -24,6 +24,8 @@ class TouchEnabledDisplay : public MenuEnabledDisplay {
 
         virtual void addTouchListener (TouchListener* _listener) {listeners[(numListeners >= MAX_TOUCH_LISTENERS-1 ? 0 : numListeners++)] = _listener;}
         virtual bool handleIfTouched () = 0;
+
+        virtual void touchInterrupt () = 0;
       
     protected:
       uint8_t numListeners = 0;

@@ -56,9 +56,9 @@ int HeadsUpControlMode::getSymboForDevice(const char* deviceName) {
 DisplayColor HeadsUpControlMode::getDisplayColorForStatus (ChatStatus chatStatus) {
     switch (chatStatus) {
         case ChatConnected:
-            return Green;
+            return LightGreen;
         case ChatConnecting:
-            return Yellow;
+            return LightGray;
         case ChatDisconnected:
             return Black;
         case ChatFailed:
@@ -66,13 +66,13 @@ DisplayColor HeadsUpControlMode::getDisplayColorForStatus (ChatStatus chatStatus
         case ChatNoDevice:
             return White;
         case ChatReceived:
-            return Blue;
+            return LightBlue;
         case ChatReceiving:
             return Magenta;
         case ChatSending:
             return Cyan;
         case ChatSent:
-            return Green;
+            return LightGreen;
         default:
             return Black;
     }
@@ -80,7 +80,7 @@ DisplayColor HeadsUpControlMode::getDisplayColorForStatus (ChatStatus chatStatus
 
 
 void HeadsUpControlMode::showStatus(const char* status) {
-    display->showStatus(status, Blue);
+    display->showStatus(status, BrightGreen);
 }
 
 void HeadsUpControlMode::showStatus(String status) {

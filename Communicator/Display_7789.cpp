@@ -159,6 +159,24 @@ uint16_t Display_7789::get7789Color(DisplayColor color) {
       return YELLOW;
     case Gray:
       return GRAY;
+    case DarkBlue:
+      return DARKBLUE;
+    case LightBlue:
+      return LIGHTBLUE;
+    case Beige:
+      return BEIGE;
+    case LightGreen:
+      return LIGHTGREEN;
+    case DarkGreen:
+      return DARKGREEN;
+    case BrightGreen:
+      return BRIGHTGREEN;
+    case LightGray:
+      return LIGHTGREY;
+    case DarkRed:
+      return DARKRED;
+    case DarkGray:
+      return DARKGRAY;
     default:
       return WHITE;
   }
