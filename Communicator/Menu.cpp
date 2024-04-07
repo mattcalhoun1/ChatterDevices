@@ -13,8 +13,37 @@ void Menu::show() {
 }
 
 bool Menu::handleScreenTouched(int touchX, int touchY) {
-  if (mode == MenuActive) {
-    Serial.println("Menu touched");
+  if (mode == MenuActive && millis() - oledMenu.lastMenuActivity >= minTouchDelay) {
+    // if user touched scroll button, handle that
+    MenuScrollButton scrollBtn = display->getScrollButtonAt(touchX, touchY);
+    if (scrollBtn == MenuScrollUp) {
+      scrollUpTouched = true;
+      oledMenu.lastMenuActivity = millis();
+    }
+    else if (scrollBtn == MenuScrollDown) {
+      scrollDownTouched = true;
+      oledMenu.lastMenuActivity = millis();
+    }
+    else {
+      // check if a menu item was touched
+      uint8_t touchedItem = display->getMenuItemAt(touchX, touchY);
+      if (touchedItem != MENU_ITEM_NONE) {
+        oledMenu.lastMenuActivity = millis();
+
+        // trigger the button press logic
+        if (touchedItem >= 0 && touchedItem < oledMenu.noOfmenuItems) {
+          // figure out the offset
+          oledMenu.highlightedMenuItem = touchedItem + 1 + scrollOffset;
+          buttonPressed = true;
+          //Serial.print("User touched: "); Serial.println(touchedItem + 1 + scrollOffset);
+        }
+      }
+      else {
+        //Serial.println("User off menu");
+        resetMenu();
+      }
+    }
+
     return true;
   }
 
@@ -40,7 +69,7 @@ void Menu::iteratorMenu (bool fullRepaint) {
   needsRepainted = true;
 
   // highlight the center item to make he menu full
-  oledMenu.highlightedMenuItem = max(0, subsetSize >= 3 ? 3 : subsetSize);
+  oledMenu.highlightedMenuItem = max(0, subsetSize >= MENU_DEFAULT_HIGHLIGHTED_ITEM ? MENU_DEFAULT_HIGHLIGHTED_ITEM : subsetSize);
 }
 
 void Menu::populateIteratorMenu () {
@@ -70,7 +99,8 @@ void Menu::mainMenu(bool fullRepaint) {
   oledMenu.menuItems[MENU_MAIN_ADMIN] = "Admin";
 
   // highlight the center item to make he menu full
-  oledMenu.highlightedMenuItem = 3;
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
 }
 
 void Menu::adminMenu() {
@@ -90,7 +120,8 @@ void Menu::adminMenu() {
   oledMenu.menuItems[MENU_ADMIN_FACTORY_RESET] = "Factory Reset";
 
   // highlight the center item to make he menu full
-  oledMenu.highlightedMenuItem = 3;
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
 }
 
 void Menu::onboardingMenu() {
@@ -107,6 +138,7 @@ void Menu::onboardingMenu() {
     oledMenu.noOfmenuItems = 1;
     oledMenu.menuItems[MENU_ONBOARDING_JOIN_CLUSTER] = "Join Cluster";
   }
+  oledMenu.lastMenuActivity = millis();
 }
 
 void Menu::adminActions() {
@@ -288,10 +320,12 @@ void Menu::mainActions() {
         needsRepainted = true;
         break;        
       case MENU_MAIN_CLEAR_MESSAGES:
+        Serial.println("User chose clear msg");
         resetMenu();
         handler->handleEvent(UserDeleteAllMessages);
         break;
       case MENU_MAIN_ADMIN:
+        Serial.println("User chose admin");
         adminMenu();
         mode = MenuActive;
         needsRepainted = true;
@@ -418,7 +452,26 @@ void Menu::serviceMenu() {
     bool movedBackward = false;
 
     // rotary encoder
-    if (rotaryChanged) {
+    // touch scroll
+    if (scrollUpTouched) {
+      scrollUpTouched = false;
+      if (display->isScrollUpEnabled()) {
+        movedBackward = true;
+        scrollOffset--;
+        oledMenu.highlightedMenuItem--;
+        needsRepainted = true;
+      }
+    }
+    else if (scrollDownTouched) {
+      scrollDownTouched = false;
+      if (display->isScrollDownEnabled()) {
+        movedForward = true;
+        oledMenu.highlightedMenuItem++;
+        scrollOffset++;
+        needsRepainted = true;
+      }
+    }
+    else if (rotaryChanged) {
         rotaryChanged = false;
         int newRotaryPostion = rotary->getPosition();
         if (newRotaryPostion != rotaryLastPosition) {
@@ -428,6 +481,7 @@ void Menu::serviceMenu() {
               needsRepainted = true;
               rotaryLastPosition = newRotaryPostion;
               oledMenu.highlightedMenuItem++;
+              scrollOffset++;
               movedForward = true;
               oledMenu.lastMenuActivity = millis();   // log time
           }
@@ -435,6 +489,7 @@ void Menu::serviceMenu() {
               needsRepainted = true;
               rotaryLastPosition = newRotaryPostion;
               oledMenu.highlightedMenuItem--;
+              scrollOffset--;
               movedBackward = true;
               oledMenu.lastMenuActivity = millis();   // log time
           }
@@ -487,7 +542,7 @@ void Menu::serviceMenu() {
         }
         else {
             // add logic here for scroll bars
-            display->showScrolls(true, true);
+            display->showScrolls(oledMenu.highlightedMenuItem > MENU_DEFAULT_HIGHLIGHTED_ITEM, oledMenu.highlightedMenuItem + _centreLine <= oledMenu.noOfmenuItems);
         }
         //else {
           // menu
@@ -639,11 +694,15 @@ void Menu::resetMenu(bool repaint) {
     //rotaryEncoder.reButtonPressed = 0;
     buttonPressed = false;
     rotaryChanged = false;
+    scrollOffset = false;
+    scrollDownTouched = false;
+    scrollUpTouched = false;
 
   oledMenu.lastMenuActivity = millis();   // log time
 
   // clear oled display
   if (repaint) {
+    display->blurMenuBackground();
     display->drawMenuBorder();
 
     display->clearMenuTitle();

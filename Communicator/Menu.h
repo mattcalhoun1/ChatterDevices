@@ -38,6 +38,7 @@
 #define MENU_ID_ITERATOR 4
 
 #define MENU_HIGHLIGHT_CENTER false
+#define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
 
 #define ITERATOR_MAX_NAME_SIZE 16
 #define ITERATOR_SELECTION_NONE 255
@@ -114,9 +115,13 @@ class Menu : public TouchListener {
 
         bool buttonPressed = false;
         bool rotaryChanged = false;
+        bool scrollUpTouched = false;
+        bool scrollDownTouched = false;
+
         //unsigned long lastRotaryChange = 0;
         int minRotaryDelay = 100; // ignore rotary changes that come in more quickly than this
         int minButtonDelay = 200; // ignore button presses taht come in more quickly than this
+        int minTouchDelay = 200; // ignore touches that come in more quickly than this
 
         const int menuTimeout = 10;               // menu inactivity timeout (seconds)
         const bool menuLargeText = 0;             // show larger text when possible (if struggling to read the small text)
@@ -147,6 +152,8 @@ class Menu : public TouchListener {
         char itemNameBuffer[ITERATOR_MAX_NAME_SIZE];
         uint8_t iteratorOffset = 0; // if we go past the max number of menu items, need to slide this offset forward
         uint8_t iteratorSelection = ITERATOR_SELECTION_NONE;
+
+        uint8_t scrollOffset = 0; // if not in iterator menu, this goes up and down as the user scrolls off the starting position
 
         bool onboardAllowed = false;
 };

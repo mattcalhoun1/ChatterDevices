@@ -140,6 +140,7 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
       //}
       //else {
         // set the null indicator
+        keyboard->addTermCharacter();
         showText(keyboard->getUserInput(), getModalInputX(), getModalInputY(), TextSmall, Green);
       //}
     }

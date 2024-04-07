@@ -194,7 +194,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         display->clearAll();
 
         // pop up the keyboard
-        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Message", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer);
+        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput(eventType == UserRequestDirectMessage ? "Message" : "Broadcast", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer);
 
         // send it
         if(messageBufferLength > 0) {
@@ -392,7 +392,10 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
 
 bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
   // if the keyboard is showing, it gets the event
-  if (fullyInteractive) {
+  if (menu->isShowing()){
+    return true;
+  }
+  else if (fullyInteractive) {
     if (((FullyInteractiveDisplay*)display)->isKeyboardShowing()) {
       return true;
     }

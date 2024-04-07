@@ -208,10 +208,15 @@ bool Keyboard::userCompletedInput() {
   return false;
 }
 
+void Keyboard::addTermCharacter () {
+  // add term char to the end of the input
+  inputBuffer[inputBufferLength] = 0;
+}
+
 char Keyboard::getLetterAt (int touchX, int touchY) {
   // the touch should be toward the center of the key. otherwise we dont count it
   float frow = ((touchY - (keyCenterYFactor*keyHeight) - y) / (float)keyHeight);
-  float fcol = ((touchX - (keyCenterXFactor*keyWidth) - x) / (float)keyWidth) - (display->getRotation() == Portrait ? 1 : 0);
+  float fcol = ((touchX - (keyCenterXFactor*keyWidth) - x) / (float)keyWidth);// - (display->getRotation() == Portrait ? 1 : 0);
 
   fcol = max(.1, fcol);
   fcol = min(KEYBOARD_COLS + .1, fcol);
@@ -219,7 +224,7 @@ char Keyboard::getLetterAt (int touchX, int touchY) {
 
   // get the row
   uint8_t row = floor(frow);
-  uint8_t col = floor(fcol);
+  uint8_t col = round(fcol);
 
   //Serial.print("Touched: ");Serial.print(touchX); Serial.print(", ");Serial.println(touchY);
   //Serial.print("FCol: ");Serial.print(fcol); Serial.print(", FRow: ");Serial.println(frow);
@@ -231,7 +236,8 @@ char Keyboard::getLetterAt (int touchX, int touchY) {
 
   //Serial.print("x dist: ");Serial.print(xDistFromCenter); Serial.print(", y dist: ");Serial.println(yDistFromCenter);
 
-  if (xDistFromCenter < (.5*keyWidth) && yDistFromCenter < (.5*keyHeight)) {
+  // last row where multiple keys are combined, dont check for horzontal centering
+  if (((row == 4) || (xDistFromCenter < (.5*keyWidth))) && yDistFromCenter < (.5*keyHeight)) {
     if (row >= 0 && row < KEYBOARD_ROWS) {
       if (col >= 0 && col < KEYBOARD_COLS) {
 

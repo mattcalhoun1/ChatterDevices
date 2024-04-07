@@ -35,7 +35,7 @@ bool TouchControlRak::wasTouched(int& x, int& y, bool keyboardShowing, ScreenRot
         int freshY = ft6336u.read_touch1_y();
 
         // ignore edges
-        if (freshY <= 0 || freshY >= DISPLAY_TFT_HEIGHT || freshX <= 0 || freshX >= DISPLAY_TFT_WIDTH) {
+        if (freshY < 0 || freshY > DISPLAY_TFT_HEIGHT || freshX < 0 || freshX > DISPLAY_TFT_WIDTH) {
             return false;
         }
 

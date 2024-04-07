@@ -40,6 +40,7 @@ class Keyboard : public TouchListener {
     bool wasBufferEdited () { return bufferEdited; }
     void resetBufferEditFlag () { bufferEdited = false; }
     bool isShowing () {return showing;}
+    void addTermCharacter ();
 
   protected:
     TouchEnabledDisplay* display;

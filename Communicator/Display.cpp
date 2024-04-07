@@ -9,7 +9,9 @@ void Display::logConsole (String msg) {
 
 void Display::showStatus (String text, DisplayColor color) {
   clearStatus();
-  showText(text, getStatusX(), getStatusY(), TextSmall, color);
+  changeFont(FontTiny);
+  showText(text, getStatusX(), getStatusY() - 2, TextSmall, color);
+  changeFont(FontNormal);
 }
 
 void Display::clearStatus () {

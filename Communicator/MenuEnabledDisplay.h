@@ -4,6 +4,14 @@
 #ifndef MENUENABLEDDISPLAY_H
 #define MENUENABLEDDISPLAY_H
 
+enum MenuScrollButton {
+    MenuScrollUp = 0,
+    MenuScrollDown = 1,
+    MenuScrollNone = 2
+};
+
+#define MENU_ITEM_NONE 255
+
 class MenuEnabledDisplay : public Display {
 
     public:
@@ -21,6 +29,9 @@ class MenuEnabledDisplay : public Display {
         virtual int getMenuScrollDownX() = 0;
         virtual int getMenuScrollDownY() = 0;
         virtual int getMenuScrollRadius() = 0;
+        virtual int getMenuScrollTouchRadius() = 0;
+
+        virtual MenuScrollButton getScrollButtonAt (int x, int y);
 
         virtual int getMenuBorderSize() {return 2;}
 
@@ -28,10 +39,20 @@ class MenuEnabledDisplay : public Display {
         void clearMenu ();
         void showMenuTitle (String& title);
         void showMenuItem (uint8_t itemNumber, String& text, DisplayColor textColor, DisplayColor backgroundColor);
+        uint8_t getMenuItemAt (int x, int y);
 
         void drawMenuBorder ();
         virtual bool isTouchEnabled () = 0;
-        void showScrolls (bool scrollUpEnabled, bool scrollDownEnabled);
+
+        void blurMenuBackground ();
+
+        void showScrolls (bool _scrollUpEnabled, bool _scrollDownEnabled);
+        bool isScrollUpEnabled () { return scrollUpEnabled; }
+        bool isScrollDownEnabled () { return scrollDownEnabled; }
+    protected:
+        bool scrollUpEnabled = false;
+        bool scrollDownEnabled = false;
+        uint8_t numDisplayableItems = 5;
 };
 
 #endif
