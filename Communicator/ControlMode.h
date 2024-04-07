@@ -50,6 +50,7 @@ class ControlMode : ChatStatusCallback {
     void updateChatStatus (uint8_t channelNum, ChatStatus newStatus);
     void updateChatStatus (const char* statusMessage);
     virtual void updateChatDashboard (); // redisplay chat dashboard
+    virtual void updateChatProgress(float progress);
 
     // touch screen, etc
     bool isFullyInteractive () { return false; }

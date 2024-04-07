@@ -110,6 +110,10 @@ void ControlMode::updateChatStatus (const char* statusMessage) {
   showStatus(statusMessage);
 }
 
+void ControlMode::updateChatProgress (float progress) {
+  logConsole("Progress...");
+}
+
 void ControlMode::showStatus (const char* status) {
   logConsole(status);
 }

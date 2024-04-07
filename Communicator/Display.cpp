@@ -73,15 +73,15 @@ uint8_t Display::getMessagePosition (int positionX, int positionY) {
 }
 
 void Display::showAlert (const char* alertText, AlertType alertType) {
-    DisplayColor color = Green;
+    DisplayColor color = BrightGreen;
     if (alertType == AlertWarning) {
-        color = Yellow;
+        color = BrightYellow;
     }
     else if (alertType == AlertError) {
-        color = Red;
+        color = DarkRed;
     }
     else if (alertType == AlertActivity) {
-      color = Blue;
+      color = LightBlue;
     }
     clearAll();
     //clearArea(0, getAlertAreaY() - getTextUpperVerticalOffset(TextMedium), getScreenWidth(), getAlertAreaHeight());
@@ -186,6 +186,20 @@ void Display::showProgress(float percent) {
       fillCircle (getSpinnerX(), getSpinnerY(), getSpinnerRadius() * percent, White);
     }
 
+    currentProgress = percent;
+  }
+}
+
+void Display::showProgressBar(float percent) {
+  if (percent != currentProgress) {
+    if (currentProgress == 0 || percent < currentProgress) {
+
+      // draw outer rectangle
+      fillRect(getProgressBarX(), getProgressBarY(), getProgressBarWidth(), getProgressBarHeight(), DarkBlue);
+    }
+
+    // draw the inner rectangle
+    fillRect(getProgressBarX() + 2, getProgressBarY() + 2, getProgressBarWidth() * currentProgress, getProgressBarHeight() - 4, Beige);
     currentProgress = percent;
   }
 }

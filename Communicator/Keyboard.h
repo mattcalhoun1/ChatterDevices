@@ -41,11 +41,13 @@ class Keyboard : public TouchListener {
     void resetBufferEditFlag () { bufferEdited = false; }
     bool isShowing () {return showing;}
     void addTermCharacter ();
+    bool checkAndResetActivityFlag ();
 
   protected:
     TouchEnabledDisplay* display;
     CharacterFilter filter;
     int currMaxLength;
+    bool activityFlag = false;
 
     uint8_t keyWidth;
     uint8_t keyHeight;

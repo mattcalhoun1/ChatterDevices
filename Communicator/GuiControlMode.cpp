@@ -189,16 +189,18 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         display->clearAll();
 
         // pop up the keyboard
-        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput(eventType == UserRequestDirectMessage ? "Message" : "Broadcast", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer);
+        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput(eventType == UserRequestDirectMessage ? "Message" : "Broadcast", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", eventType == UserRequestDirectMessage ? 0 : 20000);
 
         // send it
         if(messageBufferLength > 0) {
           if (eventType == UserRequestSecureBroadcast) {
             display->showAlert("Broadcast", AlertActivity);
+            display->resetProgress();
             result = chatter->broadcast(messageBuffer, messageBufferLength);
           }
           else if (eventType == UserRequestOpenBroadcast) {
             display->showAlert("Open Broadcast", AlertActivity);
+            display->resetProgress();
             result = chatter->broadcastUnencrypted(messageBuffer, messageBufferLength, nullptr);
           }
           else {
@@ -293,9 +295,15 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   return HeadsUpControlMode::handleEvent(eventType);
 }
 
+void GuiControlMode::updateChatProgress(float progress) {
+  display->showProgressBar(progress);
+}
+
 // Sends a direct message and executes any other logic
 // as necessary to trigger routing. shows result to user
 bool GuiControlMode::attemptDirectSend () {
+  display->resetProgress();
+
   bool sentViaBridge = false;
   bool result = false;
   display->showAlert("Send DM", AlertActivity);
@@ -323,6 +331,8 @@ bool GuiControlMode::attemptDirectSend () {
 }
 
 bool GuiControlMode::sendDirectMessage () {
+  display->resetProgress();
+
   logConsole("Sending DM..");
   ChatterMessageFlags flags;
   flags.Flag0 = EncodingTypeText;
@@ -338,6 +348,8 @@ bool GuiControlMode::sendDirectMessage () {
 }
 
 bool GuiControlMode::sendViaBridge() {
+  display->resetProgress();
+
   logConsole("Sending via bridge..");
   ChatterMessageFlags flags;
   flags.Flag0 = EncodingTypeText;

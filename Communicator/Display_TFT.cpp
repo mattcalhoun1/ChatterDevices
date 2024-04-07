@@ -96,15 +96,20 @@ bool Display_TFT::handleIfTouched () {
 }
 
 int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue) {
-  return getModalInput(title, maxLength, charFilter, buffer, defaultValue, defaultKeyboard);
+  return getModalInput(title, maxLength, charFilter, buffer, defaultValue, 0, defaultKeyboard);
 }
 
 
 int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer) {
-  return getModalInput(title, maxLength, charFilter, buffer, "", defaultKeyboard);
+  return getModalInput(title, maxLength, charFilter, buffer, "", 0, defaultKeyboard);
 }
 
-int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, Keyboard* keyboard) {
+int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis) {
+  return getModalInput(title, maxLength, charFilter, buffer, "", timeoutMillis, defaultKeyboard);
+}
+
+int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis, Keyboard* keyboard) {
+  lastModalActivity = millis();
   clearAll();
 
   // rotate the screen if configured
@@ -119,16 +124,21 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
 
   // clear title area
   clearArea(getModalInputX(),getModalTitleY() - getTextUpperVerticalOffset(TextMedium), getModalInputWidth(), getModalTitleHeight());
-  drawLine (getModalInputX(), getModalTitleY() - getTextUpperVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), getModalTitleY() - getTextUpperVerticalOffset(TextMedium), White);
-  showText(title, calculateModalTitleX(title), getModalTitleY(), TextMedium);
-  drawLine (getModalInputX(), getModalTitleY() + getTextLowerVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), getModalTitleY() + getTextLowerVerticalOffset(TextMedium), White);
+  drawLine (getModalInputX(), getModalTitleY() - getTextUpperVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), getModalTitleY() - getTextUpperVerticalOffset(TextMedium), LightGray);
+  showText(title, calculateModalTitleX(title), getModalTitleY(), TextMedium, Beige);
+  drawLine (getModalInputX(), getModalTitleY() + getTextLowerVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), getModalTitleY() + getTextLowerVerticalOffset(TextMedium), LightGray);
 
   // clear text area
   clearArea(getModalInputX(),getModalInputY() - getTextUpperVerticalOffset(TextSmall), getModalInputWidth(), getModalInputHeight());
 
   // get user input until the user completes/cancels
-  while (!keyboard->userTerminatedInput() && !keyboard->userCompletedInput()) {
+  while (!keyboard->userTerminatedInput() && !keyboard->userCompletedInput() && (timeoutMillis == 0 || millis() - lastModalActivity < timeoutMillis)) {
     handleIfTouched();
+
+    if (keyboard->checkAndResetActivityFlag()) {
+      lastModalActivity = millis();
+    }
+
     if (keyboard->wasBufferEdited()) {
       keyboard->resetBufferEditFlag();
       clearArea(getModalInputX(),getModalInputY() - getTextUpperVerticalOffset(TextSmall), getModalInputWidth(), getModalInputHeight());
@@ -141,7 +151,7 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
       //else {
         // set the null indicator
         keyboard->addTermCharacter();
-        showText(keyboard->getUserInput(), getModalInputX(), getModalInputY(), TextSmall, Green);
+        showText(keyboard->getUserInput(), getModalInputX(), getModalInputY(), TextSmall, LightBlue);
       //}
     }
   }
@@ -302,6 +312,8 @@ uint16_t Display_TFT::getTFTColor(DisplayColor color) {
       return DARKGRAY;
     case BrightGreen:
       return BRIGHTGREEN;
+    case BrightYellow:
+      return BRIGHTYELLOW;
     default:
       return ILI9341_WHITE;
   }

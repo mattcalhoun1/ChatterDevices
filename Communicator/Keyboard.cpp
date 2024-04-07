@@ -153,6 +153,7 @@ bool Keyboard::handleScreenTouched (int touchX, int touchY) {
     // ignore
   }
   else if (typedKey != 0) {
+    activityFlag = true; // remember something happened
     lastKey = typedKey;
     //Serial.println(typedKey);
     if (typedKey == KEY_BACKSPACE) {
@@ -251,6 +252,14 @@ char Keyboard::getLetterAt (int touchX, int touchY) {
 
 
   return 0;
+}
+
+bool Keyboard::checkAndResetActivityFlag () {
+  if (activityFlag) {
+    activityFlag = false;
+    return true;
+  }
+  return false;
 }
 
 int8_t Keyboard::getVerticalPadding(char symbol) {

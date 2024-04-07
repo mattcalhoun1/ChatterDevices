@@ -49,6 +49,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         uint8_t promptForPassword (char* passwordBuffer, uint8_t maxPasswordLength);
         void promptFactoryReset();
+
+        void updateChatProgress (float progress);
     protected:
         bool updateMessagePreviewsIfNecessary ();
         void showMessageHistory(bool resetOffset);

@@ -47,7 +47,8 @@ class Display_TFT : public FullyInteractiveDisplay {
     bool handleIfTouched ();
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer);
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue);
-    int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, Keyboard* keyboard);
+    int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis);
+    int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis, Keyboard* keyboard);
 
     int getScreenWidth () { return DISPLAY_TFT_WIDTH; }
     int getScreenHeight () { return DISPLAY_TFT_HEIGHT; }
@@ -133,6 +134,11 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getSpinnerY () { return DISPLAY_TFT_SPINNER_Y; }
     int getSpinnerRadius () { return DISPLAY_TFT_SPINNER_RADIUS; }
 
+    int getProgressBarX () { return DISPLAY_TFT_PROGRESS_BAR_X; }
+    int getProgressBarY ()  { return DISPLAY_TFT_PROGRESS_BAR_Y; }
+    int getProgressBarHeight ()  { return DISPLAY_TFT_PROGRESS_BAR_HEIGHT; }
+    int getProgressBarWidth ()  { return DISPLAY_TFT_PROGRESS_BAR_WIDTH; }
+
     int getTickerX () { return DISPLAY_TFT_TICKER_X; }
     int getTickerY () { return DISPLAY_TFT_TICKER_Y; }
     int getTickerSize () { return DISPLAY_TFT_TICKER_SIZE; }
@@ -163,6 +169,7 @@ class Display_TFT : public FullyInteractiveDisplay {
 
   private:
     int calculateModalTitleX (const char* titleText);
+    unsigned long lastModalActivity = 0;
 
     #if defined(DISPLAY_TYPE_HOYSOND)
     Adafruit_ST7796S_kbv display = Adafruit_ST7796S_kbv(Display_TFT_CS, Display_TFT_DC, Display_TFT_RS);

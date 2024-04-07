@@ -35,7 +35,8 @@ enum DisplayColor {
   LightGray = 14,
   DarkRed = 15,
   DarkGray = 16,
-  BrightGreen = 17
+  BrightGreen = 17,
+  BrightYellow = 18
 };
 
 enum AlertType {
@@ -108,8 +109,10 @@ class Display {
 
     virtual void clearAll ();
 
-    virtual void showProgress (float percent);
+    void resetProgress () {currentProgress = 0;}
+    void showProgress (float percent);
     void showAlert (const char* alertText, AlertType alertType);
+    void showProgressBar (float percent);
 
     void showDashboardItems (const char* item[], DisplayColor itemColor[], uint8_t numItems);
 
@@ -130,7 +133,7 @@ class Display {
     bool isScrollUpEnabled () { return scrollUpEnabled; }
     bool isScrollDownEnabled () { return scrollDownEnabled; }
     ScrollButton getScrollButtonAt (int x, int y);
-    
+
   protected:
     float currentProgress = 0; // placeholder for progress spinner
     void logConsole (String msg);
@@ -176,6 +179,11 @@ class Display {
     virtual int getSpinnerX () = 0;
     virtual int getSpinnerY () = 0;
     virtual int getSpinnerRadius () = 0;
+
+    virtual int getProgressBarX () = 0;
+    virtual int getProgressBarY () = 0;
+    virtual int getProgressBarHeight () = 0;
+    virtual int getProgressBarWidth () = 0;
 
     virtual int getTickerX () = 0;
     virtual int getTickerY () = 0;
