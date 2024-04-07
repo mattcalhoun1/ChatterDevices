@@ -5,6 +5,21 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
 
   display.begin();
 
+  display.setFont(&FreeSans9pt7b);
+
+  clear();
+
+  resetProgress();
+  showProgressBar(.1);
+
+  // show splash screen
+  changeFont(FontBold);
+  showText("ChatterBox", 65, 100, TextSmall, DarkBlue);
+  changeFont(FontTiny);
+  showText("* Chatters Secure Messaging *", 35, 150, TextSmall, DarkBlue);
+  changeFont(FontNormal);
+  showProgressBar(.25);
+
   #if defined(TOUCH_CONTROL_RAK)
   touch = new TouchControlRak();
   touch->init(); 
@@ -16,9 +31,8 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
   logConsole("No touch control defined");
   #endif
 
-  display.setFont(&FreeSans9pt7b);
+  showProgressBar(.75);
 
-  clear();
 }
 
 void Display_TFT::touchInterrupt() {
