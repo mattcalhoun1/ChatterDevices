@@ -56,6 +56,8 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     void touchInterrupt();
     void showButtons ();
+    DisplayedButton getButtonAt (int x, int y);
+
   protected:
     int getStatusX();
     int getStatusY();
@@ -85,6 +87,12 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getMenuLineHeight () { return DISPLAY_TFT_MENU_LINE_HEIGHT; }
     int getMenuMaxItemLength () { return DISPLAY_TFT_MENU_MAX_ITEM_LENGTH; }
     int getMenuItemIndent () { return DISPLAY_TFT_MENU_INDENT; }
+
+    int getMenuScrollUpX() { return DISPLAY_TFT_MENU_SCROLL_UP_X; }
+    int getMenuScrollUpY() { return DISPLAY_TFT_MENU_SCROLL_UP_Y; }
+    int getMenuScrollDownX() { return DISPLAY_TFT_MENU_SCROLL_DOWN_X; }
+    int getMenuScrollDownY() { return DISPLAY_TFT_MENU_SCROLL_DOWN_Y; }
+    int getMenuScrollRadius() { return DISPLAY_TFT_MENU_SCROLL_RADIUS; }
 
     int getTitleAreaX () { return DISPLAY_TFT_TITLE_X; }
     int getTitleAreaY () { return DISPLAY_TFT_TITLE_Y; }
@@ -144,8 +152,6 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     void showButton(uint8_t buttonPosition, const char* buttonText);
     const char* getButtonText (DisplayedButton btn){return buttonTexts[btn];}
-
-    bool isTouchEnabled () {return true;}
 
   private:
     int calculateModalTitleX (const char* titleText);

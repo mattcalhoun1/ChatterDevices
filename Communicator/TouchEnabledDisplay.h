@@ -22,10 +22,11 @@ class TouchEnabledDisplay : public MenuEnabledDisplay {
         virtual int getKeyboardAreaHeight () = 0;
         void setKeyboardOrientation (ScreenRotation _rotation) {keyboardOrientation = _rotation; }
 
-        virtual void addTouchListener (TouchListener* _listener) {listeners[(numListeners >= MAX_TOUCH_LISTENERS-1 ? 0 : numListeners++)] = _listener;}
+        virtual void addTouchListener (TouchListener* _listener) {listeners[(numListeners >= MAX_TOUCH_LISTENERS ? 0 : numListeners++)] = _listener;}
         virtual bool handleIfTouched () = 0;
 
         virtual void touchInterrupt () = 0;
+        bool isTouchEnabled () {return true;}
       
     protected:
       uint8_t numListeners = 0;

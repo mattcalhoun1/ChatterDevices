@@ -6,8 +6,23 @@ bool Menu::init() {
   return true;
 }
 
-void Menu::iteratorMenu () {
-  resetMenu();
+void Menu::show() {
+  mainMenu(true);
+  mode = MenuActive;
+  needsRepainted = true;
+}
+
+bool Menu::handleScreenTouched(int touchX, int touchY) {
+  if (mode == MenuActive) {
+    Serial.println("Menu touched");
+    return true;
+  }
+
+  return false;
+}
+
+void Menu::iteratorMenu (bool fullRepaint) {
+  resetMenu(fullRepaint);
   iteratorOffset = 0;
 
   oledMenu.menuId = MENU_ID_ITERATOR;
@@ -23,6 +38,9 @@ void Menu::iteratorMenu () {
 
   mode = MenuActive;
   needsRepainted = true;
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = max(0, subsetSize >= 3 ? 3 : subsetSize);
 }
 
 void Menu::populateIteratorMenu () {
@@ -50,6 +68,9 @@ void Menu::mainMenu(bool fullRepaint) {
   oledMenu.menuItems[MENU_MAIN_ONBOARDING] = "Onboarding";
   oledMenu.menuItems[MENU_MAIN_CLEAR_MESSAGES] = "Clear Messages";
   oledMenu.menuItems[MENU_MAIN_ADMIN] = "Admin";
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = 3;
 }
 
 void Menu::adminMenu() {
@@ -67,6 +88,9 @@ void Menu::adminMenu() {
   oledMenu.menuItems[MENU_ADMIN_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
 
   oledMenu.menuItems[MENU_ADMIN_FACTORY_RESET] = "Factory Reset";
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = 3;
 }
 
 void Menu::onboardingMenu() {
@@ -321,9 +345,7 @@ void Menu::notifyButtonPressed () {
     if (millis() - oledMenu.lastMenuActivity > minButtonDelay) {
       // if no menu is up, open default menu
       if (mode == MenuOff) {
-          mainMenu(true);
-          mode = MenuActive;
-          needsRepainted = true;
+        show();
       }
       else {
         //needsRepainted = true;
@@ -452,6 +474,9 @@ void Menu::serviceMenu() {
             populateIteratorMenu();
           }
 
+          // add logic here for scroll bars
+          display->showScrolls(iteratorOffset > 0, iteratorOffset + displayMaxLines < iterator->getNumItems());
+
           /*for (int i=1; i <= displayMaxLines; i++) {
               int item = oledMenu.highlightedMenuItem - _centreLine + i;
 
@@ -460,6 +485,10 @@ void Menu::serviceMenu() {
               }
           }*/
         }
+        else {
+            // add logic here for scroll bars
+            display->showScrolls(true, true);
+        }
         //else {
           // menu
           //for (int i=1; i <= displayMaxLines; i++) {
@@ -467,7 +496,12 @@ void Menu::serviceMenu() {
               int item = oledMenu.highlightedMenuItem - _centreLine + i;
 
               if (item > 0 && item <= oledMenu.noOfmenuItems) {
+                if (MENU_HIGHLIGHT_CENTER) {
                   display->showMenuItem(i, oledMenu.menuItems[item], item == oledMenu.highlightedMenuItem ? Black : White, item == oledMenu.highlightedMenuItem ? White : Black);
+                }
+                else {
+                  display->showMenuItem(i, oledMenu.menuItems[item], Beige, DarkGreen);
+                }
               }
           }
         //}

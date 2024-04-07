@@ -54,7 +54,7 @@ void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength, const char*
   
   if (!showing) {
     // wrap keyboard in a rectangle
-    display->fillRect(x, y, width, height, Gray);
+    display->fillRect(x, y, width, height, DarkGray);
 
     // wrap each key in a rectangle
 

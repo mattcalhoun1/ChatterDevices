@@ -10,7 +10,8 @@
 enum DisplayedButton {
     ButtonDM = 0,
     ButtonBroadcast = 1,
-    ButtonMenu = 2
+    ButtonMenu = 2,
+    ButtonNone = 3
 };
 
 class FullyInteractiveDisplay : public TouchEnabledDisplay {
@@ -22,6 +23,8 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         virtual void touchInterrupt() = 0;
 
         virtual void showButtons () = 0;
+        virtual DisplayedButton getButtonAt (int x, int y) = 0;
+        virtual bool handleIfTouched () = 0;
 
     protected:
         virtual int getModalTitleX () = 0;

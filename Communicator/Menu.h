@@ -1,4 +1,5 @@
 #include "MenuEnabledDisplay.h"
+#include "TouchEnabledDisplay.h"
 #include <RotaryEncoder.h>
 #include "CommunicatorEventHandler.h"
 #include "CommunicatorEvent.h"
@@ -36,6 +37,8 @@
 #define MENU_ID_ADMIN 3
 #define MENU_ID_ITERATOR 4
 
+#define MENU_HIGHLIGHT_CENTER false
+
 #define ITERATOR_MAX_NAME_SIZE 16
 #define ITERATOR_SELECTION_NONE 255
 
@@ -63,7 +66,7 @@ struct OledMenu {
     int mValueStep = 0;                       // step size when encoder is turned
 };
 
-class Menu {
+class Menu : public TouchListener {
     public:
         Menu(MenuEnabledDisplay* _display, RotaryEncoder* _rotary, CommunicatorEventHandler* _handler, bool _onboardAllowed, CommunicatorPreferenceHandler* _prefHandler) { display = _display; rotary = _rotary; handler = _handler; onboardAllowed = _onboardAllowed; prefHandler = _prefHandler;}
 
@@ -72,7 +75,7 @@ class Menu {
         void mainMenu (bool fullRepaint = false);
         void adminMenu();
         void onboardingMenu ();
-        void iteratorMenu ();
+        void iteratorMenu (bool fullRepaint = false);
         void iteratorActions ();        
 
         // leftover from demo
@@ -89,13 +92,15 @@ class Menu {
         int serviceValue(bool _blocking);
         void serviceMenu ();
         void menuUpdate ();
-        bool isActive () {return mode != MenuOff; }
-
+        bool isShowing () {return mode != MenuOff; }
+        void show ();
         void notifyButtonPressed ();
         void notifyRotaryChanged ();
 
         void setItemIterator (ItemIterator* _iterator) { iterator = _iterator; }
         uint8_t getIteratorSelection () {return iteratorSelection;}
+
+        bool handleScreenTouched (int touchX, int touchY);
 
     protected:
         void adminActions ();

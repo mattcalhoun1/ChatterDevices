@@ -413,3 +413,18 @@ void Display_TFT::showButtons() {
     showButton(btnCount, getButtonText((DisplayedButton)btnCount));
   }
 }
+
+DisplayedButton Display_TFT::getButtonAt (int x, int y) {
+  // is the button in the button area vertically
+  if (y >= getButtonAreaY() && y <= getButtonAreaY() + getButtonHeight()) {
+    // it's in the button row somewhere, is it on a button
+    for (uint8_t btnCount = 0; btnCount < NUM_DISPLAYED_BUTTONS; btnCount++) {
+      int buttonX = getButtonAreaX() + (btnCount * getButtonHorizontalOffset());
+      if (x >= buttonX && x <= buttonX + getButtonWidth()) {
+        return (DisplayedButton)btnCount;
+      }
+    }
+  }
+
+  return ButtonNone;
+}

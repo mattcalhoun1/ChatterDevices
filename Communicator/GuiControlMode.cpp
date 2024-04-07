@@ -17,6 +17,7 @@ bool GuiControlMode::init() {
     // add self as a touch listener
     if (display->isTouchEnabled()) {
       ((TouchEnabledDisplay*)display)->addTouchListener(this);
+      ((TouchEnabledDisplay*)display)->addTouchListener(menu);
 
       // set keyboard orientation
       ((TouchEnabledDisplay*)display)->setKeyboardOrientation(chatter->getDeviceStore()->getKeyboardOrientedLandscape() ? Landscape : Portrait);
@@ -60,7 +61,7 @@ void GuiControlMode::loop () {
   menu->menuUpdate();
 
   // if the user is interacting, skip the main loop
-  if (!menu->isActive()) {
+  if (!menu->isShowing()) {
     //display->showProgress(((float)(millis() % 100)) / 100.0);
     if (fullRepaint) {
       fullRepaint = false;
@@ -78,6 +79,12 @@ void GuiControlMode::loop () {
     if (millis() - lastTick > tickFrequency) {
       display->showTick();
       lastTick = tickFrequency;
+    }
+  }
+  else {
+    // still let touch events through
+    if (fullyInteractive) {
+      ((FullyInteractiveDisplay*)display)->handleIfTouched();
     }
   }
 }
@@ -158,10 +165,10 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         // select a recipient (or broadcast)
         deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
         menu->setItemIterator(deviceIterator);
-        menu->iteratorMenu(); // modal
+        menu->iteratorMenu(true); // modal
 
         // wait for result of contact selections
-        while (menu->isActive()) {
+        while (menu->isShowing()) {
           menu->menuUpdate();
           delay(10);
         }
@@ -390,7 +397,21 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
       return true;
     }
   }
-  if (messageHistorySize > 0) {
+
+  // if it's a button
+  DisplayedButton pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (touchX, touchY);
+  if (pressedButton != ButtonNone) {
+    switch (pressedButton) {
+      case ButtonBroadcast:
+        return handleEvent(UserRequestSecureBroadcast);
+      case ButtonDM:
+        return handleEvent(UserRequestDirectMessage);
+      case ButtonMenu:
+        menu->show();
+        return true;
+    }
+  }
+  else if (messageHistorySize > 0) {
     uint8_t selectedMessage = display->getMessagePosition(touchX, touchY);
     if (selectedMessage != DISPLAY_MESSAGE_POSITION_NULL && selectedMessage < messageHistorySize) {
       uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedMessage + messagePreviewOffset);
@@ -469,7 +490,7 @@ bool GuiControlMode::updateMessagePreviewsIfNecessary () {
 
 void GuiControlMode::handleRotaryInterrupt () {
   rotary->tick(); // just call tick() to check the state.
-  if (menu->isActive()) {
+  if (menu->isShowing()) {
     menu->notifyRotaryChanged();
   }
   else {
@@ -600,7 +621,7 @@ void GuiControlMode::sleepOrBackground(unsigned long sleepTime) {
   unsigned long startTime = millis();
 
   while (millis() - startTime < sleepTime) {
-    if (menu->isActive() == false) {
+    if (menu->isShowing() == false) {
       if (display->isTouchEnabled()) {
         ((TouchEnabledDisplay*)display)->handleIfTouched();
       }
