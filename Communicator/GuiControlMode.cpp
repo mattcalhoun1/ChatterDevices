@@ -143,12 +143,7 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
   }
 
   // if there are more messages, indicate that
-  if (messagePreviewOffset > 0) {
-    display->showHasMessagesBefore();
-  }
-  if (messageHistorySize > messagePreviewOffset + display->getMaxDisplayableMessages()) {
-    display->showHasMessagesAfter();
-  }
+  display->showMainScrolls(messagePreviewOffset > 0, messageHistorySize > messagePreviewOffset + display->getMaxDisplayableMessages());
 
   //logConsole("=== End Message History === ");
 }
@@ -415,31 +410,47 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
     }
   }
   else if (messageHistorySize > 0) {
-    uint8_t selectedMessage = display->getMessagePosition(touchX, touchY);
-    if (selectedMessage != DISPLAY_MESSAGE_POSITION_NULL && selectedMessage < messageHistorySize) {
-      uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedMessage + messagePreviewOffset);
-     
-      // queue a reply event to that message slot
-      if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
-        // whichever is not this device becomes the target
-        if (memcmp(chatter->getDeviceId(), histSenderId, CHATTER_DEVICE_ID_SIZE) != 0) {
-          memcpy(eventBuffer.EventTarget, histSenderId, CHATTER_DEVICE_ID_SIZE);
-        }
-        else {
-          memcpy(eventBuffer.EventTarget, histRecipientId, CHATTER_DEVICE_ID_SIZE);
-        }
+    // if it's a scrollbar
+    ScrollButton scroller = display->getScrollButtonAt(touchX, touchY);
+    if (scroller != ScrollNone) {
+      if (scroller == ScrollUp && display->isScrollUpEnabled() && messagePreviewOffset > 0) {
+        messagePreviewOffset--;
+        showMessageHistory(false);
+        return true;
+      }
+      else if (scroller == ScrollDown && display->isScrollDownEnabled() && messagePreviewOffset + display->getMaxDisplayableMessages() < messageHistorySize) {
+        messagePreviewOffset++;
+        showMessageHistory(false);
+        return true;
+      }
+    }
+    else {
+      uint8_t selectedMessage = display->getMessagePosition(touchX, touchY);
+      if (selectedMessage != DISPLAY_MESSAGE_POSITION_NULL && selectedMessage < messageHistorySize) {
+        uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedMessage + messagePreviewOffset);
+      
+        // queue a reply event to that message slot
+        if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
+          // whichever is not this device becomes the target
+          if (memcmp(chatter->getDeviceId(), histSenderId, CHATTER_DEVICE_ID_SIZE) != 0) {
+            memcpy(eventBuffer.EventTarget, histSenderId, CHATTER_DEVICE_ID_SIZE);
+          }
+          else {
+            memcpy(eventBuffer.EventTarget, histRecipientId, CHATTER_DEVICE_ID_SIZE);
+          }
 
-        // if it's a broadcast, let the generic broadcast handle it
-        if (memcmp(chatter->getClusterBroadcastId(), eventBuffer.EventTarget, CHATTER_DEVICE_ID_SIZE) == 0) {
-          return handleEvent(UserRequestSecureBroadcast);
-        }
+          // if it's a broadcast, let the generic broadcast handle it
+          if (memcmp(chatter->getClusterBroadcastId(), eventBuffer.EventTarget, CHATTER_DEVICE_ID_SIZE) == 0) {
+            return handleEvent(UserRequestSecureBroadcast);
+          }
 
-        // put the alias into event data
-        memset(eventBuffer.EventData, 0, EVENT_DATA_SIZE);
-        eventBuffer.EventData[0] = '@';
-        chatter->getTrustStore()->loadAlias(eventBuffer.EventTarget, (char*)eventBuffer.EventData + 1);
-        eventBuffer.EventType = UserRequestReply;
-        return handleEvent(&eventBuffer);
+          // put the alias into event data
+          memset(eventBuffer.EventData, 0, EVENT_DATA_SIZE);
+          eventBuffer.EventData[0] = '@';
+          chatter->getTrustStore()->loadAlias(eventBuffer.EventTarget, (char*)eventBuffer.EventData + 1);
+          eventBuffer.EventType = UserRequestReply;
+          return handleEvent(&eventBuffer);
+        }
       }
     }
   }

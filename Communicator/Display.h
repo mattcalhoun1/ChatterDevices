@@ -52,6 +52,12 @@ enum ScreenRotation {
   LandscapeFlip = 3
 };
 
+enum ScrollButton {
+    ScrollUp = 0,
+    ScrollDown = 1,
+    ScrollNone = 2
+};
+
 #define DISPLAY_MESSAGE_POSITION_NULL 255
 
 class Display {
@@ -79,8 +85,8 @@ class Display {
     virtual void showMessage (const char* text, DisplayColor color, uint8_t position);
     virtual void showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
     virtual uint8_t getMessagePosition (int positionX, int positionY);
-    virtual void showHasMessagesBefore ();
-    virtual void showHasMessagesAfter ();
+    //virtual void showHasMessagesBefore ();
+    //virtual void showHasMessagesAfter ();
 
     virtual void clearMessageArea ();
     virtual uint8_t getMaxDisplayableMessages () = 0;
@@ -120,6 +126,11 @@ class Display {
     // that the device isn't frozen
     virtual void showTick ();
 
+    void showMainScrolls (bool _scrollUpEnabled, bool _scrollDownEnabled);
+    bool isScrollUpEnabled () { return scrollUpEnabled; }
+    bool isScrollDownEnabled () { return scrollDownEnabled; }
+    ScrollButton getScrollButtonAt (int x, int y);
+    
   protected:
     float currentProgress = 0; // placeholder for progress spinner
     void logConsole (String msg);
@@ -180,9 +191,19 @@ class Display {
     virtual int getAlertAreaY() = 0;
     virtual int getAlertAreaHeight() = 0;
 
+    virtual int getMainScrollUpX() = 0;
+    virtual int getMainScrollUpY() = 0;
+    virtual int getMainScrollDownX() = 0;
+    virtual int getMainScrollDownY() = 0;
+    virtual int getMainScrollRadius() = 0;
+    virtual int getMainScrollTouchRadius() = 0;
+
     ThermalEncoder* encoder;
     ScreenRotation rotation = Portrait;
 
     bool tickerShowing = false;
+
+    bool scrollUpEnabled = false;
+    bool scrollDownEnabled = false;
 };
 #endif

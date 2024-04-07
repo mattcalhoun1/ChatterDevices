@@ -95,6 +95,13 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getMenuScrollRadius() { return DISPLAY_TFT_MENU_SCROLL_RADIUS; }
     int getMenuScrollTouchRadius() { return DISPLAY_TFT_MENU_SCROLL_TOUCH_RADIUS; }
 
+    int getMainScrollUpX() { return DISPLAY_TFT_MAIN_SCROLL_UP_X; }
+    int getMainScrollUpY() { return DISPLAY_TFT_MAIN_SCROLL_UP_Y; }
+    int getMainScrollDownX() { return DISPLAY_TFT_MAIN_SCROLL_DOWN_X; }
+    int getMainScrollDownY() { return DISPLAY_TFT_MAIN_SCROLL_DOWN_Y; }
+    int getMainScrollRadius() { return DISPLAY_TFT_MAIN_SCROLL_RADIUS; }
+    int getMainScrollTouchRadius() { return DISPLAY_TFT_MAIN_SCROLL_TOUCH_RADIUS; }
+
     int getTitleAreaX () { return DISPLAY_TFT_TITLE_X; }
     int getTitleAreaY () { return DISPLAY_TFT_TITLE_Y; }
     int getTitleAreaHeight () { return DISPLAY_TFT_TITLE_HEIGHT; }

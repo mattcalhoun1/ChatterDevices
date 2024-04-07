@@ -42,7 +42,7 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
   changeFont(FontNormal);
   showText(text, getMessageAreaX(), getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, messageColor);
 }
-
+/*
 void Display::showHasMessagesBefore () {
   for (uint8_t pxWide = 0; pxWide < 4; pxWide++) {
     showText("<", pxWide + getMessageAreaX() + getMessageAreaWidth() - 40, getMessageAreaY() + getMessageAreaHeight() - getTextUpperVerticalOffset(TextSmall), TextSmall, Cyan);
@@ -54,7 +54,7 @@ void Display::showHasMessagesAfter () {
     showText(">", pxWide + getMessageAreaX() + getMessageAreaWidth() - 20, getMessageAreaY() + getMessageAreaHeight() - getTextUpperVerticalOffset(TextSmall), TextSmall, Cyan);
   }
 }
-
+*/
 uint8_t Display::getMessagePosition (int positionX, int positionY) {
   // look mainly at y position, as that's what identifies one position versus another
 
@@ -188,4 +188,49 @@ void Display::showProgress(float percent) {
 
     currentProgress = percent;
   }
+}
+
+void Display::showMainScrolls (bool _scrollUpEnabled, bool _scrollDownEnabled) {
+    scrollUpEnabled = _scrollUpEnabled;
+    scrollDownEnabled = _scrollDownEnabled;
+
+    int scrollUpX = getMainScrollUpX();
+    int scrollUpY = getMainScrollUpY();
+    int scrollDownX = getMainScrollDownX();
+    int scrollDownY = getMainScrollDownY();
+
+    uint8_t radius = getMainScrollRadius();
+
+    if (scrollUpEnabled) {
+        fillTriangle (scrollUpX - (radius+2), scrollUpY + (radius+1), scrollUpX + (radius+2), scrollUpY + (radius+1), scrollUpX, scrollUpY - (radius+2), Beige);
+        fillTriangle (scrollUpX - radius, scrollUpY + radius, scrollUpX + radius, scrollUpY + radius, scrollUpX, scrollUpY - radius, DarkGreen);
+    }
+    else {
+        fillTriangle (scrollUpX - (radius+2), scrollUpY + (radius+1), scrollUpX + (radius+2), scrollUpY + (radius+1), scrollUpX, scrollUpY - (radius+2), Black);
+    }
+
+    if (scrollDownEnabled) {
+        fillTriangle (scrollDownX - (radius+2), scrollDownY - (radius+1), scrollDownX + (radius+2), scrollDownY - (radius+1), scrollDownX, scrollDownY + (radius+2), Beige);
+        fillTriangle (scrollDownX - radius, scrollDownY - radius, scrollDownX + radius, scrollDownY - radius, scrollDownX, scrollDownY + radius, DarkGreen);
+    }
+    else {
+        fillTriangle (scrollDownX - (radius+2), scrollDownY - (radius+1), scrollDownX + (radius+2), scrollDownY - (radius+1), scrollDownX, scrollDownY + (radius+2), Black);
+    }
+}
+
+ScrollButton Display::getScrollButtonAt (int x, int y) {
+    int scrollUpX = getMainScrollUpX();
+    int scrollUpY = getMainScrollUpY();
+    int scrollDownX = getMainScrollDownX();
+    int scrollDownY = getMainScrollDownY();
+    uint8_t radius = getMainScrollTouchRadius();
+
+    if (x >= scrollUpX - radius && x <= scrollUpX + radius && y >= scrollUpY - radius && y <= scrollUpY + radius) {
+        return ScrollUp;
+    }
+    else if (x >= scrollDownX - radius && x <= scrollDownX + radius && y >= scrollDownY - radius && y <= scrollDownY + radius) {
+        return ScrollDown;
+    }
+
+    return ScrollNone;
 }

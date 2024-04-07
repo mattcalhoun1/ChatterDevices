@@ -15,7 +15,7 @@ void Menu::show() {
 bool Menu::handleScreenTouched(int touchX, int touchY) {
   if (mode == MenuActive && millis() - oledMenu.lastMenuActivity >= minTouchDelay) {
     // if user touched scroll button, handle that
-    MenuScrollButton scrollBtn = display->getScrollButtonAt(touchX, touchY);
+    MenuScrollButton scrollBtn = display->getMenuScrollButtonAt(touchX, touchY);
     if (scrollBtn == MenuScrollUp) {
       scrollUpTouched = true;
       oledMenu.lastMenuActivity = millis();
@@ -455,7 +455,7 @@ void Menu::serviceMenu() {
     // touch scroll
     if (scrollUpTouched) {
       scrollUpTouched = false;
-      if (display->isScrollUpEnabled()) {
+      if (display->isMenuScrollUpEnabled()) {
         movedBackward = true;
         scrollOffset--;
         oledMenu.highlightedMenuItem--;
@@ -464,7 +464,7 @@ void Menu::serviceMenu() {
     }
     else if (scrollDownTouched) {
       scrollDownTouched = false;
-      if (display->isScrollDownEnabled()) {
+      if (display->isMenuScrollDownEnabled()) {
         movedForward = true;
         oledMenu.highlightedMenuItem++;
         scrollOffset++;
@@ -530,7 +530,7 @@ void Menu::serviceMenu() {
           }
 
           // add logic here for scroll bars
-          display->showScrolls(iteratorOffset > 0, iteratorOffset + displayMaxLines < iterator->getNumItems());
+          display->showMenuScrolls(iteratorOffset > 0, iteratorOffset + displayMaxLines < iterator->getNumItems());
 
           /*for (int i=1; i <= displayMaxLines; i++) {
               int item = oledMenu.highlightedMenuItem - _centreLine + i;
@@ -542,7 +542,7 @@ void Menu::serviceMenu() {
         }
         else {
             // add logic here for scroll bars
-            display->showScrolls(oledMenu.highlightedMenuItem > MENU_DEFAULT_HIGHLIGHTED_ITEM, oledMenu.highlightedMenuItem + _centreLine <= oledMenu.noOfmenuItems);
+            display->showMenuScrolls(oledMenu.highlightedMenuItem > MENU_DEFAULT_HIGHLIGHTED_ITEM, oledMenu.highlightedMenuItem + _centreLine <= oledMenu.noOfmenuItems);
         }
         //else {
           // menu

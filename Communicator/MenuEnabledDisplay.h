@@ -31,7 +31,7 @@ class MenuEnabledDisplay : public Display {
         virtual int getMenuScrollRadius() = 0;
         virtual int getMenuScrollTouchRadius() = 0;
 
-        virtual MenuScrollButton getScrollButtonAt (int x, int y);
+        virtual MenuScrollButton getMenuScrollButtonAt (int x, int y);
 
         virtual int getMenuBorderSize() {return 2;}
 
@@ -46,12 +46,12 @@ class MenuEnabledDisplay : public Display {
 
         void blurMenuBackground ();
 
-        void showScrolls (bool _scrollUpEnabled, bool _scrollDownEnabled);
-        bool isScrollUpEnabled () { return scrollUpEnabled; }
-        bool isScrollDownEnabled () { return scrollDownEnabled; }
+        void showMenuScrolls (bool _scrollUpEnabled, bool _scrollDownEnabled);
+        bool isMenuScrollUpEnabled () { return menuScrollUpEnabled; }
+        bool isMenuScrollDownEnabled () { return menuScrollDownEnabled; }
     protected:
-        bool scrollUpEnabled = false;
-        bool scrollDownEnabled = false;
+        bool menuScrollUpEnabled = false;
+        bool menuScrollDownEnabled = false;
         uint8_t numDisplayableItems = 5;
 };
 

@@ -54,9 +54,9 @@ void MenuEnabledDisplay::blurMenuBackground () {
     clearArea(0, getTitleAreaHeight(), getScreenWidth(), getScreenHeight() - getTitleAreaHeight(), Black);
 }
 
-void MenuEnabledDisplay::showScrolls (bool _scrollUpEnabled, bool _scrollDownEnabled) {
-    scrollUpEnabled = _scrollUpEnabled;
-    scrollDownEnabled = _scrollDownEnabled;
+void MenuEnabledDisplay::showMenuScrolls (bool _scrollUpEnabled, bool _scrollDownEnabled) {
+    menuScrollUpEnabled = _scrollUpEnabled;
+    menuScrollDownEnabled = _scrollDownEnabled;
 
     int scrollUpX = getMenuScrollUpX();
     int scrollUpY = getMenuScrollUpY();
@@ -65,7 +65,7 @@ void MenuEnabledDisplay::showScrolls (bool _scrollUpEnabled, bool _scrollDownEna
 
     uint8_t radius = getMenuScrollRadius();
 
-    if (scrollUpEnabled) {
+    if (menuScrollUpEnabled) {
         fillTriangle (scrollUpX - (radius+2), scrollUpY + (radius+1), scrollUpX + (radius+2), scrollUpY + (radius+1), scrollUpX, scrollUpY - (radius+2), Beige);
         fillTriangle (scrollUpX - radius, scrollUpY + radius, scrollUpX + radius, scrollUpY + radius, scrollUpX, scrollUpY - radius, DarkGreen);
     }
@@ -73,7 +73,7 @@ void MenuEnabledDisplay::showScrolls (bool _scrollUpEnabled, bool _scrollDownEna
         fillTriangle (scrollUpX - (radius+2), scrollUpY + (radius+1), scrollUpX + (radius+2), scrollUpY + (radius+1), scrollUpX, scrollUpY - (radius+2), Black);
     }
 
-    if (scrollDownEnabled) {
+    if (menuScrollDownEnabled) {
         fillTriangle (scrollDownX - (radius+2), scrollDownY - (radius+1), scrollDownX + (radius+2), scrollDownY - (radius+1), scrollDownX, scrollDownY + (radius+2), Beige);
         fillTriangle (scrollDownX - radius, scrollDownY - radius, scrollDownX + radius, scrollDownY - radius, scrollDownX, scrollDownY + radius, DarkGreen);
     }
@@ -82,7 +82,7 @@ void MenuEnabledDisplay::showScrolls (bool _scrollUpEnabled, bool _scrollDownEna
     }
 }
 
-MenuScrollButton MenuEnabledDisplay::getScrollButtonAt (int x, int y) {
+MenuScrollButton MenuEnabledDisplay::getMenuScrollButtonAt (int x, int y) {
     int scrollUpX = getMenuScrollUpX();
     int scrollUpY = getMenuScrollUpY();
     int scrollDownX = getMenuScrollDownX();
