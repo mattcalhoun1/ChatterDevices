@@ -199,6 +199,10 @@ void Display_TFT::fillCircle (int circleX, int circleY, int radius, DisplayColor
   display.fillCircle(circleX, circleY, radius, getTFTColor(color));
 }
 
+void Display_TFT::fillTriangle (int x1, int y1, int x2, int y2, int x3, int y3, DisplayColor color) {
+  display.fillTriangle(x1, y1, x2, y2, x3, y3, getTFTColor(color));
+}
+
 void Display_TFT::setRotation (ScreenRotation _rotation) {
   rotation = _rotation;
   display.setRotation((uint8_t)_rotation);
@@ -391,4 +395,21 @@ int Display_TFT::calculateModalTitleX (const char* titleText) {
 
   // portrait mode, keep hardcoded value
   return DISPLAY_TFT_MODAL_TITLE_X;
+}
+
+void Display_TFT::showButton(uint8_t buttonPosition, const char* buttonText){
+  // draw a round rectangle (filled) inside another rectangle
+  int buttonX = getButtonAreaX() + (buttonPosition * getButtonHorizontalOffset());
+  display.drawRoundRect(buttonX, getButtonAreaY(), getButtonWidth(), getButtonHeight(), 1, getTFTColor(LightGreen));
+  display.fillRoundRect(buttonX + 1, getButtonAreaY() + 1, getButtonWidth() - 2, getButtonHeight() - 2, 1, getTFTColor(DarkGreen));
+
+  uint8_t charsPerButton = 6;
+  int textX = buttonX + (max(0, ((charsPerButton - strlen(buttonText))/2) * (getButtonWidth()/charsPerButton)));
+  showText(buttonText, textX, getButtonAreaY() + getButtonHeight() - getTextLowerVerticalOffset(TextSmall), TextSmall, Beige);
+}
+
+void Display_TFT::showButtons() {
+  for (uint8_t btnCount = 0; btnCount < NUM_DISPLAYED_BUTTONS; btnCount++){
+    showButton(btnCount, getButtonText((DisplayedButton)btnCount));
+  }
 }

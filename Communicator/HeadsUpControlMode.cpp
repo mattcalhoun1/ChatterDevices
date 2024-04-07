@@ -5,17 +5,14 @@ bool HeadsUpControlMode::init () {
 
     // if display hasn't already been set
     if (display == nullptr) {
-        if (deviceType == DeviceTypeCommunicatorMini) {
-            display = new Display_7789(encoder);
-        }
-        else {
-            fullyInteractive = true;
-            display = new Display_TFT(encoder);
-            // attach keyboard to display
-            Keyboard* keyboard = new Keyboard((TouchEnabledDisplay*)display);
-            keyboard->init();
-            ((FullyInteractiveDisplay*)display)->setDefaultKeyboard(keyboard);
-        }
+      // this is where a different display could be initialized if desired
+
+      fullyInteractive = true;
+      display = new Display_TFT(encoder);
+      // attach keyboard to display
+      Keyboard* keyboard = new Keyboard((TouchEnabledDisplay*)display);
+      keyboard->init();
+      ((FullyInteractiveDisplay*)display)->setDefaultKeyboard(keyboard);
     }
 
     // make sure parent is initialized

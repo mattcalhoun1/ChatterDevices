@@ -96,6 +96,7 @@ class Display {
     virtual void drawLine (int lineX, int lineY, int lineEndX, int lineEndY, DisplayColor color) = 0;     
     virtual void drawCircle (int circleX, int circleY, int radius, DisplayColor color) = 0;     
     virtual void fillCircle (int circleX, int circleY, int radius, DisplayColor color) = 0;     
+    virtual void fillTriangle (int x1, int y1, int x2, int y2, int x3, int y3, DisplayColor color) = 0;
     virtual void setRotation (ScreenRotation rotation) = 0;
     ScreenRotation getRotation () {return rotation;}
 
@@ -156,8 +157,10 @@ class Display {
     virtual int getSubtitleAreaHeight () = 0;
     virtual int getSubtitleAreaWidth () = 0;
 
+    virtual int getDashboardAreaX() = 0;
     virtual int getDashboardAreaY() = 0;
     virtual int getDashboardAreaHeight() = 0;
+    virtual int getDashboardAreaWidth() = 0;
 
     virtual int getSpinnerX () = 0;
     virtual int getSpinnerY () = 0;

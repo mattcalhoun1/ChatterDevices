@@ -34,6 +34,7 @@ bool GuiControlMode::init() {
       showStatus("Ready");
 
       showMessageHistory(true);
+      showButtons();
     }
     else {
       // force landscape for easier user input
@@ -67,6 +68,7 @@ void GuiControlMode::loop () {
       showTitle(title);
       showTime();
       showMessageHistory(true);
+      showButtons();
       showReady();
     }
 
@@ -77,6 +79,12 @@ void GuiControlMode::loop () {
       display->showTick();
       lastTick = tickFrequency;
     }
+  }
+}
+
+void GuiControlMode::showButtons () {
+  if (fullyInteractive) {
+    ((FullyInteractiveDisplay*)display)->showButtons();
   }
 }
 

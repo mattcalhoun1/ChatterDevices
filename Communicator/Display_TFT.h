@@ -41,6 +41,7 @@ class Display_TFT : public FullyInteractiveDisplay {
     void drawLine (int lineX, int lineY, int lineEndX, int lineEndY, DisplayColor color);
     void drawCircle (int circleX, int circleY, int radius, DisplayColor color);
     void fillCircle (int circleX, int circleY, int radius, DisplayColor color);
+    void fillTriangle (int x1, int y1, int x2, int y2, int x3, int y3, DisplayColor color);
     void setRotation (ScreenRotation _rotation);
 
     bool handleIfTouched ();
@@ -54,7 +55,7 @@ class Display_TFT : public FullyInteractiveDisplay {
     void changeFont (FontType fontType);
 
     void touchInterrupt();
-
+    void showButtons ();
   protected:
     int getStatusX();
     int getStatusY();
@@ -95,8 +96,10 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getSubtitleAreaHeight () { return DISPLAY_TFT_SUBTITLE_HEIGHT; }
     int getSubtitleAreaWidth () { return DISPLAY_TFT_SUBTITLE_WIDTH; }
 
+    int getDashboardAreaX () { return DISPLAY_TFT_DASHBOARD_X; }
     int getDashboardAreaY () { return DISPLAY_TFT_DASHBOARD_Y; }
     int getDashboardAreaHeight() { return DISPLAY_TFT_DASHBOARD_HEIGHT; }
+    int getDashboardAreaWidth () { return DISPLAY_TFT_DASHBOARD_WIDTH; }
 
     int getKeyboardAreaX () { return rotation == Landscape ? DISPLAY_TFT_LS_KEYBOARD_X : DISPLAY_TFT_KEYBOARD_X; }
     int getKeyboardAreaY () { return rotation == Landscape ? DISPLAY_TFT_LS_KEYBOARD_Y : DISPLAY_TFT_KEYBOARD_Y; }
@@ -133,10 +136,18 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getAlertAreaY() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_Y: DISPLAY_TFT_ALERT_Y; }
     int getAlertAreaHeight() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_HEIGHT : DISPLAY_TFT_ALERT_HEIGHT; }
 
+    int getButtonAreaX() {return DISPLAY_BUTTON_AREA_X;}
+    int getButtonAreaY() {return DISPLAY_BUTTON_AREA_Y;}
+    int getButtonWidth() {return DISPLAY_BUTTON_WIDTH;}
+    int getButtonHeight() {return DISPLAY_BUTTON_HEIGHT;}
+    int getButtonHorizontalOffset() {return DISPLAY_BUTTON_HORIZONTAL_OFFSET;}
+
+    void showButton(uint8_t buttonPosition, const char* buttonText);
+    const char* getButtonText (DisplayedButton btn){return buttonTexts[btn];}
+
     bool isTouchEnabled () {return true;}
 
   private:
-  
     int calculateModalTitleX (const char* titleText);
 
     #if defined(DISPLAY_TYPE_HOYSOND)
@@ -151,5 +162,10 @@ class Display_TFT : public FullyInteractiveDisplay {
     DisplayColor getTemperatureColor(float temperature);
 
     FontType currFontType = FontNormal;
+
+    const char* btnDM = " DM";
+    const char* btnBroadcast = "Cast";
+    const char* btnMenu = "Menu";
+    const char* buttonTexts[NUM_DISPLAYED_BUTTONS] = {btnDM, btnBroadcast, btnMenu};
 };
 #endif

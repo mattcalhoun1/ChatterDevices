@@ -1,7 +1,6 @@
 #include "ControlMode.h"
 #include "HeadsUpControlMode.h"
 #include "Display.h"
-#include "Display_7789.h"
 #include "TouchEnabledDisplay.h"
 #include <RotaryEncoder.h>
 #include "Menu.h"
@@ -53,6 +52,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
     protected:
         bool updateMessagePreviewsIfNecessary ();
         void showMessageHistory(bool resetOffset);
+        void showButtons ();
         void sleepOrBackground (unsigned long sleepTime);
 
         bool attemptDirectSend ();

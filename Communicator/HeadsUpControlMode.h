@@ -1,6 +1,5 @@
 #include "CommunicatorControlMode.h"
 #include "Display.h"
-#include "Display_7789.h"
 #include "Display_TFT.h"
 #include "Menu.h"
 #include "Keyboard.h"

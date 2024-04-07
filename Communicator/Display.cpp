@@ -139,7 +139,7 @@ void Display::clearAll () {
 }
 
 void Display::clearDashboard () {
-  clearArea(0, getDashboardAreaY() - getTextUpperVerticalOffset(TextSmall), getScreenWidth(), getDashboardAreaHeight(), DarkGray);
+  clearArea(getDashboardAreaX(), getDashboardAreaY() - getTextUpperVerticalOffset(TextSmall), getDashboardAreaWidth(), getDashboardAreaHeight(), DarkGray);
 }
 
 void Display::showTick () {
@@ -157,13 +157,15 @@ void Display::showTick () {
 
 void Display::showDashboardItems (const char* item[], DisplayColor itemColor[], uint8_t numItems) {
   // space out items
-  int spacing = getScreenWidth() / (1 + numItems);
-  int nextX = spacing - 35; // symbol just to left of line
+  int spacing = getDashboardAreaWidth() / (1 + numItems);
+  int nextX = spacing - 10; // symbol just to left of line
 
+  changeFont(FontTiny);
   for (int itemNum = 0; itemNum < numItems; itemNum++) {
-    showText(item[itemNum], nextX, getDashboardAreaY(), TextSmall, itemColor[itemNum]);
+    showText(item[itemNum], getDashboardAreaX() + nextX, getDashboardAreaY() - (getTextUpperVerticalOffset(TextSmall) - 2), TextSmall, itemColor[itemNum]);
     nextX += spacing;
   }
+  changeFont(FontNormal);
 
 }
 
