@@ -292,19 +292,13 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
 
       break;
     case UserRequestBleJoinCluster:
-      #if defined(ARDUINO_SAMD_NANO_33_IOT)
-      if (assistantEnabled) {
-        assistant = new BleClusterAssistant(chatter);
-        if(assistant->init()) {
-          return assistant->attemptOnboard ();
-        }
-        else {
-          logConsole("Assistant failed to init");
-        }
+      assistant = new ChatterClusterAssistant(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
+      if(assistant->init()) {
+        return assistant->attemptOnboard ();
       }
-      #else
-        logConsole("No Onboard implementation on this device");
-      #endif
+      else {
+        logConsole("Assistant failed to init");
+      }
       break;
     case UserRequestSelfAnnounce:
       // announce self
