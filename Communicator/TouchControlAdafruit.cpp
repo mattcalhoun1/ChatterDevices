@@ -7,9 +7,9 @@ bool TouchControlAdafruit::init() {
 }
 
 bool TouchControlAdafruit::wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation) {
-    if (touchIrq || touch.touched()) {
-        touchIrq = false;
-        
+    if (touchIrq > 0 || touch.touched()) {
+        touchIrq = 0;
+
         TS_Point p = touch.getPoint();
         // ignore edges
         if (p.y <= 0 || p.y >= DISPLAY_TFT_HEIGHT || p.x <= 0 || p.x >= DISPLAY_TFT_WIDTH) {

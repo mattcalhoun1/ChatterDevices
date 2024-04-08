@@ -29,9 +29,9 @@ void CommunicatorControlMode::loop () {
   }
 
   // if a device is syncing/etc, handle that now
-  if (adminEnabled) {
-    handleConnectedDevice();  
-  }
+  //if (adminEnabled) {
+  //  handleConnectedDevice();  
+  //}
 
   if (queuedEventType != CommunicatorEventNone) {
     // handle the event
@@ -341,19 +341,15 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
 
 bool CommunicatorControlMode::handleConnectedDevice () {
   if (cluster == nullptr) {
-    #if defined(ARDUINO_SAMD_NANO_33_IOT)
-    cluster = new BleClusterAdminInterface(chatter);
+    cluster = new ChatterClusterAdminInterface(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
     if (cluster->init()) {
-      logConsole("BLE Cluster Admin Interface Initialized");
+      logConsole("Cluster Admin Interface Initialized");
+      return cluster->isConnected();
     }
     else {
-      logConsole("BLE Cluster Admin Interface failed to initialize");
+      logConsole("Cluster Admin Interface failed to initialize");
       return false;
     }
-    #else
-      logConsole("Onboarding not supported on this device");
-    #endif
-
   }
   else if (cluster->isConnected()) {
     return true;

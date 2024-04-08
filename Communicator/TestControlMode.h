@@ -3,7 +3,7 @@
 
 class TestControlMode : public GuiControlMode {
     public:
-        TestControlMode(DeviceType _deviceType, bool _admin) : GuiControlMode (_deviceType, _admin) {}
+        TestControlMode(DeviceType _deviceType) : GuiControlMode (_deviceType) {}
         void loop ();
         bool init ();
 

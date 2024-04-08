@@ -85,6 +85,7 @@ void GuiControlMode::loop () {
     // still let touch events through
     if (fullyInteractive) {
       ((FullyInteractiveDisplay*)display)->handleIfTouched();
+      ((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
     }
   }
 }
@@ -650,6 +651,7 @@ void GuiControlMode::sleepOrBackground(unsigned long sleepTime) {
     if (menu->isShowing() == false) {
       if (display->isTouchEnabled()) {
         ((TouchEnabledDisplay*)display)->handleIfTouched();
+        ((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
       }
     }
     delay(50);

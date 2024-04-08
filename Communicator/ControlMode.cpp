@@ -28,31 +28,7 @@ bool ControlMode::init() {
     if (chatterReady) {
       showStatus("Init LoRa...");
       chatter->addLoRaChannel(LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
-
-
-#if defined (ARDUINO_SAMD_NANO_33_IOT)
-      if (adminEnabled) {
-        cluster = new BleClusterAdminInterface(chatter);
-        if (cluster->init()) {
-          logConsole("BLE Cluster Admin Interface Initialized");
-          return true;
-        }
-        else {
-          logConsole("BLE Cluster Admin Interface failed to initialize");
-        }
-      }
-      else {
-        // change this to a switch at some point so we can leave ble radio off
-        logConsole("BLE Cluster Assistant enabled.");
-        assistantEnabled = true;
-        return true;
-      }
-#else
-  logConsole("No onboarding capabilities are on this device!");
-  adminEnabled = false;
-  return true;
-
-#endif
+      return true;
     }
     else {
       logConsole("Realtime clock not functioning!");

@@ -114,7 +114,7 @@ class Display {
     void showAlert (const char* alertText, AlertType alertType);
     void showProgressBar (float percent);
 
-    void showDashboardItems (const char* item[], DisplayColor itemColor[], uint8_t numItems);
+    void showDashboardItems (const char* item, DisplayColor itemColor[], uint8_t numItems);
 
     virtual int getTextUpperVerticalOffset (TextSize textSize) { return 14 * (uint8_t)textSize; }
     virtual int getTextLowerVerticalOffset (TextSize textSize) { return 4 * (uint8_t)textSize; }

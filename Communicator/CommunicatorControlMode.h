@@ -9,7 +9,7 @@
 
 class CommunicatorControlMode : public ControlMode, public CommunicatorEventHandler {
     public:
-        CommunicatorControlMode (DeviceType _deviceType, bool _admin) : ControlMode (_deviceType, _admin) {}
+        CommunicatorControlMode (DeviceType _deviceType) : ControlMode (_deviceType) {}
         virtual bool init ();
         virtual void loop ();
         bool isInteractive () {return false;}

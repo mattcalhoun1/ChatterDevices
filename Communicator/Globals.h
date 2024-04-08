@@ -18,6 +18,7 @@
 #define BRIDGE_CHANNEL "UART"
 
 #define MAX_CHANNELS 2 // how many can be simultaneously monitored at once
+#define CHANNEL_DISPLAY_SIZE 16 // how many chars the channel name + config can occupy for display purposes
 
 // how long for ui ot wait for initial connect
 #define CLUSTER_ONBOARD_TIMEOUT 30000
@@ -213,10 +214,10 @@
 #define DISPLAY_TFT_SUBTITLE_WIDTH 190
 #define DISPLAY_TFT_SUBTITLE_HEIGHT 17
 
-#define DISPLAY_TFT_DASHBOARD_X 180
+#define DISPLAY_TFT_DASHBOARD_X 139
 #define DISPLAY_TFT_DASHBOARD_Y 318
 #define DISPLAY_TFT_DASHBOARD_HEIGHT 12
-#define DISPLAY_TFT_DASHBOARD_WIDTH 43
+#define DISPLAY_TFT_DASHBOARD_WIDTH 84
 
 // portrait
 #define DISPLAY_TFT_KEYBOARD_X 5

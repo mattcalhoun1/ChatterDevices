@@ -28,16 +28,17 @@ void HeadsUpControlMode::updateChatDashboard () {
 
   for (int channelNum = 0; channelNum < chatter->getNumChannels(); channelNum++) {
     if (chatter->getChatStatus(channelNum) != ChatNoDevice) {
-        dashboardChannels[channelNum] = chatter->getChannel(channelNum)->getName();
+      sprintf(dashboardChannels[channelNum], "%s@%s", chatter->getChannel(channelNum)->getName(), chatter->getChannel(channelNum)->getConfigName());
+        //dashboardChannels[channelNum] = chatter->getChannel(channelNum)->getName();
         dashboardColors[channelNum] = getDisplayColorForStatus(chatter->getChatStatus(channelNum));
     }
     else {
-        dashboardChannels[channelNum] = channelUnknown;
+        sprintf(dashboardChannels[channelNum], "%s", channelUnknown);
         dashboardColors[channelNum] = getDisplayColorForStatus(chatter->getChatStatus(channelNum));
     }
   }
 
-  display->showDashboardItems(dashboardChannels, dashboardColors, chatter->getNumChannels());
+  display->showDashboardItems((const char*)dashboardChannels, dashboardColors, chatter->getNumChannels());
 }
 
 int HeadsUpControlMode::getSymboForDevice(const char* deviceName) {

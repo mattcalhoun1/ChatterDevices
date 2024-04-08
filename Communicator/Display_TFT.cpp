@@ -109,6 +109,11 @@ bool Display_TFT::handleIfTouched () {
   return success;
 }
 
+void Display_TFT::clearTouchInterrupts () {
+  touch->clearTouchInterrupt();
+}
+
+
 int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue) {
   return getModalInput(title, maxLength, charFilter, buffer, defaultValue, 0, defaultKeyboard);
 }

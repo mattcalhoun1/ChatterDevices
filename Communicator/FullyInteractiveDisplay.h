@@ -22,6 +22,8 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         void setDefaultKeyboard (Keyboard* _defaultKeyboard) { defaultKeyboard = _defaultKeyboard; }
         virtual bool isKeyboardShowing () {return defaultKeyboard->isShowing();}
         virtual void touchInterrupt() = 0;
+        virtual void clearTouchInterrupts () = 0;
+
 
         virtual void showButtons () = 0;
         virtual DisplayedButton getButtonAt (int x, int y) = 0;

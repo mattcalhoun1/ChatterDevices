@@ -157,14 +157,14 @@ void Display::showTick () {
   tickerShowing = !tickerShowing;
 }
 
-void Display::showDashboardItems (const char* item[], DisplayColor itemColor[], uint8_t numItems) {
+void Display::showDashboardItems (const char* item, DisplayColor itemColor[], uint8_t numItems) {
   // space out items
   int spacing = getDashboardAreaWidth() / (1 + numItems);
-  int nextX = spacing - 10; // symbol just to left of line
+  int nextX = spacing - 39; // symbol just to left of line
 
   changeFont(FontTiny);
   for (int itemNum = 0; itemNum < numItems; itemNum++) {
-    showText(item[itemNum], getDashboardAreaX() + nextX, getDashboardAreaY() - (getTextUpperVerticalOffset(TextSmall) - 2), TextSmall, itemColor[itemNum]);
+    showText(item + (itemNum * CHANNEL_DISPLAY_SIZE), getDashboardAreaX() + nextX, getDashboardAreaY() - (getTextUpperVerticalOffset(TextSmall) - 2), TextSmall, itemColor[itemNum]);
     nextX += spacing;
   }
   changeFont(FontNormal);

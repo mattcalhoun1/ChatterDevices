@@ -5,7 +5,7 @@
 
 class HeadlessControlMode : public CommunicatorControlMode {
     public:
-        HeadlessControlMode (DeviceType _deviceType, bool _admin) : CommunicatorControlMode (_deviceType, _admin) {}
+        HeadlessControlMode (DeviceType _deviceType) : CommunicatorControlMode (_deviceType) {}
         bool init ();
         void showStatus (const char* status);
         void showStatus (String status);

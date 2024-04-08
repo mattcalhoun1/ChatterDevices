@@ -10,7 +10,7 @@
 
 class HeadsUpControlMode : public CommunicatorControlMode, public CommunicatorPreferenceHandler {
     public:
-        HeadsUpControlMode (DeviceType _deviceType, bool _admin) : CommunicatorControlMode (_deviceType, _admin) {}
+        HeadsUpControlMode (DeviceType _deviceType) : CommunicatorControlMode (_deviceType) {}
         bool init ();
         void showStatus (const char* status);
         void showStatus (String status);
@@ -42,7 +42,7 @@ class HeadsUpControlMode : public CommunicatorControlMode, public CommunicatorPr
         unsigned long lastTimeUpdate = 0;
 
         const char* channelUnknown = "?";
-        const char* dashboardChannels[MAX_CHANNELS];
+        char dashboardChannels[MAX_CHANNELS][CHANNEL_DISPLAY_SIZE];
         DisplayColor dashboardColors[MAX_CHANNELS];
 };
 

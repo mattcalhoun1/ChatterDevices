@@ -45,6 +45,8 @@ class Display_TFT : public FullyInteractiveDisplay {
     void setRotation (ScreenRotation _rotation);
 
     bool handleIfTouched ();
+    void clearTouchInterrupts ();
+
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer);
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue);
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis);

@@ -35,7 +35,7 @@ enum DeviceType {
  */
 class ControlMode : ChatStatusCallback {
   public:
-    ControlMode (DeviceType _deviceType, bool _admin) { deviceType = _deviceType; adminEnabled = _admin; }
+    ControlMode (DeviceType _deviceType) { deviceType = _deviceType; }
     virtual void loop();
     virtual bool init();
     virtual void showStatus (const char* status);
@@ -71,11 +71,11 @@ class ControlMode : ChatStatusCallback {
 
     // eitehr admin or assistant can be enabled, but not both
     ClusterAdminInterface* cluster = nullptr;
-    bool adminEnabled = false;
+    //bool adminEnabled = false;
     //ClusterAdmin* admin = nullptr;
 
     ClusterAssistantInterface* assistant = nullptr;
-    bool assistantEnabled = false;
+    //bool assistantEnabled = false;
 
     //ClusterAdmin* admin;
     bool justOnboarded = false;

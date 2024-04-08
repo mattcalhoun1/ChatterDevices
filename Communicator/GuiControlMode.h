@@ -19,7 +19,7 @@
 
 class GuiControlMode : public HeadsUpControlMode, public TouchListener {
     public:
-        GuiControlMode(DeviceType _deviceType, bool _admin) : HeadsUpControlMode (_deviceType, _admin) {}
+        GuiControlMode(DeviceType _deviceType) : HeadsUpControlMode (_deviceType) {}
         bool init ();
         void buttonInterrupt();
         void touchInterrupt();

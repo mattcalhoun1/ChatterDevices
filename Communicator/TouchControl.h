@@ -7,11 +7,11 @@ class TouchControl {
     public:
         virtual bool init() = 0;
         virtual bool wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation) = 0;
-        virtual void touchInterrupt () {touchIrq = true;}
-        virtual void clearTouchInterrupt () {touchIrq = false;}
+        virtual void touchInterrupt () {touchIrq++;}
+        virtual void clearTouchInterrupt () {touchIrq = 0;}
     
     protected:
-        bool touchIrq = false;
+        uint8_t touchIrq = 0;
 };
 
 #endif
