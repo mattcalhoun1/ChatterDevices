@@ -27,6 +27,9 @@ bool Menu::handleScreenTouched(int touchX, int touchY) {
     else {
       // check if a menu item was touched
       uint8_t touchedItem = display->getMenuItemAt(touchX, touchY);
+
+      Serial.print("Touched item: ");Serial.print(touchedItem);Serial.print(" at (");Serial.print(touchX);Serial.print(",");Serial.print(touchY);Serial.println(")");
+
       if (touchedItem != MENU_ITEM_NONE) {
         oledMenu.lastMenuActivity = millis();
 
@@ -138,6 +141,7 @@ void Menu::onboardingMenu() {
     oledMenu.noOfmenuItems = 1;
     oledMenu.menuItems[MENU_ONBOARDING_JOIN_CLUSTER] = "Join Cluster";
   }
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
 }
 
@@ -548,7 +552,7 @@ void Menu::serviceMenu() {
           // menu
           //for (int i=1; i <= displayMaxLines; i++) {
           for (int i=1; i <= displayMaxLines; i++) {
-              int item = oledMenu.highlightedMenuItem - _centreLine + i;
+              int item = oledMenu.noOfmenuItems > displayMaxLines ? oledMenu.highlightedMenuItem - _centreLine + i : i;
 
               if (item > 0 && item <= oledMenu.noOfmenuItems) {
                 if (MENU_HIGHLIGHT_CENTER) {

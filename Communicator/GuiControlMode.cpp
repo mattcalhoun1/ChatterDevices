@@ -594,17 +594,16 @@ bool GuiControlMode::initializeNewDevice () {
 
 bool GuiControlMode::onboardNewClient (unsigned long timeout) {
   int cycleLength = 5000;
-  int bleLoopCount = 0;
-  float pct = 0.0;
+  //float pct = 0.0;
 
   display->clearAll();
-  display->showTitle("Onboarding...");
-  display->showMessage("Waiting for device to join...", Green, 0);
+  display->showTitle("Onboard Device");
+  display->showMessage("Waiting for device to join...", BrightGreen, 0);
 
   unsigned long startTime = millis();
   while (millis() - startTime < timeout) {
-    pct = (millis() % cycleLength) / (double)cycleLength;
-    display->showProgress(pct);
+    //pct = (millis() % cycleLength) / (double)cycleLength;
+    //display->showProgress(pct);
 
     if(handleConnectedDevice ()) {
       showClusterOk();
