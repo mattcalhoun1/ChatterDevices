@@ -14,9 +14,9 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
 
   // show splash screen
   changeFont(FontBold);
-  showText("ChatterBox", 65, 100, TextSmall, DarkBlue);
+  showText(APP_TITLE, 65, 100, TextSmall, DarkBlue);
   changeFont(FontTiny);
-  showText("* Chatters Secure Messaging *", 35, 150, TextSmall, DarkBlue);
+  showText(APP_SUBTITLE, 35, 150, TextSmall, DarkBlue);
   changeFont(FontNormal);
   showProgressBar(.25);
 

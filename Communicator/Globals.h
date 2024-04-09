@@ -5,6 +5,8 @@
 #define LOG_ENABLED true
 
 //#define RH_PLATFORM 1
+#define APP_TITLE "ChatterBox"
+#define APP_SUBTITLE ">> Chatters Secure Messaging <<"
 
 #define DEFAULT_DEVICE_ALIAS "Com"
 
