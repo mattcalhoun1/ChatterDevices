@@ -10,6 +10,7 @@ class TouchControlRak : public TouchControl {
     public:
         bool init ();
         bool wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation);
+        void resetToDefaultTouchSensitivity () { sensitivity = TouchSensitivityMedium; }
     
     protected:
         FT6336U ft6336u;

@@ -1,6 +1,7 @@
 #include "Display.h"
 #include <Arduino.h>
 #include "MenuEnabledDisplay.h"
+#include "TouchControl.h"
 
 #ifndef TOUCHENABLEDDISPLAY_H
 #define TOUCHENABLEDDISPLAY_H
@@ -11,7 +12,6 @@ class TouchListener {
   public:
     virtual bool handleScreenTouched (int touchX, int touchY) = 0;
 };
-
 
 class TouchEnabledDisplay : public MenuEnabledDisplay {
 
@@ -27,7 +27,10 @@ class TouchEnabledDisplay : public MenuEnabledDisplay {
 
         virtual void touchInterrupt () = 0;
         bool isTouchEnabled () {return true;}
-      
+
+        virtual void setTouchSensitivity (TouchSensitivity sensitivity) = 0;
+        virtual void resetToDefaultTouchSensitivity () = 0;
+
     protected:
       uint8_t numListeners = 0;
       TouchListener* listeners[MAX_TOUCH_LISTENERS];

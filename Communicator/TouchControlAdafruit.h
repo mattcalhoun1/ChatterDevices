@@ -10,6 +10,7 @@ class TouchControlAdafruit : public TouchControl {
     public:
         bool init ();
         bool wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation);
+        void resetToDefaultTouchSensitivity () { sensitivity = TouchSensitivityHigh; }
 
     protected:
         Adafruit_FT6206 touch = Adafruit_FT6206();  

@@ -154,6 +154,9 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   switch(eventType) {
     case MenuClosed:
       fullRepaint = true;
+      if (fullyInteractive) {
+        ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
+      }
       return true;
     case UserRequestDirectMessage:
       memset(otherDeviceId, 0, CHATTER_DEVICE_ID_SIZE+1);
@@ -163,11 +166,15 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         menu->setItemIterator(deviceIterator);
         menu->iteratorMenu(true); // modal
 
+        // menu will be showing, turn up sensitivity
+        ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
+
         // wait for result of contact selections
         while (menu->isShowing()) {
           menu->menuUpdate();
           delay(10);
         }
+        ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
 
         if (menu->getIteratorSelection() != ITERATOR_SELECTION_NONE) {
           // find the associated device id for the given slot
@@ -184,13 +191,22 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         }
       }
 
+      // fall through to next case
+
     case UserRequestSecureBroadcast:
     case UserRequestOpenBroadcast:
+      // notice that all message sends fall through to this (no break statements above)
+
       if (isFullyInteractive()) {
         display->clearAll();
 
         // pop up the keyboard
-        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput(eventType == UserRequestDirectMessage ? "Message" : "Broadcast", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", eventType == UserRequestDirectMessage ? 0 : 20000);
+        if (eventType == UserRequestDirectMessage) {
+          messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Direct Message", "Only the intended recipient may receive this", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 0);
+        }
+        else {
+          messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Secure Broadcast", "All cluster devices may receive this", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 20000);
+        }
 
         // send it
         if(messageBufferLength > 0) {
@@ -265,7 +281,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       return result;
     case UserDeleteAllMessages:
       if (isFullyInteractive()) {
-        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Delete All?", 1, CharacterFilterYesNo, (char*)messageBuffer);
+        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Delete All?", "Permanently erase message history", 1, CharacterFilterYesNo, (char*)messageBuffer, "", 0);
         if (newMessageLength > 0 && (messageBuffer[0] == 'y' || messageBuffer[0] == 'Y')) {
           chatter->getMessageStore()->clearAllMessages();
           fullRepaint = true;
@@ -279,7 +295,8 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
 
     case UserRequestFactoryReset:
       if (isFullyInteractive()) {
-        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Factory Reset?", 1, CharacterFilterYesNo, (char*)messageBuffer);
+        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Factory Reset?", "Permanently erase all device data", 1, CharacterFilterYesNo, (char*)messageBuffer, "", 0);
+        //int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Factory Reset?", 1, CharacterFilterYesNo, (char*)messageBuffer, "", 0);
         if (newMessageLength > 0 && (messageBuffer[0] == 'y' || messageBuffer[0] == 'Y')) {
           logConsole("Factory reset confirmed");
           fullRepaint = true;
@@ -298,6 +315,11 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
 
 void GuiControlMode::updateChatProgress(float progress) {
   display->showProgressBar(progress);
+}
+
+void GuiControlMode::resetChatProgress () {
+  display->resetProgress();
+  display->showProgressBar(0.0);
 }
 
 // Sends a direct message and executes any other logic
@@ -418,6 +440,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
       case ButtonDM:
         return handleEvent(UserRequestDirectMessage);
       case ButtonMenu:
+        ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
         menu->show();
         return true;
     }
@@ -535,37 +558,35 @@ bool GuiControlMode::initializeNewDevice () {
   int passwordLength = 0;
   memset(newDevicePassword, 0, CHATTER_PASSWORD_MAX_LENGTH + 1);
   while (passwordLength == 0) {
-    passwordLength = ((FullyInteractiveDisplay*)display)->getModalInput("Set Password?", 1, CharacterFilterYesNo, newDevicePassword);
+    passwordLength = ((FullyInteractiveDisplay*)display)->getModalInput("Set Password?", "Permanently set device password", 1, CharacterFilterYesNo, newDevicePassword, "", 0);
   }
   if (newDevicePassword[0] == 'y') {
     passwordLength = 0;
     while (passwordLength == 0) {
-      passwordLength = ((FullyInteractiveDisplay*)display)->getModalInput("Password", CHATTER_PASSWORD_MAX_LENGTH, CharacterFilterNone, newDevicePassword);
+      passwordLength = ((FullyInteractiveDisplay*)display)->getModalInput("Password", "Never forget this password!", CHATTER_PASSWORD_MAX_LENGTH, CharacterFilterNone, newDevicePassword, "", 0);
     }
-    Serial.println("User chose password protection.");
   }
   else {
-    Serial.println("User chose NO password protection.");
     passwordLength = 0;
   }
 
   int deviceAliasLength = 0;
   memset(newDeviceAlias, 0, CHATTER_ALIAS_NAME_SIZE+1);
+  sprintf(newDeviceAlias, "%s.%d", "Me", random(2048));
 
   // prompt for device name
   while (deviceAliasLength == 0) {
-    deviceAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Unique Name", 12, CharacterFilterAlphaNumeric, newDeviceAlias);
+    deviceAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Device Name", "Unique(ish) name others will see", 12, CharacterFilterAlphaNumeric, newDeviceAlias, newDeviceAlias, 0);
   }
   newDeviceAlias[deviceAliasLength] = 0;//term it, if the user backspaced some
-  Serial.print("New Device name: "); Serial.println(newDeviceAlias);
-
 
   int clusterAliasLength = 0;
   memset(newClusterAlias, 0, CHATTER_ALIAS_NAME_SIZE+1);
+  sprintf(newClusterAlias, "%s.%d", "Cluster", random(2048));
 
   // prompt for cluster name
   while (clusterAliasLength == 0) {
-    clusterAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Cluster", 12, CharacterFilterAlphaNumeric, newClusterAlias);
+    clusterAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Cluster Name", "Unique(ish) name for your private cluster", 12, CharacterFilterAlphaNumeric, newClusterAlias, newClusterAlias, 0);
   }
 
   int newFreqLength = 0;
@@ -574,7 +595,9 @@ bool GuiControlMode::initializeNewDevice () {
   bool goodFreq = false;
   sprintf(newFreq, "%.1f", newFrequency);
   while (!goodFreq) {
-    newFreqLength = ((FullyInteractiveDisplay*)display)->getModalInput("LoRa Freq", 5, CharacterFilterNumeric, newFreq, newFreq);
+    char subtitle[32];
+    sprintf(subtitle, "Between %.1f and %.1f", LORA_MIN_FREQUENCY, LORA_MAX_FREQUENCY);
+    newFreqLength = ((FullyInteractiveDisplay*)display)->getModalInput("LoRa Frequency", subtitle, 5, CharacterFilterNumeric, newFreq, newFreq, 0);
 
     if (newFreqLength > 0) {
       newFrequency = atof(newFreq);
@@ -586,10 +609,10 @@ bool GuiControlMode::initializeNewDevice () {
 
   ClusterAdmin* admin = new ClusterAdmin(chatter);
 
-  Serial.print("New Device name (later): "); Serial.println(newDeviceAlias);
-
   display->showAlert("Initializing", AlertWarning);
-  return admin->genesis(newDeviceAlias, newDevicePassword, passwordLength, newClusterAlias, newFrequency);
+  bool result = admin->genesis(newDeviceAlias, newDevicePassword, passwordLength, newClusterAlias, newFrequency);
+  display->showProgressBar(1.0);
+  return result;
 }
 
 bool GuiControlMode::onboardNewClient (unsigned long timeout) {
@@ -598,7 +621,9 @@ bool GuiControlMode::onboardNewClient (unsigned long timeout) {
 
   display->clearAll();
   display->showTitle("Onboard Device");
-  display->showMessage("Waiting for device to join...", BrightGreen, 0);
+  char msg[24];
+  sprintf(msg, "%s: %s", "Cluster ID", chatter->getClusterId());
+  display->showMessage(msg, BrightGreen, 0);
 
   unsigned long startTime = millis();
   while (millis() - startTime < timeout) {
@@ -641,6 +666,12 @@ uint8_t GuiControlMode::promptForPassword (char* passwordBuffer, uint8_t maxPass
 
 void GuiControlMode::promptFactoryReset () {
   handleEvent(UserRequestFactoryReset);
+}
+
+bool GuiControlMode::promptYesNo (const char* message) {
+  char promptResp[2];
+  uint8_t respLen = ((FullyInteractiveDisplay*)display)->getModalInput(message, 1, CharacterFilterYesNo, promptResp);
+  return respLen > 0 && promptResp[0] == 'y';
 }
 
 void GuiControlMode::sleepOrBackground(unsigned long sleepTime) {

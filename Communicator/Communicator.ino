@@ -54,7 +54,7 @@ void setup() {
   #if defined(TOUCH_CONTROL_RAK) || defined(TOUCH_CONTROL_ADAFRUIT)
     pinMode(PIN_TOUCH_INT, INPUT_PULLUP);
     //attachInterrupt(digitalPinToInterrupt(PIN_TOUCH_INT), tpIntHandle, FALLING);
-    attachInterrupt(digitalPinToInterrupt(PIN_TOUCH_INT), handleTouch, LOW);
+    attachInterrupt(digitalPinToInterrupt(PIN_TOUCH_INT), handleTouch, FALLING);
     #define PIN_TOUCH_INT 11
     #define PIN_TOUCH_RS 12
   #endif

@@ -6,7 +6,7 @@ bool ControlMode::init() {
   rtc = new R4RtClock();
 #elif defined(ARDUINO_SAM_DUE)
   rtc = new DueRtClock();
-#elif defined(ARDUINO_SAMD_MKRZERO) || defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_ZERO)
+#elif defined(ARDUINO_SAMD_MKRZERO) || defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_ZERO) || defined(ARDUINO_FEATHER_M4)
   logConsole("ZeroRtClock selected");
   rtc = new ZeroRtClock();
 #endif
@@ -88,6 +88,10 @@ void ControlMode::updateChatStatus (const char* statusMessage) {
 
 void ControlMode::updateChatProgress (float progress) {
   logConsole("Progress...");
+}
+
+void ControlMode::resetChatProgress () {
+  logConsole("Reset progress");
 }
 
 void ControlMode::showStatus (const char* status) {

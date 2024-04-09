@@ -46,11 +46,16 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     bool handleIfTouched ();
     void clearTouchInterrupts ();
+    void setTouchSensitivity (TouchSensitivity sensitivity);
+    void resetToDefaultTouchSensitivity ();
+
 
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer);
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue);
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis);
-    int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis, Keyboard* keyboard);
+    int getModalInput (const char* title, const char* subtitle, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis);
+
+    int getModalInput (const char* title, const char* subtitle, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis, Keyboard* keyboard);
 
     int getScreenWidth () { return DISPLAY_TFT_WIDTH; }
     int getScreenHeight () { return DISPLAY_TFT_HEIGHT; }
@@ -148,6 +153,11 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getModalTitleX () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_TITLE_X :  DISPLAY_TFT_MODAL_TITLE_X; }
     int getModalTitleY () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_TITLE_Y : DISPLAY_TFT_MODAL_TITLE_Y; }
     int getModalTitleHeight () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_TITLE_HEIGHT : DISPLAY_TFT_MODAL_TITLE_HEIGHT; }
+
+    int getModalSubTitleX () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_SUBTITLE_X :  DISPLAY_TFT_MODAL_SUBTITLE_X; }
+    int getModalSubTitleY () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_SUBTITLE_Y :  DISPLAY_TFT_MODAL_SUBTITLE_Y; }
+    int getModalSubTitleHeight () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_SUBTITLE_HEIGHT :  DISPLAY_TFT_MODAL_SUBTITLE_HEIGHT; }
+
     int getModalInputX () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_INPUT_X : DISPLAY_TFT_MODAL_INPUT_X; }
     int getModalInputY () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_INPUT_Y : DISPLAY_TFT_MODAL_INPUT_Y; }
     int getModalInputWidth () { return rotation == Landscape ? DISPLAY_TFT_LS_MODAL_INPUT_WIDTH : DISPLAY_TFT_MODAL_INPUT_WIDTH; }
@@ -170,7 +180,7 @@ class Display_TFT : public FullyInteractiveDisplay {
     const char* getButtonText (DisplayedButton btn){return buttonTexts[btn];}
 
   private:
-    int calculateModalTitleX (const char* titleText);
+    int calculateModalTitleX (const char* titleText, FontType fontType);
     unsigned long lastModalActivity = 0;
 
     #if defined(DISPLAY_TYPE_HOYSOND)

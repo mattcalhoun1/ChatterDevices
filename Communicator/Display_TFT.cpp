@@ -30,6 +30,7 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
   touch = new TouchControlNone();
   logConsole("No touch control defined");
   #endif
+  touch->resetToDefaultTouchSensitivity();
 
   showProgressBar(.75);
 
@@ -115,19 +116,23 @@ void Display_TFT::clearTouchInterrupts () {
 
 
 int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue) {
-  return getModalInput(title, maxLength, charFilter, buffer, defaultValue, 0, defaultKeyboard);
+  return getModalInput(title, "", maxLength, charFilter, buffer, defaultValue, 0, defaultKeyboard);
 }
 
 
 int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer) {
-  return getModalInput(title, maxLength, charFilter, buffer, "", 0, defaultKeyboard);
+  return getModalInput(title, "", maxLength, charFilter, buffer, "", 0, defaultKeyboard);
 }
 
 int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis) {
-  return getModalInput(title, maxLength, charFilter, buffer, "", timeoutMillis, defaultKeyboard);
+  return getModalInput(title, "", maxLength, charFilter, buffer, "", timeoutMillis, defaultKeyboard);
 }
 
-int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis, Keyboard* keyboard) {
+int Display_TFT::getModalInput (const char* title, const char* subtitle, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis) {
+  return getModalInput(title, subtitle, maxLength, charFilter, buffer, defaultValue, timeoutMillis, defaultKeyboard);
+}
+
+int Display_TFT::getModalInput (const char* title, const char* subtitle, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis, Keyboard* keyboard) {
   lastModalActivity = millis();
   clearAll();
 
@@ -143,12 +148,26 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
 
   // clear title area
   clearArea(getModalInputX(),getModalTitleY() - getTextUpperVerticalOffset(TextMedium), getModalInputWidth(), getModalTitleHeight());
-  drawLine (getModalInputX(), getModalTitleY() - getTextUpperVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), getModalTitleY() - getTextUpperVerticalOffset(TextMedium), LightGray);
-  showText(title, calculateModalTitleX(title), getModalTitleY(), TextMedium, Beige);
-  drawLine (getModalInputX(), getModalTitleY() + getTextLowerVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), getModalTitleY() + getTextLowerVerticalOffset(TextMedium), LightGray);
-
   // clear text area
   clearArea(getModalInputX(),getModalInputY() - getTextUpperVerticalOffset(TextSmall), getModalInputWidth(), getModalInputHeight());
+
+  //drawLine (getModalInputX(), getModalTitleY() - getTextUpperVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), getModalTitleY() - getTextUpperVerticalOffset(TextMedium), LightGray);
+  changeFont(FontBold);
+  showText(title, calculateModalTitleX(title, FontBold), getModalTitleY(), TextSmall, Beige);
+
+  if (strlen(subtitle) == 0) {
+    //drawLine (getModalInputX(), getModalTitleY() + getTextLowerVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), getModalTitleY() + getTextLowerVerticalOffset(TextMedium), LightGray);
+  }
+  else {
+    changeFont(FontTiny);
+    showText(subtitle, calculateModalTitleX(subtitle, FontTiny), getModalSubTitleY() - getTextLowerVerticalOffset(TextSmall), TextSmall, Beige);
+    //fillRect (getModalInputX(), getModalSubTitleY() + getTextLowerVerticalOffset(TextMedium), getModalInputX() + getModalInputWidth(), 2, White);
+  }
+
+  changeFont(FontNormal);
+
+  // adjust sensitivity since we are waiting on the user for input
+  touch->setTouchSenstivity(TouchSensitivityHigh);
 
   // get user input until the user completes/cancels
   while (!keyboard->userTerminatedInput() && !keyboard->userCompletedInput() && (timeoutMillis == 0 || millis() - lastModalActivity < timeoutMillis)) {
@@ -179,6 +198,10 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
   // clear the touch interrupt
   touch->clearTouchInterrupt();
 
+  // dial sensitivity back down
+  touch->resetToDefaultTouchSensitivity();
+
+
   // clear text area
   clearArea(getModalInputX(),getModalInputY() - getTextUpperVerticalOffset(TextSmall), getModalInputWidth(), getModalInputHeight());
 
@@ -197,6 +220,15 @@ int Display_TFT::getModalInput (const char* title, int maxLength, CharacterFilte
   clearAll();
   return 0;
 }
+
+void Display_TFT::setTouchSensitivity (TouchSensitivity sensitivity) {
+  touch->setTouchSenstivity(sensitivity);
+}
+
+void Display_TFT::resetToDefaultTouchSensitivity () {
+  touch->resetToDefaultTouchSensitivity();
+}
+
 
 void Display_TFT::showText (String text, int x, int y, TextSize size, DisplayColor color) {
   display.setTextSize(size);                
@@ -416,17 +448,21 @@ int Display_TFT::calculateSubtitleX (const char* titleText) {
   }
 }
 
-int Display_TFT::calculateModalTitleX (const char* titleText) {
+int Display_TFT::calculateModalTitleX (const char* titleText, FontType fontType) {
   // bump it right until it's roughly centered
-  uint8_t charsPerRow = 20;
 
   // roughly 20 chars wide in landscape
   if (rotation == Landscape) { // is this right? should it be looking at screen height, not width?
-    return DISPLAY_TFT_LS_MODAL_TITLE_X + max(0,((charsPerRow - strlen(titleText)) / 2) * (getScreenWidth()/charsPerRow));
+    uint8_t charsPerRow = fontType == FontBold ? 42 : 60;
+    return DISPLAY_TFT_LS_MODAL_TITLE_X + max(0,((charsPerRow - strlen(titleText)) / 2)) * ((getScreenHeight()/charsPerRow));
+  }
+  else {
+    uint8_t charsPerRow = fontType == FontBold ? 25 : 40;
+    return DISPLAY_TFT_MODAL_TITLE_X + max(0,((charsPerRow - strlen(titleText)) / 2) * (getScreenWidth()/charsPerRow));
   }
 
   // portrait mode, keep hardcoded value
-  return DISPLAY_TFT_MODAL_TITLE_X;
+  //return DISPLAY_TFT_MODAL_TITLE_X;
 }
 
 void Display_TFT::showButton(uint8_t buttonPosition, const char* buttonText){

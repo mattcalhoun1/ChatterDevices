@@ -29,7 +29,7 @@ bool TouchControlRak::init() {
 }
 
 bool TouchControlRak::wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation) {
-    if ((touchIrq > 0 || ft6336u.read_td_status() > 0) && ft6336u.read_touch1_event() == 1) {
+    if ((touchIrq >= sensitivity || ft6336u.read_td_status() > 0) && ft6336u.read_touch1_event() == 1) {
         touchIrq = 0;
         int freshX = ft6336u.read_touch1_x();
         int freshY = ft6336u.read_touch1_y();

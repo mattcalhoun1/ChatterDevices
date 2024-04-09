@@ -19,6 +19,7 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         virtual int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer) = 0;
         virtual int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue) = 0;
         virtual int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis) = 0;
+        virtual int getModalInput (const char* title, const char* subtitle, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis) = 0;
         void setDefaultKeyboard (Keyboard* _defaultKeyboard) { defaultKeyboard = _defaultKeyboard; }
         virtual bool isKeyboardShowing () {return defaultKeyboard->isShowing();}
         virtual void touchInterrupt() = 0;
@@ -28,11 +29,15 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         virtual void showButtons () = 0;
         virtual DisplayedButton getButtonAt (int x, int y) = 0;
         virtual bool handleIfTouched () = 0;
-
     protected:
         virtual int getModalTitleX () = 0;
         virtual int getModalTitleY () = 0;
         virtual int getModalTitleHeight () = 0;
+
+        virtual int getModalSubTitleX () = 0;
+        virtual int getModalSubTitleY () = 0;
+        virtual int getModalSubTitleHeight () = 0;
+
         virtual int getModalInputX () = 0;
         virtual int getModalInputY () = 0;
         virtual int getModalInputWidth () = 0;

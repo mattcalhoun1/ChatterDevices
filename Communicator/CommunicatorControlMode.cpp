@@ -14,6 +14,7 @@ bool CommunicatorControlMode::init() {
       showStatus("Ready");
 
       initialized = true;
+      
       //logPublicKey();
 
       enableMessaging();

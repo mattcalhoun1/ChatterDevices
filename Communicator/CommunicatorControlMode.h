@@ -3,6 +3,7 @@
 #include "CommunicatorEvent.h"
 #include "CommunicatorEventHandler.h"
 #include "FullyInteractiveDisplay.h"
+#include "TouchControl.h"
 
 #ifndef COMMUNICATORCONTROLMODE_H
 #define COMMUNICATORCONTROLMODE_H
