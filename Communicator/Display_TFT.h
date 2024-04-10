@@ -18,6 +18,7 @@
 #include <Fonts/FreeSans9pt7b.h> // default font
 #include <Fonts/FreeSansOblique9pt7b.h> // italic sort of
 #include <Fonts/FreeSansBold9pt7b.h> // italic sort of
+#include <Fonts/Picopixel.h>
 
 #ifndef DISPLAY_TFT_H
 #define DISPLAY_TFT_H

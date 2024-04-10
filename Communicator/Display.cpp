@@ -9,13 +9,13 @@ void Display::logConsole (String msg) {
 
 void Display::showStatus (String text, DisplayColor color) {
   clearStatus();
-  changeFont(FontTiny);
+  changeFont(FontPico);
   showText(text, getStatusX(), getStatusY() - 2, TextSmall, color);
   changeFont(FontNormal);
 }
 
 void Display::clearStatus () {
-  clearArea(getStatusX(), getStatusY() - getTextUpperVerticalOffset(TextSmall), getStatusWidth(), getStatusHeight() - getTextLowerVerticalOffset(TextSmall));
+  clearArea(getStatusX(), getStatusY() - (getTextLowerVerticalOffset(TextSmall) + 2), getStatusWidth(), getStatusHeight() - getTextLowerVerticalOffset(TextSmall));
 }
 
 void Display::showMessage (const char* message, DisplayColor color, uint8_t position) {
@@ -56,16 +56,23 @@ void Display::showHasMessagesAfter () {
 }
 */
 uint8_t Display::getMessagePosition (int positionX, int positionY) {
-  // look mainly at y position, as that's what identifies one position versus another
+  // the touch must be toward the title area (left)
+  if (positionX < getScreenWidth() / 3) {
+    // look mainly at y position, as that's what identifies one position versus another
 
-  // subtract message start
-  int shiftedY = positionY - (getMessageAreaY() - getTextUpperVerticalOffset(TextSmall));
+    // subtract message start
+    int shiftedY = positionY - (getMessageAreaY() - getTextUpperVerticalOffset(TextSmall));
 
-  if (shiftedY > 0) {
-    // divide by message height to get the position
-    uint8_t selected = shiftedY / (getMessageHeight() + getMessageTitleHeight());
-    if (selected < getMaxDisplayableMessages()) {
-      return selected;
+    if (shiftedY > 0) {
+      // divide by message height to get the position
+      uint8_t selected = shiftedY / (getMessageHeight() + getMessageTitleHeight());
+      if (selected < getMaxDisplayableMessages()) {
+
+        // must be top half of the message height (title)
+        if ((shiftedY + (getMessageHeight() / 2)) / (getMessageHeight() + getMessageTitleHeight()) == selected) {
+          return selected;
+        }
+      }
     }
   }
 
@@ -75,7 +82,7 @@ uint8_t Display::getMessagePosition (int positionX, int positionY) {
 void Display::showAlert (const char* alertText, AlertType alertType) {
     DisplayColor color = BrightGreen;
     if (alertType == AlertWarning) {
-        color = BrightYellow;
+        color = Beige;
     }
     else if (alertType == AlertError) {
         color = DarkRed;
@@ -147,7 +154,7 @@ void Display::clearDashboard () {
 void Display::showTick () {
   // if the ticker is showing hide it
   if (tickerShowing) {
-    fillCircle(getTickerX(), getTickerY(), getTickerSize(), Black);
+    fillCircle(getTickerX(), getTickerY(), getTickerSize(), LightBlue);
   }
   else {
     fillCircle(getTickerX(), getTickerY(), getTickerSize(), DarkGreen);
@@ -159,13 +166,14 @@ void Display::showTick () {
 
 void Display::showDashboardItems (const char* item, DisplayColor itemColor[], uint8_t numItems) {
   // space out items
-  int spacing = getDashboardAreaWidth() / (1 + numItems);
-  int nextX = spacing - 39; // symbol just to left of line
+  // Note: this weird logic probably only works with 1 or 2 items, and almost for sure only on a 320x240 screen
+  int pixelsPerItem = getDashboardAreaWidth() / numItems;
+  int nextX = (numItems-1)*20 + (pixelsPerItem/(numItems+1)) - 40;//(numItems * 40); // symbol just to left of line
 
   changeFont(FontTiny);
   for (int itemNum = 0; itemNum < numItems; itemNum++) {
-    showText(item + (itemNum * CHANNEL_DISPLAY_SIZE), getDashboardAreaX() + nextX, getDashboardAreaY() - (getTextUpperVerticalOffset(TextSmall) - 2), TextSmall, itemColor[itemNum]);
-    nextX += spacing;
+    showText(item + (itemNum * CHANNEL_DISPLAY_SIZE), getDashboardAreaX() + nextX, getDashboardAreaY() - (getTextUpperVerticalOffset(TextSmall) - 1), TextSmall, itemColor[itemNum]);
+    nextX += pixelsPerItem;
   }
   changeFont(FontNormal);
 

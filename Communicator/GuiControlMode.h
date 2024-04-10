@@ -78,6 +78,9 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         char newDeviceAlias[CHATTER_ALIAS_NAME_SIZE+1];
         char newClusterAlias[CHATTER_ALIAS_NAME_SIZE+1];
         char newDevicePassword[CHATTER_PASSWORD_MAX_LENGTH + 1];
+        char newDeviceWifiSsid[WIFI_SSID_MAX_LEN + 1];
+        char newDeviceWifiCred[WIFI_CRED_MAX_LEN + 1];
+        char newDeviceWifiPreferrred[2];
         char newFreq[7];
 
         ItemIterator* deviceIterator;

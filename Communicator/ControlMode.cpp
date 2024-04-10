@@ -26,8 +26,18 @@ bool ControlMode::init() {
     }
 
     if (chatterReady) {
+      #ifdef CHATTER_LORA_ENABLED
       showStatus("Init LoRa...");
       chatter->addLoRaChannel(LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
+      #endif
+
+      #ifdef CHATTER_WIFI_ENABLED
+        #if defined(CHATTER_ONBOARD_WIFI)
+          chatter->addOnboardUdpChannel (UDP_CHANNEL_LOG_ENABLED);
+        # else
+          chatter->addAirliftUdpChannel (SPIWIFI_SS, SPIWIFI_ACK, ESP32_RESETN, ESP32_GPIO0, UDP_CHANNEL_LOG_ENABLED);
+        #endif
+      #endif
       return true;
     }
     else {

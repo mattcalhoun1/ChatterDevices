@@ -14,7 +14,8 @@ enum FontType {
   FontNormal = 1,
   FontItalic = 2,
   FontBold = 3,
-  FontTiny = 4
+  FontTiny = 4,
+  FontPico = 5
 };
 
 enum DisplayColor {

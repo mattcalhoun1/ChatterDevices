@@ -33,6 +33,11 @@
 
 #define COMMUNICATOR_MESSAGE_BUFFER_SIZE 128
 
+#define WIFI_SSID_MAX_LEN 24
+#define WIFI_CRED_MAX_LEN 24
+
+#define CHATTER_LORA_ENABLED // lora enabled on all devices (needed for onboarding)
+
 // Button Pins (need interrupts)
 // Nano
 #if defined (ARDUINO_SAMD_NANO_33_IOT)
@@ -42,10 +47,13 @@
 //#define PIN_ROTARY_IN2 A7
 #define PIN_TOUCH_INT 2
 #define PIN_TOUCH_RS A1
-#define TOUCH_CONTROL_ADAFRUIT // TOUCH_CONTROL_RAK, TOUCH_CONTROL_ADAFRUIT
-#define DISPLAY_TYPE_ADAFRUIT // DISPLAY_TYPE_ADAFRUIT / DISPLAY_TYPE_HOYSOND
+//#define TOUCH_CONTROL_ADAFRUIT // TOUCH_CONTROL_RAK, TOUCH_CONTROL_ADAFRUIT
+//#define DISPLAY_TYPE_ADAFRUIT // DISPLAY_TYPE_ADAFRUIT / DISPLAY_TYPE_HOYSOND
+#define TOUCH_CONTROL_RAK // TOUCH_CONTROL_RAK, TOUCH_CONTROL_ADAFRUIT
+#define DISPLAY_TYPE_HOYSOND // DISPLAY_TYPE_ADAFRUIT / DISPLAY_TYPE_HOYSOND
+
 #elif defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_MKRZERO)
-#define ROTARY_ENABLED
+//#define ROTARY_ENABLED
 #define BUTTON_A_PIN 5  // d5 on mkr wan 1310
 #define PIN_ROTARY_IN1 A1
 #define PIN_ROTARY_IN2 A2
@@ -54,7 +62,7 @@
 #define TOUCH_CONTROL_RAK // TOUCH_CONTROL_RAK, TOUCH_CONTROL_ADAFRUIT
 #define DISPLAY_TYPE_HOYSOND // DISPLAY_TYPE_ADAFRUIT / DISPLAY_TYPE_HOYSOND
 #elif defined (ARDUINO_SAMD_ZERO) || defined(ARDUINO_FEATHER_M4) // adafruit
-#define ROTARY_ENABLED
+//#define ROTARY_ENABLED
 #define BUTTON_A_PIN A3  
 #define PIN_ROTARY_IN1 A1
 #define PIN_ROTARY_IN2 A2
@@ -93,6 +101,9 @@
 #define LORA_RFM9X_INT 5
 #define LORA_RFM9X_RST 6
 #elif defined (ARDUINO_SAMD_NANO_33_IOT)
+#define CHATTER_WIFI_ENABLED // will use onboard, instead of pins
+#define CHATTER_ONBOARD_WIFI
+
 #define LORA_RFM9X_CS 4
 #define LORA_RFM9X_INT 3
 #define LORA_RFM9X_RST 5
@@ -105,24 +116,46 @@
 #define LORA_RFM9X_CS 0
 #define LORA_RFM9X_INT 1
 #define LORA_RFM9X_RST 2
+
+//#elif defined (ARDUINO_SAMD_ZERO)
+//sparkfun
+//#define LORA_RFM9X_CS 12
+//#define LORA_RFM9X_INT 6
+//#define LORA_RFM9X_RST -1
+
+/*adafruit*/
 #elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4)
 #define LORA_RFM9X_CS 8
 #define LORA_RFM9X_INT 3
 #define LORA_RFM9X_RST 4
+
+#define CHATTER_WIFI_ENABLED
+#define ESP32_RESETN A3  // was btn a
+#define SPIWIFI_SS A1 // was rotary 1
+#define SPIWIFI_ACK A2 // was rotary 2 // a.k.a BUSY or READY
+#define ESP32_GPIO0   -1  // Not connected
+
 //mkrzero
 #elif defined (ARDUINO_SAMD_MKRZERO)
 #define LORA_RFM9X_CS 20
 #define LORA_RFM9X_INT 4
 #define LORA_RFM9X_RST 21
+
+#define CHATTER_WIFI_ENABLED
+#define ESP32_RESETN 5  // was btn a
+#define SPIWIFI_SS A1 // was rotary 1
+#define SPIWIFI_ACK A2 // was rotary 2 // a.k.a BUSY or READY
+#define ESP32_GPIO0   -1  // Not connected
+
 #endif
 
 // wifi spi settings (if used)
 // Configure the pins used for the ESP32 connection
-//#define SPIWIFI     SPI
-#define SPIWIFI_SS    5  // Chip select pin : A5/D20
-#define SPIWIFI_ACK   3   // a.k.a BUSY or READY pin : A6/D21
-#define ESP32_RESETN  4   // Reset pin : A1 / D16
-#define ESP32_GPIO0   -1  // Not connected
+#define SPIWIFI     SPI
+//#define SPIWIFI_SS    5  // Chip select pin : A5/D20
+//#define SPIWIFI_ACK   3   // a.k.a BUSY or READY pin : A6/D21
+//#define ESP32_RESETN  4   // Reset pin : A1 / D16
+//#define ESP32_GPIO0   -1  // Not connected
 
 /** Display pins */
 #if defined (ARDUINO_SAMD_NANO_33_IOT)
@@ -156,9 +189,9 @@
 #define THERMAL_INTERPOLATED_HEIGHT 48
 
 #define DISPLAY_TFT_STATUS_X 10
-#define DISPLAY_TFT_STATUS_Y 311
+#define DISPLAY_TFT_STATUS_Y 318
 #define DISPLAY_TFT_STATUS_HEIGHT 25
-#define DISPLAY_TFT_STATUS_WIDTH 128
+#define DISPLAY_TFT_STATUS_WIDTH 70
 
 #define DISPLAY_TFT_ALERT_X 10
 #define DISPLAY_TFT_ALERT_Y 150
@@ -216,10 +249,10 @@
 #define DISPLAY_TFT_SUBTITLE_WIDTH 190
 #define DISPLAY_TFT_SUBTITLE_HEIGHT 17
 
-#define DISPLAY_TFT_DASHBOARD_X 139
-#define DISPLAY_TFT_DASHBOARD_Y 318
-#define DISPLAY_TFT_DASHBOARD_HEIGHT 12
-#define DISPLAY_TFT_DASHBOARD_WIDTH 84
+#define DISPLAY_TFT_DASHBOARD_X 0
+#define DISPLAY_TFT_DASHBOARD_Y 314
+#define DISPLAY_TFT_DASHBOARD_HEIGHT 10
+#define DISPLAY_TFT_DASHBOARD_WIDTH 240
 
 // portrait
 #define DISPLAY_TFT_KEYBOARD_X 5
@@ -239,7 +272,7 @@
 #define DISPLAY_TFT_MODAL_INPUT_WIDTH 270
 
 #define DISPLAY_TFT_TICKER_X 231
-#define DISPLAY_TFT_TICKER_Y 310
+#define DISPLAY_TFT_TICKER_Y 315
 #define DISPLAY_TFT_TICKER_SIZE 3
 
 #define DISPLAY_BUTTON_AREA_X 20

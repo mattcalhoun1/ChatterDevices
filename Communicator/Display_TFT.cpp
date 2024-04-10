@@ -55,6 +55,10 @@ void Display_TFT::changeFont (FontType fontType) {
         currFontType = FontTiny;
         display.setFont(); // default fixed size
         break;
+      case FontPico:
+        currFontType = FontPico;
+        display.setFont(&Picopixel);
+        break;
       default:
         currFontType = FontNormal;
         display.setFont(&FreeSans9pt7b);

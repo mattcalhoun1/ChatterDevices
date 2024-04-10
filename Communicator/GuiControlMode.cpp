@@ -214,6 +214,9 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
             display->showAlert("Broadcast", AlertActivity);
             display->resetProgress();
             result = chatter->broadcast(messageBuffer, messageBufferLength);
+            if (!result) {
+              result = chatter->broadcastSecondary(messageBuffer, messageBufferLength);
+            }
           }
           else if (eventType == UserRequestOpenBroadcast) {
             display->showAlert("Open Broadcast", AlertActivity);
@@ -362,6 +365,10 @@ bool GuiControlMode::sendDirectMessage () {
   flags.Flag2 = AckRequestTrue;
 
   if (chatter->send(messageBuffer, messageBufferLength, otherDeviceId, &flags)) {
+    logConsole("DM sent");
+    return true;
+  } // try secondary channel
+  else if (chatter->clusterHasSecondaryChannel() && chatter->sendSecondary(messageBuffer, messageBufferLength, otherDeviceId, &flags)) {
     logConsole("DM sent");
     return true;
   }
@@ -607,10 +614,51 @@ bool GuiControlMode::initializeNewDevice () {
     }
   }
 
+  // wifi settings
+  memset(newDeviceWifiSsid, 0, WIFI_SSID_MAX_LEN  + 1);
+  memset(newDeviceWifiCred, 0, WIFI_CRED_MAX_LEN  + 1);
+  int ssidLength = 0;
+  bool wifiEnabled = false;
+  bool wifiPreferred = false;
+
+  #if defined(CHATTER_WIFI_ENABLED)
+  while (ssidLength == 0) {
+    ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("Enable WiFi?", "Common WiFi network (for UDP/etc)", 1, CharacterFilterYesNo, newDeviceWifiSsid, "", 0);
+  }
+  if (newDeviceWifiSsid[0] == 'y') {
+    wifiEnabled = true;
+    ssidLength = 0;
+    while (ssidLength == 0) {
+      ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("WiFi SSID", "Enter the WiFi SSID (name)", WIFI_SSID_MAX_LEN, CharacterFilterNone, newDeviceWifiSsid, "", 0);
+    }
+    newDeviceWifiSsid[ssidLength] = 0;
+
+    ssidLength = 0;
+    while (ssidLength == 0) {
+      ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("WiFi Password", "Enter the WiFi Password", WIFI_CRED_MAX_LEN, CharacterFilterNone, newDeviceWifiCred, "", 0);
+    }
+    newDeviceWifiCred[ssidLength] = 0;
+
+    ssidLength = 0;
+    while (ssidLength == 0) {
+      ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("Prefer WiFi?", "Should WiFi be the preferred channel?", 1, CharacterFilterYesNo, newDeviceWifiPreferrred, "", 0);
+    }
+    wifiPreferred = newDeviceWifiPreferrred[0] == 'y';
+  }
+  else {
+    sprintf(newDeviceWifiSsid, "none", 4);
+    sprintf(newDeviceWifiCred, "none", 4);
+  }
+  #else
+    sprintf(newDeviceWifiSsid, "none", 4);
+    sprintf(newDeviceWifiCred, "none", 4);
+  #endif
+
+
   ClusterAdmin* admin = new ClusterAdmin(chatter);
 
   display->showAlert("Initializing", AlertWarning);
-  bool result = admin->genesis(newDeviceAlias, newDevicePassword, passwordLength, newClusterAlias, newFrequency);
+  bool result = admin->genesis(newDeviceAlias, newDevicePassword, passwordLength, newClusterAlias, newFrequency, wifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, wifiPreferred);
   display->showProgressBar(1.0);
   return result;
 }
