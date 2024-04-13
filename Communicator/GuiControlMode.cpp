@@ -152,6 +152,19 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
 bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   bool result = false;
   switch(eventType) {
+    case UserRequestScreenLock:
+      logConsole("Locking screen");
+      return true;
+
+    case UserRequestPowerOff:
+      // are we doing locked or powerdown? need to ask user
+      logConsole("Going to sleep");
+      display->clearAll();
+      display->setBrightness(0);
+      disableMessaging();
+      deepSleep();
+
+      return true;
     case MenuClosed:
       fullRepaint = true;
       if (fullyInteractive) {
@@ -173,6 +186,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         while (menu->isShowing()) {
           menu->menuUpdate();
           delay(10);
+          ((FullyInteractiveDisplay*)display)->handleIfTouched();
         }
         ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
 
@@ -442,6 +456,20 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
   DisplayedButton pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (touchX, touchY);
   if (pressedButton != ButtonNone) {
     switch (pressedButton) {
+      case ButtonLock:
+        // show the powerdown menu
+        ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
+        menu->powerMenu();
+
+        // wait for result of contact selections
+        while (menu->isShowing()) {
+          menu->menuUpdate();
+          delay(10);
+          ((FullyInteractiveDisplay*)display)->handleIfTouched();
+        }
+        ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
+        return true;
+
       case ButtonBroadcast:
         return handleEvent(UserRequestSecureBroadcast);
       case ButtonDM:
@@ -638,6 +666,8 @@ bool GuiControlMode::initializeNewDevice () {
       ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("WiFi Password", "Enter the WiFi Password", WIFI_CRED_MAX_LEN, CharacterFilterNone, newDeviceWifiCred, "", 0);
     }
     newDeviceWifiCred[ssidLength] = 0;
+
+    Serial.print("Newly entered creds: ");Serial.println(newDeviceWifiCred);
 
     ssidLength = 0;
     while (ssidLength == 0) {

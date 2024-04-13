@@ -31,11 +31,15 @@
 #define MENU_ONBOARDING_JOIN_CLUSTER 1
 #define MENU_ONBOARDING_ONBOARD_DEVICE 2
 
+#define MENU_POWER_LOCK_SCREEN 1
+#define MENU_POWER_POWEROFF 2
+
 #define MENU_ID_MAIN 0
 #define MENU_ID_MESSAGES 1
 #define MENU_ID_ONBOARDING 2
 #define MENU_ID_ADMIN 3
 #define MENU_ID_ITERATOR 4
+#define MENU_ID_POWER 5
 
 #define MENU_HIGHLIGHT_CENTER false
 #define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
@@ -76,6 +80,7 @@ class Menu : public TouchListener {
         void mainMenu (bool fullRepaint = false);
         void adminMenu();
         void onboardingMenu ();
+        void powerMenu();
         void iteratorMenu (bool fullRepaint = false);
         void iteratorActions ();        
 
@@ -83,6 +88,7 @@ class Menu : public TouchListener {
         void demoMenu ();
         void menuActions ();
         void onboardingActions ();
+        void powerMenuActions ();
 
 
         //void value1 ();

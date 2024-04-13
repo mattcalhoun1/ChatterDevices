@@ -137,9 +137,9 @@
 
 //mkrzero
 #elif defined (ARDUINO_SAMD_MKRZERO)
-#define LORA_RFM9X_CS 20
+#define LORA_RFM9X_CS 20 // (A5)
 #define LORA_RFM9X_INT 4
-#define LORA_RFM9X_RST 21
+#define LORA_RFM9X_RST 21 // (A6)
 
 #define CHATTER_WIFI_ENABLED
 #define ESP32_RESETN 5  // was btn a
@@ -162,18 +162,22 @@
 #define Display_TFT_RS 9
 #define Display_TFT_DC 10
 #define Display_TFT_CS 8
+#define DISPLAY_TFT_BACKLIGHT A3
 #elif defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_MKRZERO)
 #define Display_TFT_RS 3
 #define Display_TFT_DC 1
 #define Display_TFT_CS 2
+#define DISPLAY_TFT_BACKLIGHT A3
 #elif defined (ARDUINO_SEEED_XIAO_M0)
 #define Display_TFT_RS 0 // not used
 #define Display_TFT_DC 3
 #define Display_TFT_CS 6
+#define DISPLAY_TFT_BACKLIGHT -1
 #elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4)
 #define Display_TFT_RS 5
 #define Display_TFT_DC 6
 #define Display_TFT_CS 9
+#define DISPLAY_TFT_BACKLIGHT -1
 #endif
 /** end Display pins */
 
@@ -316,6 +320,11 @@
 #define DISPLAY_TFT_MAIN_SCROLL_DOWN_Y 260
 #define DISPLAY_TFT_MAIN_SCROLL_RADIUS 6
 #define DISPLAY_TFT_MAIN_SCROLL_TOUCH_RADIUS 20
+
+#define DISPLAY_TFT_LOCK_BUTTON_X 1
+#define DISPLAY_TFT_LOCK_BUTTON_Y 1
+#define DISPLAY_TFT_LOCK_BUTTON_SIZE 20
+
 
 // Color definitions
 #define	BLACK           0x0000

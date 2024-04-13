@@ -145,6 +145,22 @@ void Menu::onboardingMenu() {
   oledMenu.lastMenuActivity = millis();
 }
 
+void Menu::powerMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_POWER;
+  oledMenu.menuTitle = "Power";
+
+  oledMenu.noOfmenuItems = 2;
+  oledMenu.menuItems[MENU_POWER_LOCK_SCREEN] = "Lock Screen";
+  oledMenu.menuItems[MENU_POWER_POWEROFF] = "Power Off";
+
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+
+  mode = MenuActive;
+  needsRepainted = true;
+}
+
 void Menu::adminActions() {
   if (oledMenu.menuId == MENU_ID_ADMIN) {  
     switch (oledMenu.selectedMenuItem) {
@@ -236,6 +252,22 @@ void Menu::onboardingActions() {
   }
 }
 
+void Menu::powerMenuActions() {
+  if (oledMenu.menuId == MENU_ID_POWER) {  
+    switch (oledMenu.selectedMenuItem) {
+      case MENU_POWER_LOCK_SCREEN:
+        resetMenu();
+        handler->handleEvent(UserRequestScreenLock);
+        break;
+      case MENU_POWER_POWEROFF:
+        resetMenu();
+        handler->handleEvent(UserRequestPowerOff);
+        break;
+    }
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
 void Menu::setDatePartOptionsFor(uint8_t datePartId) {
   switch (datePartId) {
     case 0:
@@ -295,6 +327,9 @@ void Menu::menuActions () {
   }
   else if (oledMenu.menuId == MENU_ID_ITERATOR) {
     iteratorActions();
+  }
+  else if (oledMenu.menuId == MENU_ID_POWER) {
+    powerMenuActions();
   }
 }
 

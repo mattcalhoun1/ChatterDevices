@@ -45,6 +45,8 @@ class Display_TFT : public FullyInteractiveDisplay {
     void fillTriangle (int x1, int y1, int x2, int y2, int x3, int y3, DisplayColor color);
     void setRotation (ScreenRotation _rotation);
 
+    void setBrightness(uint8_t brightness);
+
     bool handleIfTouched ();
     void clearTouchInterrupts ();
     void setTouchSensitivity (TouchSensitivity sensitivity);
@@ -176,6 +178,10 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getButtonWidth() {return DISPLAY_BUTTON_WIDTH;}
     int getButtonHeight() {return DISPLAY_BUTTON_HEIGHT;}
     int getButtonHorizontalOffset() {return DISPLAY_BUTTON_HORIZONTAL_OFFSET;}
+
+    int getLockButtonX() { return DISPLAY_TFT_LOCK_BUTTON_X; }
+    int getLockButtonY() { return DISPLAY_TFT_LOCK_BUTTON_Y; }
+    int getLockButtonSize() { return DISPLAY_TFT_LOCK_BUTTON_SIZE; }
 
     void showButton(uint8_t buttonPosition, const char* buttonText);
     const char* getButtonText (DisplayedButton btn){return buttonTexts[btn];}

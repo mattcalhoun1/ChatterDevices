@@ -143,6 +143,11 @@ void CommunicatorControlMode::sleepOrBackground(unsigned long sleepTime) {
   delay(sleepTime);
 }
 
+void CommunicatorControlMode::deepSleep() {
+  logConsole("sleeping");
+  LowPower.deepSleep();
+}
+
 bool CommunicatorControlMode::sendPacketBatchAir () {
   bool packetsToSend = true; //assume there might be a batch to send
   

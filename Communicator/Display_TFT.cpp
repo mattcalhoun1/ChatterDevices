@@ -6,6 +6,7 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
   display.begin();
 
   display.setFont(&FreeSans9pt7b);
+  setBrightness(100);
 
   clear();
 
@@ -98,6 +99,21 @@ void Display_TFT::showSymbol (int gfxChar, int x, int y, DisplayColor color) {
   display.write(gfxChar);
 }
 
+
+
+// 0 - 100 , meaning percent bright
+void Display_TFT::setBrightness(uint8_t brightness) {
+  if (brightness >= 100) {
+    analogWrite(DISPLAY_TFT_BACKLIGHT, 255);
+  }
+  else if (brightness == 0) {
+    analogWrite(DISPLAY_TFT_BACKLIGHT, 0);
+  }
+  else {
+    uint8_t pwmVal = min(250, brightness * 2.5);
+    analogWrite(DISPLAY_TFT_BACKLIGHT, pwmVal);
+  }
+}
 
 bool Display_TFT::handleIfTouched () {
   bool success = true;
@@ -484,9 +500,26 @@ void Display_TFT::showButtons() {
   for (uint8_t btnCount = 0; btnCount < NUM_DISPLAYED_BUTTONS; btnCount++){
     showButton(btnCount, getButtonText((DisplayedButton)btnCount));
   }
+
+  // show the lock button
+  display.drawRoundRect(getLockButtonX(),getLockButtonY(), getLockButtonX() + getLockButtonSize(), getLockButtonY() + getLockButtonSize(), 1, getTFTColor(LightGreen));
+  display.fillRoundRect(getLockButtonX() + 1,getLockButtonY() + 1, getLockButtonX() + getLockButtonSize() - 2, getLockButtonY() + getLockButtonSize() - 2, 1, getTFTColor(DarkGreen));
+  //changeFont(FontSymbol);
+
+  //showSymbol(0x05, getLockButtonX(), getLockButtonY() + getTextUpperVerticalOffset(TextSmall), Beige);
+  drawCircle(getLockButtonX() + (.5*getLockButtonSize()), getLockButtonY() + (.5*getLockButtonSize()) + 1, .3*getLockButtonSize(), Beige);
+  drawLine(getLockButtonX() + .5*getLockButtonSize(), getLockButtonY() + .5*getLockButtonSize(), getLockButtonX() + .5*getLockButtonSize(), getLockButtonY() + .1*getLockButtonSize(), Beige);
+  //changeFont(FontNormal);
 }
 
 DisplayedButton Display_TFT::getButtonAt (int x, int y) {
+  // check if it's the lock button first
+  if (x >= getLockButtonX() && x <= getLockButtonX() + getLockButtonSize()) {
+    if (y >= getLockButtonY() && y <= getLockButtonY() + getLockButtonSize()) {
+      return ButtonLock;
+    }
+  }
+
   // is the button in the button area vertically
   if (y >= getButtonAreaY() && y <= getButtonAreaY() + getButtonHeight()) {
     // it's in the button row somewhere, is it on a button

@@ -68,6 +68,7 @@ class Display {
     virtual void showThermal (const uint8_t* frame, int resHeight, int resWidth, int xOffset, int yOffset) = 0;
     virtual void showInterpolatedThermalRow (const float* interpolatedRow, int xOffset, int yOffset) = 0;
 
+    virtual void setBrightness(uint8_t brightness) = 0;
 
     virtual void showTitle (const char* text);
     virtual void showSubtitle (const char* text);

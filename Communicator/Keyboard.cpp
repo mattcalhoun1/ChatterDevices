@@ -165,6 +165,7 @@ bool Keyboard::handleScreenTouched (int touchX, int touchY) {
     }
     else if (typedKey == KEY_CLEAR) {
       bufferEdited = true;
+      memset(inputBuffer, 0, currMaxLength+1);
       inputBufferLength = 0;
     }
     else if ((getUserInputLength() < currMaxLength || isControlKey(typedKey)) && !isFiltered(typedKey)) {

@@ -4,6 +4,7 @@
 #include "CommunicatorEventHandler.h"
 #include "FullyInteractiveDisplay.h"
 #include "TouchControl.h"
+#include <ArduinoLowPower.h>
 
 #ifndef COMMUNICATORCONTROLMODE_H
 #define COMMUNICATORCONTROLMODE_H
@@ -39,6 +40,7 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         void disableMessaging ();
         void enableMessaging () { listeningForMessages = true; }
         virtual bool onboardNewClient (unsigned long timeout);
+        void deepSleep ();
 
     protected:
         virtual void sleepOrBackground(unsigned long sleepTime);
