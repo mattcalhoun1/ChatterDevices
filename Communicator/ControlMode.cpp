@@ -143,11 +143,11 @@ bool ControlMode::initializeNewDevice () {
   return admin->genesisRandom(tempAlias);
 }
 
-bool ControlMode::factoryResetCheck (bool forceReset) {
+bool ControlMode::factoryResetCheck (bool forceReset, bool writeZeros) {
   
   if (forceReset || !chatter->isDeviceInitialized()) {
     logConsole("Factory resetting...");
-    chatter->factoryReset();
+    chatter->factoryReset(writeZeros);
     if (initializeNewDevice()) {
       // probably need to add cleanup code to admin obj?
       justOnboarded = true;

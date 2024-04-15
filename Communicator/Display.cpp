@@ -246,11 +246,12 @@ ScrollButton Display::getScrollButtonAt (int x, int y) {
     int scrollDownX = getMainScrollDownX();
     int scrollDownY = getMainScrollDownY();
     uint8_t radius = getMainScrollTouchRadius();
+    uint8_t tolerance = 10;
 
-    if (x >= scrollUpX - radius && x <= scrollUpX + radius && y >= scrollUpY - radius && y <= scrollUpY + radius) {
+    if (x >= scrollUpX - (radius + tolerance) && x <= scrollUpX + (radius + tolerance) && y >= scrollUpY - (radius + tolerance) && y <= scrollUpY + (radius + tolerance)) {
         return ScrollUp;
     }
-    else if (x >= scrollDownX - radius && x <= scrollDownX + radius && y >= scrollDownY - radius && y <= scrollDownY + radius) {
+    else if (x >= scrollDownX - (radius + tolerance) && x <= scrollDownX + (radius + tolerance) && y >= scrollDownY - (radius + tolerance) && y <= scrollDownY + (radius + tolerance)) {
         return ScrollDown;
     }
 

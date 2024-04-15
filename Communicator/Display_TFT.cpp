@@ -513,9 +513,10 @@ void Display_TFT::showButtons() {
 }
 
 DisplayedButton Display_TFT::getButtonAt (int x, int y) {
+  uint8_t powerLeeway = 10;
   // check if it's the lock button first
-  if (x >= getLockButtonX() && x <= getLockButtonX() + getLockButtonSize()) {
-    if (y >= getLockButtonY() && y <= getLockButtonY() + getLockButtonSize()) {
+  if (x >= (getLockButtonX() - powerLeeway) && x <= getLockButtonX() + getLockButtonSize() + powerLeeway) {
+    if (y >= getLockButtonY() - powerLeeway && y <= getLockButtonY() + getLockButtonSize() + powerLeeway) {
       return ButtonLock;
     }
   }

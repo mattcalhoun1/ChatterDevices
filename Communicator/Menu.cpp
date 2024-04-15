@@ -28,7 +28,7 @@ bool Menu::handleScreenTouched(int touchX, int touchY) {
       // check if a menu item was touched
       uint8_t touchedItem = display->getMenuItemAt(touchX, touchY);
 
-      Serial.print("Touched item: ");Serial.print(touchedItem);Serial.print(" at (");Serial.print(touchX);Serial.print(",");Serial.print(touchY);Serial.println(")");
+      //Serial.print("Touched item: ");Serial.print(touchedItem);Serial.print(" at (");Serial.print(touchX);Serial.print(",");Serial.print(touchY);Serial.println(")");
 
       if (touchedItem != MENU_ITEM_NONE) {
         oledMenu.lastMenuActivity = millis();
@@ -120,7 +120,8 @@ void Menu::adminMenu() {
   oledMenu.menuItems[MENU_ADMIN_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
   oledMenu.menuItems[MENU_ADMIN_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
 
-  oledMenu.menuItems[MENU_ADMIN_FACTORY_RESET] = "Factory Reset";
+  oledMenu.menuItems[MENU_ADMIN_QUICK_FACTORY_RESET] = "Quick Factory Reset";
+  oledMenu.menuItems[MENU_ADMIN_SECURE_FACTORY_RESET] = "Secure Factory Reset";
 
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
@@ -193,10 +194,15 @@ void Menu::adminActions() {
         Serial.println("Delete cluster...");
         handler->handleEvent(UserRequestDeletecluster);
         break;
-      case MENU_ADMIN_FACTORY_RESET:
+      case MENU_ADMIN_QUICK_FACTORY_RESET:
         resetMenu();
         Serial.println("Factory reset...");
-        handler->handleEvent(UserRequestFactoryReset);
+        handler->handleEvent(UserRequestQuickFactoryReset);
+        break;
+      case MENU_ADMIN_SECURE_FACTORY_RESET:
+        resetMenu();
+        Serial.println("Secure Factory reset...");
+        handler->handleEvent(UserRequestSecureFactoryReset);
         break;
       case MENU_ADMIN_CREATE_CLUSTER:
         resetMenu();

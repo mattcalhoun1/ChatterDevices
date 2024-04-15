@@ -11,19 +11,20 @@ enum CommunicatorEventType {
     UserRequestBleJoinCluster = 1,
     UserRequestNewCluster = 2,
     UserRequestDeletecluster = 3,
-    UserRequestFactoryReset = 4,
-    UserChangedTime = 5,
-    UserRequestDirectMessage = 6,
-    UserRequestSelfAnnounce = 7,
-    PingLoraBridge = 8,
-    CommunicatorEventNone = 9,
-    UserRequestSecureBroadcast = 10,
-    UserRequestOpenBroadcast = 11,
-    MenuClosed = 12,
-    UserDeleteAllMessages = 13,
-    UserRequestReply = 14,
-    UserRequestScreenLock = 15,
-    UserRequestPowerOff = 16
+    UserRequestQuickFactoryReset = 4,
+    UserRequestSecureFactoryReset = 5,
+    UserChangedTime = 6,
+    UserRequestDirectMessage = 7,
+    UserRequestSelfAnnounce = 8,
+    PingLoraBridge = 9,
+    CommunicatorEventNone = 10,
+    UserRequestSecureBroadcast = 11,
+    UserRequestOpenBroadcast = 12,
+    MenuClosed = 13,
+    UserDeleteAllMessages = 14,
+    UserRequestReply = 15,
+    UserRequestScreenLock = 16,
+    UserRequestPowerOff = 17
 };
 
 struct CommunicatorEvent {

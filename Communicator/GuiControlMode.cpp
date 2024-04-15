@@ -47,7 +47,7 @@ bool GuiControlMode::init() {
       delay(5000);
 
       // prompt factory reset
-      handleEvent(UserRequestFactoryReset);
+      handleEvent(UserRequestQuickFactoryReset);
     }
 
     return parentInitialized;
@@ -310,9 +310,10 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       }
       return true;
 
-    case UserRequestFactoryReset:
+    case UserRequestQuickFactoryReset:
+    case UserRequestSecureFactoryReset:
       if (isFullyInteractive()) {
-        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Factory Reset?", "Permanently erase all device data", 1, CharacterFilterYesNo, (char*)messageBuffer, "", 0);
+        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput(eventType == UserRequestQuickFactoryReset ? "Quick Reset?" : "Secure Reset?", "Permanently erase all device data", 1, CharacterFilterYesNo, (char*)messageBuffer, "", 0);
         //int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Factory Reset?", 1, CharacterFilterYesNo, (char*)messageBuffer, "", 0);
         if (newMessageLength > 0 && (messageBuffer[0] == 'y' || messageBuffer[0] == 'Y')) {
           logConsole("Factory reset confirmed");
@@ -617,12 +618,13 @@ bool GuiControlMode::initializeNewDevice () {
 
   int clusterAliasLength = 0;
   memset(newClusterAlias, 0, CHATTER_ALIAS_NAME_SIZE+1);
-  sprintf(newClusterAlias, "%s.%d", "Cluster", random(2048));
+  sprintf(newClusterAlias, "%s.%d", "Clst", random(2048));
 
   // prompt for cluster name
   while (clusterAliasLength == 0) {
     clusterAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Cluster Name", "Unique(ish) name for your private cluster", 12, CharacterFilterAlphaNumeric, newClusterAlias, newClusterAlias, 0);
   }
+  newClusterAlias[clusterAliasLength] = 0;
 
   int newFreqLength = 0;
   memset(newFreq, 0, 7);
@@ -743,7 +745,7 @@ uint8_t GuiControlMode::promptForPassword (char* passwordBuffer, uint8_t maxPass
 }
 
 void GuiControlMode::promptFactoryReset () {
-  handleEvent(UserRequestFactoryReset);
+  handleEvent(UserRequestSecureFactoryReset);
 }
 
 bool GuiControlMode::promptYesNo (const char* message) {

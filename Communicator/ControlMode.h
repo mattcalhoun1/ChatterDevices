@@ -62,7 +62,7 @@ class ControlMode : ChatStatusCallback {
     virtual void logConsole(String msg);
     virtual void sleepOrBackground(unsigned long sleepTime);
     const char* getStatusName (ChatStatus chatStatus);
-    bool factoryResetCheck(bool forceReset = false);
+    bool factoryResetCheck(bool forceReset = false, bool writeZeros = false);
 
     virtual int freeMemory(); // returns estimated free memory
 

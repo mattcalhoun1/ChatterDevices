@@ -41,16 +41,6 @@ void setup() {
 
   controlMode = new GuiControlMode(selectDeviceType());
   //controlMode = new TestControlMode(selectDeviceType(), isAdmin());
-  
-  if(!controlMode->init()) {
-    logConsole("Error initializing!");
-  }
-
-  // register interrupt routine
-  #ifdef ROTARY_ENABLED
-    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN1), handleRotary, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN2), handleRotary, CHANGE);
-  #endif
 
   #if defined(TOUCH_CONTROL_RAK) || defined(TOUCH_CONTROL_ADAFRUIT)
     pinMode(PIN_TOUCH_INT, INPUT_PULLUP);
@@ -60,6 +50,15 @@ void setup() {
     //#define PIN_TOUCH_RS 12
   #endif
 
+  if(!controlMode->init()) {
+    logConsole("Error initializing!");
+  }
+
+  // register interrupt routine
+  #ifdef ROTARY_ENABLED
+    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN1), handleRotary, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN2), handleRotary, CHANGE);
+  #endif
 }
 
 DeviceType selectDeviceType () {

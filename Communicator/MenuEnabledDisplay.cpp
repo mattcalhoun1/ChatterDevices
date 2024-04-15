@@ -88,11 +88,12 @@ MenuScrollButton MenuEnabledDisplay::getMenuScrollButtonAt (int x, int y) {
     int scrollDownX = getMenuScrollDownX();
     int scrollDownY = getMenuScrollDownY();
     uint8_t radius = getMenuScrollTouchRadius();
+    uint8_t tolerance = 10;
 
-    if (x >= scrollUpX - radius && x <= scrollUpX + radius && y >= scrollUpY - radius && y <= scrollUpY + radius) {
+    if (x >= scrollUpX - (radius + tolerance) && x <= scrollUpX + (radius + tolerance) && y >= scrollUpY - (radius + tolerance) && y <= scrollUpY + (radius + tolerance)) {
         return MenuScrollUp;
     }
-    else if (x >= scrollDownX - radius && x <= scrollDownX + radius && y >= scrollDownY - radius && y <= scrollDownY + radius) {
+    else if (x >= scrollDownX - (radius + tolerance) && x <= scrollDownX + (radius + tolerance) && y >= scrollDownY - (radius + tolerance) && y <= scrollDownY + (radius + tolerance)) {
         return MenuScrollDown;
     }
 

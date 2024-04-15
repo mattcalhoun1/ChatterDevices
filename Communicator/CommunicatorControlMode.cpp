@@ -284,9 +284,13 @@ bool CommunicatorControlMode::queueEvent(CommunicatorEventType eventType) {
 
 bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
   switch(eventType) {
-    case UserRequestFactoryReset:
+    case UserRequestQuickFactoryReset:
       logConsole("FACTORY RESET TRIGGERED");
       factoryResetCheck(true);
+      break;
+    case UserRequestSecureFactoryReset:
+      logConsole("FACTORY RESET TRIGGERED");
+      factoryResetCheck(true, true);
       break;
     case UserRequestBleOnboard:
       if(onboardNewClient (CLUSTER_ONBOARD_TIMEOUT)) {
