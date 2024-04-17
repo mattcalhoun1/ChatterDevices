@@ -3,7 +3,8 @@
 
 enum CommunicatorPreference {
     PreferenceKeyboardLandscape = 0,
-    PreferenceMessageHistory = 1
+    PreferenceMessageHistory = 1,
+    PreferenceWifiEnabled = 2
 };
 
 class CommunicatorPreferenceHandler {

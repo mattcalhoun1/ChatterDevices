@@ -193,6 +193,12 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         if (menu->getIteratorSelection() != ITERATOR_SELECTION_NONE) {
           // find the associated device id for the given slot
           uint8_t selectedSlot = deviceIterator->getItemVal(menu->getIteratorSelection());
+
+          // populate recipient name for modal display
+          memset(newDeviceAlias, 0, CHATTER_ALIAS_NAME_SIZE+2);
+          deviceIterator->loadItemName(menu->getIteratorSelection(), newDeviceAlias+1);
+          newDeviceAlias[0] = '@';
+
           chatter->getTrustStore()->loadDeviceId(selectedSlot, otherDeviceId);
           logConsole("User chose to DM :");
           logConsole(otherDeviceId);
@@ -216,10 +222,10 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
 
         // pop up the keyboard
         if (eventType == UserRequestDirectMessage) {
-          messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Direct Message", "Only the intended recipient may receive this", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 0);
+          messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput(newDeviceAlias, "Send to the selected device", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 0);
         }
         else {
-          messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Secure Broadcast", "All cluster devices may receive this", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 20000);
+          messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Secure Broadcast", "Cast to all trusted devices", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 20000);
         }
 
         // send it
@@ -426,7 +432,7 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
         display->clearAll();
 
         // pop up the keyboard
-        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput((const char*)eventBuffer.EventData, chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer);
+        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput((const char*)eventBuffer.EventData, "Send to the selected device", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 0);
         if (messageBufferLength > 0) {
           // send it
           return attemptDirectSend();

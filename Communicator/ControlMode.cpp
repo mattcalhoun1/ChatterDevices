@@ -32,11 +32,16 @@ bool ControlMode::init() {
       #endif
 
       #ifdef CHATTER_WIFI_ENABLED
-        #if defined(CHATTER_ONBOARD_WIFI)
-          chatter->addOnboardUdpChannel (UDP_CHANNEL_LOG_ENABLED);
-        # else
-          chatter->addAirliftUdpChannel (SPIWIFI_SS, SPIWIFI_ACK, ESP32_RESETN, ESP32_GPIO0, UDP_CHANNEL_LOG_ENABLED);
-        #endif
+        if (chatter->getDeviceStore()->getWifiEnabled()) {
+          #if defined(CHATTER_ONBOARD_WIFI)
+            chatter->addOnboardUdpChannel (UDP_CHANNEL_LOG_ENABLED);
+          # else
+            chatter->addAirliftUdpChannel (SPIWIFI_SS, SPIWIFI_ACK, ESP32_RESETN, ESP32_GPIO0, UDP_CHANNEL_LOG_ENABLED);
+          #endif
+        }
+        else {
+          logConsole("Device wifi disabled by user pref");
+        }
       #endif
       return true;
     }

@@ -128,6 +128,8 @@ bool HeadsUpControlMode::isPreferenceEnabled (CommunicatorPreference pref) {
       return chatter->getDeviceStore()->getMessageHistoryEnabled();
     case PreferenceKeyboardLandscape:
       return chatter->getDeviceStore()->getKeyboardOrientedLandscape();
+    case PreferenceWifiEnabled:
+      return chatter->getDeviceStore()->getWifiEnabled();
   }
 
   logConsole("Unknown preference read attempt");
@@ -153,6 +155,15 @@ void HeadsUpControlMode::enablePreference (CommunicatorPreference pref) {
 
       logConsole("Keyboard landscape enabled");
       break;
+    case PreferenceWifiEnabled:
+      chatter->getDeviceStore()->setWifiEnabled(true);
+      logConsole("Wifi enabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    
     default:
       logConsole("Unknown preference enable attempt");
   }
@@ -175,6 +186,14 @@ void HeadsUpControlMode::disablePreference (CommunicatorPreference pref) {
       }
 
       logConsole("Keyboard landscape disabled");
+      break;
+    case PreferenceWifiEnabled:
+      chatter->getDeviceStore()->setWifiEnabled(false);
+      logConsole("Wifi disabled");
+
+      // reset device
+      restartDevice();
+
       break;
     default:
       logConsole("Unknown preference disable attempt");

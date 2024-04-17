@@ -81,7 +81,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         bool rotaryMoved = false;
 
         // for onboarding input
-        char newDeviceAlias[CHATTER_ALIAS_NAME_SIZE+1];
+        char newDeviceAlias[CHATTER_ALIAS_NAME_SIZE+2];
         char newClusterAlias[CHATTER_ALIAS_NAME_SIZE+1];
         char newDevicePassword[CHATTER_PASSWORD_MAX_LENGTH + 1];
         char newDeviceWifiSsid[WIFI_SSID_MAX_LEN + 1];

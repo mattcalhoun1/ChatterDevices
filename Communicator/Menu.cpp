@@ -109,7 +109,7 @@ void Menu::mainMenu(bool fullRepaint) {
 void Menu::adminMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_ADMIN;
-  oledMenu.noOfmenuItems = 7;
+  oledMenu.noOfmenuItems = 8;
   oledMenu.menuTitle = "Admin";
 
   oledMenu.menuItems[MENU_ADMIN_PING_LORA_BRIDGE] = "Ping Lora Bridge";
@@ -118,10 +118,10 @@ void Menu::adminMenu() {
   oledMenu.menuItems[MENU_ADMIN_SET_TIME] = "Set Time";
 
   oledMenu.menuItems[MENU_ADMIN_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
+  oledMenu.menuItems[MENU_ADMIN_WIFI_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceWifiEnabled) ? "Disable Wifi" : "Enable Wifi";
   oledMenu.menuItems[MENU_ADMIN_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
 
-  oledMenu.menuItems[MENU_ADMIN_QUICK_FACTORY_RESET] = "Quick Factory Reset";
-  oledMenu.menuItems[MENU_ADMIN_SECURE_FACTORY_RESET] = "Secure Factory Reset";
+  oledMenu.menuItems[MENU_ADMIN_SECURE_FACTORY_RESET] = "Factory Reset";
 
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
@@ -185,6 +185,16 @@ void Menu::adminActions() {
         }
         resetMenu();
         break;
+      case MENU_ADMIN_WIFI_ENABLE:
+        // a change to message history will trigger a reboot
+        if (prefHandler->isPreferenceEnabled(PreferenceWifiEnabled)) {
+          prefHandler->disablePreference(PreferenceWifiEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceWifiEnabled);
+        }
+        resetMenu();
+        break;
       case MENU_ADMIN_PING_LORA_BRIDGE:
         resetMenu();
         handler->queueEvent(PingLoraBridge);
@@ -193,11 +203,6 @@ void Menu::adminActions() {
         resetMenu();
         Serial.println("Delete cluster...");
         handler->handleEvent(UserRequestDeletecluster);
-        break;
-      case MENU_ADMIN_QUICK_FACTORY_RESET:
-        resetMenu();
-        Serial.println("Factory reset...");
-        handler->handleEvent(UserRequestQuickFactoryReset);
         break;
       case MENU_ADMIN_SECURE_FACTORY_RESET:
         resetMenu();
@@ -277,42 +282,42 @@ void Menu::powerMenuActions() {
 void Menu::setDatePartOptionsFor(uint8_t datePartId) {
   switch (datePartId) {
     case 0:
-      oledMenu.menuTitle = "Select Month";
+      oledMenu.menuTitle = "Month";
       oledMenu.mValueLow = 1;
       oledMenu.mValueHigh = 12;
       oledMenu.mValueStep = 1;
       oledMenu.mValueEntered = 6;
       break;
     case 1:
-      oledMenu.menuTitle = "Select Date";
+      oledMenu.menuTitle = "Day";
       oledMenu.mValueLow = 1;
       oledMenu.mValueHigh = 31;
       oledMenu.mValueStep = 1;
       oledMenu.mValueEntered = 15;
       break;
     case 2:
-      oledMenu.menuTitle = "Select Year";
+      oledMenu.menuTitle = "Year";
       oledMenu.mValueLow = 2024;
       oledMenu.mValueHigh = 2030;
       oledMenu.mValueStep = 1;
       oledMenu.mValueEntered = 2024;
       break;
     case 3:
-      oledMenu.menuTitle = "Select Hour";
+      oledMenu.menuTitle = "Hour";
       oledMenu.mValueLow = 0;
       oledMenu.mValueHigh = 23;
       oledMenu.mValueStep = 1;
       oledMenu.mValueEntered = 12;
       break;
     case 4:
-      oledMenu.menuTitle = "Select Minute";
+      oledMenu.menuTitle = "Minute";
       oledMenu.mValueLow = 0;
       oledMenu.mValueHigh = 59;
       oledMenu.mValueStep = 1;
       oledMenu.mValueEntered = 30;
       break;
     case 5:
-      oledMenu.menuTitle = "Select Second";
+      oledMenu.menuTitle = "Second";
       oledMenu.mValueLow = 0;
       oledMenu.mValueHigh = 59;
       oledMenu.mValueStep = 1;
