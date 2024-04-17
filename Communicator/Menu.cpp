@@ -153,7 +153,7 @@ void Menu::powerMenu() {
 
   oledMenu.noOfmenuItems = 2;
   oledMenu.menuItems[MENU_POWER_LOCK_SCREEN] = "Lock Screen";
-  oledMenu.menuItems[MENU_POWER_POWEROFF] = "Power Off";
+  oledMenu.menuItems[MENU_POWER_POWEROFF] = "Deep Sleep";
 
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();

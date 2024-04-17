@@ -8,6 +8,7 @@
 #include "MessageIterator.h"
 #include "TestIterator.h"
 #include "ItemIterator.h"
+#include <SHA256.h>
 
 #ifndef GUICONTROLMODE_H
 #define GUICONTROLMODE_H
@@ -48,6 +49,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         bool handleScreenTouched (int touchX, int touchY);
 
         uint8_t promptForPassword (char* passwordBuffer, uint8_t maxPasswordLength);
+        uint8_t promptForPassword (char* passwordBuffer, uint8_t maxPasswordLength, bool updateHash);
+
         void promptFactoryReset();
         bool promptYesNo (const char* message);
 
@@ -61,8 +64,11 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void sleepOrBackground (unsigned long sleepTime);
 
         bool attemptDirectSend ();
+        void lockScreen ();
+        void unlockScreen ();
 
     private:
+        bool screenLocked = false;
         bool fullRepaint = false;
         uint8_t lastChannel = 0;
         RotaryEncoder *rotary = nullptr;
@@ -82,6 +88,10 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         char newDeviceWifiCred[WIFI_CRED_MAX_LEN + 1];
         char newDeviceWifiPreferrred[2];
         char newFreq[7];
+
+        uint8_t passwordHash[32];
+        uint8_t unlockPasswordHash[32];
+        SHA256 hasher;
 
         ItemIterator* deviceIterator;
         ItemIterator* messageIterator;

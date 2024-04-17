@@ -153,7 +153,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   bool result = false;
   switch(eventType) {
     case UserRequestScreenLock:
-      logConsole("Locking screen");
+      lockScreen();
       return true;
 
     case UserRequestPowerOff:
@@ -442,86 +442,153 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
   return HeadsUpControlMode::handleEvent(event);
 }
 
-bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
-  // if the keyboard is showing, it gets the event
-  if (menu->isShowing()){
-    return true;
-  }
-  else if (fullyInteractive) {
-    if (((FullyInteractiveDisplay*)display)->isKeyboardShowing()) {
-      return true;
-    }
-  }
 
-  // if it's a button
-  DisplayedButton pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (touchX, touchY);
-  if (pressedButton != ButtonNone) {
-    switch (pressedButton) {
-      case ButtonLock:
-        // show the powerdown menu
-        ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
-        menu->powerMenu();
+void GuiControlMode::lockScreen () {
+  logConsole("Locking screen");
+  screenLocked = true;
+  display->setBrightness(0);
+}
 
-        // wait for result of contact selections
-        while (menu->isShowing()) {
-          menu->menuUpdate();
-          delay(10);
-          ((FullyInteractiveDisplay*)display)->handleIfTouched();
-        }
-        ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
-        return true;
+void GuiControlMode::unlockScreen () {
+  logConsole("Unlocking screen");
 
-      case ButtonBroadcast:
-        return handleEvent(UserRequestSecureBroadcast);
-      case ButtonDM:
-        return handleEvent(UserRequestDirectMessage);
-      case ButtonMenu:
-        ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
-        menu->show();
-        return true;
-    }
-  }
-  else if (messageHistorySize > 0) {
-    // if it's a scrollbar
-    ScrollButton scroller = display->getScrollButtonAt(touchX, touchY);
-    if (scroller != ScrollNone) {
-      if (scroller == ScrollUp && display->isScrollUpEnabled() && messagePreviewOffset > 0) {
-        messagePreviewOffset--;
-        showMessageHistory(false);
-        return true;
-      }
-      else if (scroller == ScrollDown && display->isScrollDownEnabled() && messagePreviewOffset + display->getMaxDisplayableMessages() < messageHistorySize) {
-        messagePreviewOffset++;
-        showMessageHistory(false);
-        return true;
-      }
+  // clear screen so no message data is flashed
+  display->clearAll();
+  
+  display->setBrightness(100);
+  if (chatter->deviceHasPassword()) {
+
+    // clear password buffer and prompt for a password (not updating hash that was stored during original login)
+    memset(newDevicePassword, 0, CHATTER_PASSWORD_MAX_LENGTH + 1);
+    int pwLength = promptForPassword(newDevicePassword, CHATTER_PASSWORD_MAX_LENGTH, false);
+    hasher.clear();
+
+    // get a hash of the user-provided unlock password
+    hasher.update(newDevicePassword, pwLength);
+
+    // get hash of the user-provided unlock password
+    hasher.finalize(unlockPasswordHash, hasher.hashSize());
+    hasher.clear();
+
+    // clear password buffer
+    memset(newDevicePassword, 0, CHATTER_PASSWORD_MAX_LENGTH + 1);
+
+    // compare the hashes
+    if (memcmp(unlockPasswordHash, passwordHash, 32) == 0) {
+      logConsole("Password match, unlocking");
+      fullRepaint = true;
+      screenLocked = false;
     }
     else {
-      uint8_t selectedMessage = display->getMessagePosition(touchX, touchY);
-      if (selectedMessage != DISPLAY_MESSAGE_POSITION_NULL && selectedMessage < messageHistorySize) {
-        uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedMessage + messagePreviewOffset);
-      
-        // queue a reply event to that message slot
-        if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
-          // whichever is not this device becomes the target
-          if (memcmp(chatter->getDeviceId(), histSenderId, CHATTER_DEVICE_ID_SIZE) != 0) {
-            memcpy(eventBuffer.EventTarget, histSenderId, CHATTER_DEVICE_ID_SIZE);
+      logConsole("Password didn't match");
+
+      // turn the screen back off
+      display->setBrightness(0);
+    }
+  }
+  else {
+    fullRepaint = true;
+    screenLocked = false;
+  }
+}
+
+bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
+  // if the screen is locked, intercept all touches
+  DisplayedButton pressedButton;
+  if (screenLocked) {
+    pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (touchX, touchY);
+    if (pressedButton == ButtonLock) {
+      unlockScreen();
+    }
+    return true;
+  }
+  else {
+    // if the keyboard is showing, it gets the event
+    if (menu->isShowing()){
+      return true;
+    }
+    else if (fullyInteractive) {
+      if (((FullyInteractiveDisplay*)display)->isKeyboardShowing()) {
+        return true;
+      }
+    }
+
+    // if it's a button
+    pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (touchX, touchY);
+    if (pressedButton != ButtonNone) {
+      switch (pressedButton) {
+        case ButtonLock:
+          if (screenLocked) {
+            // prompt for password or unlock
+            unlockScreen();
           }
           else {
-            memcpy(eventBuffer.EventTarget, histRecipientId, CHATTER_DEVICE_ID_SIZE);
-          }
+            // show the powerdown menu
+            ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
+            menu->powerMenu();
 
-          // if it's a broadcast, let the generic broadcast handle it
-          if (memcmp(chatter->getClusterBroadcastId(), eventBuffer.EventTarget, CHATTER_DEVICE_ID_SIZE) == 0) {
-            return handleEvent(UserRequestSecureBroadcast);
+            // wait for result of contact selections
+            while (menu->isShowing()) {
+              menu->menuUpdate();
+              delay(10);
+              ((FullyInteractiveDisplay*)display)->handleIfTouched();
+            }
+            ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
           }
+          return true;
 
-          // put the alias into event data
-          memset(eventBuffer.EventData, 0, EVENT_DATA_SIZE);
-          eventBuffer.EventData[0] = '@';
-          chatter->getTrustStore()->loadAlias(eventBuffer.EventTarget, (char*)eventBuffer.EventData + 1);
-          eventBuffer.EventType = UserRequestReply;
-          return handleEvent(&eventBuffer);
+        case ButtonBroadcast:
+          return handleEvent(UserRequestSecureBroadcast);
+        case ButtonDM:
+          return handleEvent(UserRequestDirectMessage);
+        case ButtonMenu:
+          ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
+          menu->show();
+          return true;
+      }
+    }
+    else if (messageHistorySize > 0) {
+      // if it's a scrollbar
+      ScrollButton scroller = display->getScrollButtonAt(touchX, touchY);
+      if (scroller != ScrollNone) {
+        if (scroller == ScrollUp && display->isScrollUpEnabled() && messagePreviewOffset > 0) {
+          messagePreviewOffset--;
+          showMessageHistory(false);
+          return true;
+        }
+        else if (scroller == ScrollDown && display->isScrollDownEnabled() && messagePreviewOffset + display->getMaxDisplayableMessages() < messageHistorySize) {
+          messagePreviewOffset++;
+          showMessageHistory(false);
+          return true;
+        }
+      }
+      else {
+        uint8_t selectedMessage = display->getMessagePosition(touchX, touchY);
+        if (selectedMessage != DISPLAY_MESSAGE_POSITION_NULL && selectedMessage < messageHistorySize) {
+          uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedMessage + messagePreviewOffset);
+        
+          // queue a reply event to that message slot
+          if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
+            // whichever is not this device becomes the target
+            if (memcmp(chatter->getDeviceId(), histSenderId, CHATTER_DEVICE_ID_SIZE) != 0) {
+              memcpy(eventBuffer.EventTarget, histSenderId, CHATTER_DEVICE_ID_SIZE);
+            }
+            else {
+              memcpy(eventBuffer.EventTarget, histRecipientId, CHATTER_DEVICE_ID_SIZE);
+            }
+
+            // if it's a broadcast, let the generic broadcast handle it
+            if (memcmp(chatter->getClusterBroadcastId(), eventBuffer.EventTarget, CHATTER_DEVICE_ID_SIZE) == 0) {
+              return handleEvent(UserRequestSecureBroadcast);
+            }
+
+            // put the alias into event data
+            memset(eventBuffer.EventData, 0, EVENT_DATA_SIZE);
+            eventBuffer.EventData[0] = '@';
+            chatter->getTrustStore()->loadAlias(eventBuffer.EventTarget, (char*)eventBuffer.EventData + 1);
+            eventBuffer.EventType = UserRequestReply;
+            return handleEvent(&eventBuffer);
+          }
         }
       }
     }
@@ -727,7 +794,7 @@ bool GuiControlMode::onboardNewClient (unsigned long timeout) {
   return false;
 }
 
-uint8_t GuiControlMode::promptForPassword (char* passwordBuffer, uint8_t maxPasswordLength) {
+uint8_t GuiControlMode::promptForPassword (char* passwordBuffer, uint8_t maxPasswordLength, bool updateHash) {
   if (!fullyInteractive) {
     // non-interactive password entry not currently supported.
     // loop infinitely for now
@@ -741,7 +808,20 @@ uint8_t GuiControlMode::promptForPassword (char* passwordBuffer, uint8_t maxPass
   while (pwLength == 0) {
     pwLength = ((FullyInteractiveDisplay*)display)->getModalInput("Password", maxPasswordLength, CharacterFilterNone, passwordBuffer);
   }
+
+  if (updateHash) {
+    hasher.clear();
+    hasher.update(passwordBuffer, pwLength);
+    hasher.finalize(passwordHash, hasher.hashSize());
+    hasher.clear();
+  }
   return pwLength;
+}
+
+
+uint8_t GuiControlMode::promptForPassword (char* passwordBuffer, uint8_t maxPasswordLength) {
+  // prompt for password, and hold onto the hash of it, so we can allow screen unlock to work later
+  return promptForPassword(passwordBuffer, maxPasswordLength, true);
 }
 
 void GuiControlMode::promptFactoryReset () {
