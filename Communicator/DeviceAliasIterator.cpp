@@ -26,9 +26,14 @@ bool DeviceAliasIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
             //Serial.print("Found alias: "); Serial.println(nameBuffer);
             return true;
         }
+        else {
+            Serial.print("Alias not found for device id: "); Serial.println(deviceIdBuffer);
+        }
+    }
+    else {
+        Serial.print("Device item name not found for slot: "); Serial.println(trustSlots[itemNum]);
     }
 
-    Serial.print("Device item name not found for slot: "); Serial.println(trustSlots[itemNum]);
     return false;
 }
 
