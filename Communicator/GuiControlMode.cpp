@@ -139,8 +139,16 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
     else {
       sprintf(messagePreviewBuffer, "%s", "[large message]");
     }
-    //logConsole(messagePreviewBuffer);
-    display->showMessageAndTitle(messageTitleBuffer+5, messagePreviewBuffer, messageTsBuffer, messageTitleBuffer[3] == '<', messageTitleBuffer[0] == SentViaBroadcast ? DarkBlue : Yellow, LightBlue, msg - messagePreviewOffset);
+    //logConsole(messageTitleBuffer);
+    display->showMessageAndTitle(
+      messageTitleBuffer+5, 
+      messagePreviewBuffer, 
+      messageTsBuffer, 
+      messageTitleBuffer[3] == '<', 
+      messageTitleBuffer[1], 
+      messageTitleBuffer[0] == SentViaBroadcast ? DarkBlue : Yellow, 
+      LightBlue, 
+      msg - messagePreviewOffset);
   }
 
   // if there are more messages, indicate that
@@ -570,6 +578,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
       }
       else {
         uint8_t selectedMessage = display->getMessagePosition(touchX, touchY);
+
         if (selectedMessage != DISPLAY_MESSAGE_POSITION_NULL && selectedMessage < messageHistorySize) {
           uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedMessage + messagePreviewOffset);
         
@@ -592,6 +601,11 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
             memset(eventBuffer.EventData, 0, EVENT_DATA_SIZE);
             eventBuffer.EventData[0] = '@';
             chatter->getTrustStore()->loadAlias(eventBuffer.EventTarget, (char*)eventBuffer.EventData + 1);
+
+            // set the other device id to the target
+            memset(otherDeviceId, 0, CHATTER_DEVICE_ID_SIZE+1);
+            memcpy(otherDeviceId, eventBuffer.EventTarget, CHATTER_DEVICE_ID_SIZE);
+
             eventBuffer.EventType = UserRequestReply;
             return handleEvent(&eventBuffer);
           }

@@ -19,8 +19,6 @@ bool TouchControlAdafruit::wasTouched(int& x, int& y, bool keyboardShowing, Scre
         x = DISPLAY_TFT_WIDTH - p.x;
         y = DISPLAY_TFT_HEIGHT - p.y;
 
-        Serial.print("X: "); Serial.print(x); Serial.print(", Y:"); Serial.println(y);
-
         // x/y will be different depending on how screen is rotated
         if (keyboardShowing) {
             if (keyboardOrientation == Landscape) {

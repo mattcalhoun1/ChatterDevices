@@ -58,6 +58,13 @@ void CommunicatorControlMode::loop () {
         memcpy(otherDeviceId, chatter->getLastSender(), CHATTER_DEVICE_ID_SIZE);
         otherDeviceId[CHATTER_DEVICE_ID_SIZE] = 0;
 
+        // send ack (later, queue this)
+        if (!chatter->isAcknowledgement()) {
+          if (memcmp(chatter->getLastRecipient(), chatter->getDeviceId(), CHATTER_DEVICE_ID_SIZE) == 0) {
+            chatter->sendAck(otherDeviceId, chatter->getMessageId());
+          }
+        }
+
         showLastMessage ();
       }
       showReady();

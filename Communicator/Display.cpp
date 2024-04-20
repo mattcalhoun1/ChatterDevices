@@ -22,7 +22,7 @@ void Display::showMessage (const char* message, DisplayColor color, uint8_t posi
   showText(message, getMessageAreaX(), getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, color);
 }
 
-void Display::showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
+void Display::showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, char status, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
   // show a line above the message for separation
   if (position != 0) {
     int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2);
@@ -30,17 +30,45 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
   }
 
   changeFont(FontTiny);
-  showText(received ? ">>" : "<<", getMessageAreaX(), getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall)*2, TextSmall, titleColor);
+  showText(
+    received ? "<<" : ">>", 
+    getMessageAreaX(), 
+    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall)*2,
+    TextSmall,
+    received ? titleColor : LightGray);
 
-  changeFont(FontBold);
-  showText(title, getMessageAreaX() + 15, getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, titleColor);
+  changeFont(received ? FontBold : FontNormal);
+  showText(
+    title, 
+    getMessageAreaX() + 15, 
+    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), 
+    TextSmall, 
+    received ? titleColor : LightGray
+  );
 
   // add message timestamp
   changeFont(FontTiny);
-  showText(readableTS, getMessageAreaX() + getMessageAreaWidth() - 65, getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), TextSmall, titleColor);
+  showText(
+    readableTS, 
+    getMessageAreaX() + getMessageAreaWidth() - 65, 
+    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
+    TextSmall, 
+    received ? titleColor : LightGray);
+  showText(
+    status == 'A' ? "+" : "-", 
+    getMessageAreaX() + getMessageAreaWidth() - 71, 
+    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
+    TextSmall, 
+    received ? titleColor : LightGray);
+  
 
   changeFont(FontNormal);
-  showText(text, getMessageAreaX(), getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, messageColor);
+  showText(
+    text,
+    getMessageAreaX(), 
+    getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), 
+    TextSmall, 
+    received ? messageColor : DarkGray);
 }
 /*
 void Display::showHasMessagesBefore () {
