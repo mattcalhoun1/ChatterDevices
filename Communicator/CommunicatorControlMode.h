@@ -49,6 +49,7 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         int messageBufferLength = 0;
         char otherDeviceId[CHATTER_DEVICE_ID_SIZE+1];
         bool handleConnectedDevice ();
+        bool deviceMeshEnabled = true;
     
     private:
         void sendEchoText();

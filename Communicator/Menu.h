@@ -10,37 +10,35 @@
 #ifndef MENU_H
 #define MENU_H
 
-#define MENU_MAX_ITEMS 10
+#define MENU_MAX_ITEMS 8
 
-#define MENU_MAIN_DIRECT_MESSAGE 1
-#define MENU_MAIN_SECURE_BROADCAST 2
-#define MENU_MAIN_ANNOUNCE_PRESENCE 3
-#define MENU_CHOOSE_CLUSTER 4
-#define MENU_MAIN_ONBOARDING 5
-#define MENU_MAIN_CLEAR_MESSAGES 6
-#define MENU_MAIN_ADMIN 7
+#define MENU_MAIN_CLUSTER 1
+#define MENU_MAIN_DEVICE 2
+#define MENU_MAIN_POWER 3
 
-#define MENU_ADMIN_PING_LORA_BRIDGE 1
-#define MENU_ADMIN_CREATE_CLUSTER 2
-#define MENU_ADMIN_DELETE_CLUSTER 3
-#define MENU_ADMIN_SET_TIME 4
-#define MENU_ADMIN_KEYBOARD_ORIENTATION 5
-#define MENU_ADMIN_WIFI_ENABLE 6
-#define MENU_ADMIN_MESSAGE_HISTORY 7
-#define MENU_ADMIN_SECURE_FACTORY_RESET 8
+#define MENU_CLUSTER_CHANGE_CLUSTER 1
+#define MENU_CLUSTER_JOIN_CLUSTER 2
+#define MENU_CLUSTER_CREATE_CLUSTER 3
+#define MENU_CLUSTER_DELETE_CLUSTER 4
+#define MENU_CLUSTER_ONBOARD_DEVICE 5
 
-#define MENU_ONBOARDING_JOIN_CLUSTER 1
-#define MENU_ONBOARDING_ONBOARD_DEVICE 2
+#define MENU_DEVICE_CLEAR_MESSAGES 1
+#define MENU_DEVICE_MESSAGE_HISTORY 2
+#define MENU_DEVICE_MESH_ENABLE 3
+#define MENU_DEVICE_CLEAR_MESH 4
+#define MENU_DEVICE_KEYBOARD_ORIENTATION 5
+#define MENU_DEVICE_WIFI_ENABLE 6
+#define MENU_DEVICE_SET_TIME 7
+#define MENU_DEVICE_SECURE_FACTORY_RESET 8
 
 #define MENU_POWER_LOCK_SCREEN 1
 #define MENU_POWER_POWEROFF 2
 
 #define MENU_ID_MAIN 0
-#define MENU_ID_MESSAGES 1
-#define MENU_ID_ONBOARDING 2
-#define MENU_ID_ADMIN 3
+#define MENU_ID_CLUSTER 1
+#define MENU_ID_DEVICE 2
+#define MENU_ID_POWER 3
 #define MENU_ID_ITERATOR 4
-#define MENU_ID_POWER 5
 
 #define MENU_HIGHLIGHT_CENTER false
 #define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
@@ -79,17 +77,17 @@ class Menu : public TouchListener {
         bool init ();
 
         void mainMenu (bool fullRepaint = false);
-        void adminMenu();
-        void onboardingMenu ();
+        void deviceMenu();
+        void clusterMenu ();
         void powerMenu();
         void iteratorMenu (bool fullRepaint = false);
         void iteratorActions ();        
 
-        // leftover from demo
-        void demoMenu ();
         void menuActions ();
-        void onboardingActions ();
-        void powerMenuActions ();
+
+        // leftover from demo
+        //void demoMenu ();
+        //void menuActions ();
 
 
         //void value1 ();
@@ -111,8 +109,10 @@ class Menu : public TouchListener {
         bool handleScreenTouched (int touchX, int touchY);
 
     protected:
-        void adminActions ();
+        void deviceActions ();
         void mainActions ();
+        void clusterActions ();
+        void powerMenuActions ();
 
         void populateIteratorMenu ();
 

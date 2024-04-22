@@ -61,7 +61,12 @@ void CommunicatorControlMode::loop () {
         // send ack (later, queue this)
         if (!chatter->isAcknowledgement()) {
           if (memcmp(chatter->getLastRecipient(), chatter->getDeviceId(), CHATTER_DEVICE_ID_SIZE) == 0) {
-            chatter->sendAck(otherDeviceId, chatter->getMessageId());
+            if(!chatter->sendAck(otherDeviceId, chatter->getMessageId())) {
+              logConsole("Ack direct failed");
+              if (deviceMeshEnabled && chatter->clusterSupportsMesh()) {
+                chatter->sendAckViaMesh(otherDeviceId, chatter->getMessageId());
+              }
+            }
           }
         }
 
@@ -300,7 +305,7 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
       logConsole("FACTORY RESET TRIGGERED");
       factoryResetCheck(true, true);
       break;
-    case UserRequestBleOnboard:
+    case UserRequestOnboard:
       if(onboardNewClient (CLUSTER_ONBOARD_TIMEOUT)) {
         logConsole("New device onboarded");
       }
@@ -309,7 +314,7 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
       }
 
       break;
-    case UserRequestBleJoinCluster:
+    case UserRequestJoinCluster:
       assistant = new ChatterClusterAssistant(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
       if(assistant->init()) {
         return assistant->attemptOnboard ();

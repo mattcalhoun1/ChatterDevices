@@ -91,56 +91,54 @@ void Menu::populateIteratorMenu () {
 void Menu::mainMenu(bool fullRepaint) {
   resetMenu(fullRepaint); // clear any previous menu
   oledMenu.menuId = MENU_ID_MAIN;
-  oledMenu.noOfmenuItems = 7;
+  oledMenu.noOfmenuItems = 3;
   oledMenu.menuTitle = "Main Menu";
-  oledMenu.menuItems[MENU_MAIN_DIRECT_MESSAGE] = "Direct Message";
-  oledMenu.menuItems[MENU_MAIN_SECURE_BROADCAST] = "Secure Broadcast";
-  oledMenu.menuItems[MENU_MAIN_ANNOUNCE_PRESENCE] = "Announce Presence";
-  oledMenu.menuItems[MENU_CHOOSE_CLUSTER] = "Choose Cluster";
-  oledMenu.menuItems[MENU_MAIN_ONBOARDING] = "Onboarding";
-  oledMenu.menuItems[MENU_MAIN_CLEAR_MESSAGES] = "Clear Messages";
-  oledMenu.menuItems[MENU_MAIN_ADMIN] = "Admin";
+
+  oledMenu.menuItems[MENU_MAIN_CLUSTER] = "Cluster Settings";
+  oledMenu.menuItems[MENU_MAIN_DEVICE] = "Device Settings";
+  oledMenu.menuItems[MENU_MAIN_POWER] = "Power";
 
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
 }
 
-void Menu::adminMenu() {
+void Menu::deviceMenu() {
   resetMenu(true); // clear any previous menu
-  oledMenu.menuId = MENU_ID_ADMIN;
-  oledMenu.noOfmenuItems = 8;
-  oledMenu.menuTitle = "Admin";
+  oledMenu.menuId = MENU_ID_DEVICE;
+  oledMenu.noOfmenuItems = 7;
+  oledMenu.menuTitle = "Device";
 
-  oledMenu.menuItems[MENU_ADMIN_PING_LORA_BRIDGE] = "Ping Lora Bridge";
-  oledMenu.menuItems[MENU_ADMIN_CREATE_CLUSTER] = "Create Cluster";
-  oledMenu.menuItems[MENU_ADMIN_DELETE_CLUSTER] = "Delete Cluster";
-  oledMenu.menuItems[MENU_ADMIN_SET_TIME] = "Set Time";
-
-  oledMenu.menuItems[MENU_ADMIN_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
-  oledMenu.menuItems[MENU_ADMIN_WIFI_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceWifiEnabled) ? "Disable Wifi" : "Enable Wifi";
-  oledMenu.menuItems[MENU_ADMIN_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
-
-  oledMenu.menuItems[MENU_ADMIN_SECURE_FACTORY_RESET] = "Factory Reset";
+  oledMenu.menuItems[MENU_DEVICE_CLEAR_MESSAGES] = "Clear Messages";
+  oledMenu.menuItems[MENU_DEVICE_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
+  oledMenu.menuItems[MENU_DEVICE_MESH_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceMeshEnabled) ? "Disable Mesh" : "Enable Mesh";
+  oledMenu.menuItems[MENU_DEVICE_CLEAR_MESH] = "Clear Mesh Cache";
+  oledMenu.menuItems[MENU_DEVICE_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
+  oledMenu.menuItems[MENU_DEVICE_WIFI_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceWifiEnabled) ? "Disable Wifi" : "Enable Wifi";
+  oledMenu.menuItems[MENU_DEVICE_SET_TIME] = "Set Time";
+  oledMenu.menuItems[MENU_DEVICE_SECURE_FACTORY_RESET] = "Factory Reset";
 
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
 }
 
-void Menu::onboardingMenu() {
+void Menu::clusterMenu() {
   resetMenu(true); // clear any previous menu
-  oledMenu.menuId = MENU_ID_ONBOARDING;
-  oledMenu.menuTitle = "Onboard";
+  oledMenu.menuId = MENU_ID_CLUSTER;
+  oledMenu.menuTitle = "Cluster";
+
+    oledMenu.menuItems[MENU_CLUSTER_CHANGE_CLUSTER] = "Change Cluster";
+    oledMenu.menuItems[MENU_CLUSTER_JOIN_CLUSTER]   = "Join Cluster";
+    oledMenu.menuItems[MENU_CLUSTER_CREATE_CLUSTER] = "Create Cluster";
+    oledMenu.menuItems[MENU_CLUSTER_DELETE_CLUSTER] = "Delete Cluster";
+    oledMenu.menuItems[MENU_CLUSTER_ONBOARD_DEVICE] = "Onboard Device";
 
   if (onboardAllowed) {
-    oledMenu.noOfmenuItems = 2;
-    oledMenu.menuItems[MENU_ONBOARDING_JOIN_CLUSTER] = "Join Cluster";
-    oledMenu.menuItems[MENU_ONBOARDING_ONBOARD_DEVICE] = "Onboard Device";
+    oledMenu.noOfmenuItems = 5;
   }
   else {
-    oledMenu.noOfmenuItems = 1;
-    oledMenu.menuItems[MENU_ONBOARDING_JOIN_CLUSTER] = "Join Cluster";
+    oledMenu.noOfmenuItems = 4;
   }
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
@@ -162,11 +160,11 @@ void Menu::powerMenu() {
   needsRepainted = true;
 }
 
-void Menu::adminActions() {
-  if (oledMenu.menuId == MENU_ID_ADMIN) {  
+void Menu::deviceActions() {
+  if (oledMenu.menuId == MENU_ID_DEVICE) {  
     switch (oledMenu.selectedMenuItem) {
       // preference toggles
-      case MENU_ADMIN_KEYBOARD_ORIENTATION:
+      case MENU_DEVICE_KEYBOARD_ORIENTATION:
         if (prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape)) {
           prefHandler->disablePreference(PreferenceKeyboardLandscape);
         }
@@ -175,7 +173,7 @@ void Menu::adminActions() {
         }
         resetMenu();
         break;
-      case MENU_ADMIN_MESSAGE_HISTORY:
+      case MENU_DEVICE_MESSAGE_HISTORY:
         // a change to message history will trigger a reboot
         if (prefHandler->isPreferenceEnabled(PreferenceMessageHistory)) {
           prefHandler->disablePreference(PreferenceMessageHistory);
@@ -185,7 +183,21 @@ void Menu::adminActions() {
         }
         resetMenu();
         break;
-      case MENU_ADMIN_WIFI_ENABLE:
+      case MENU_DEVICE_MESH_ENABLE:
+        // a change to message history will trigger a reboot
+        if (prefHandler->isPreferenceEnabled(PreferenceMeshEnabled)) {
+          prefHandler->disablePreference(PreferenceMeshEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceWifiEnabled);
+        }
+        resetMenu();
+        break;
+      case MENU_DEVICE_CLEAR_MESH:
+        resetMenu();
+        handler->handleEvent(UserRequestClearMeshCache);
+        break;
+      case MENU_DEVICE_WIFI_ENABLE:
         // a change to message history will trigger a reboot
         if (prefHandler->isPreferenceEnabled(PreferenceWifiEnabled)) {
           prefHandler->disablePreference(PreferenceWifiEnabled);
@@ -195,26 +207,16 @@ void Menu::adminActions() {
         }
         resetMenu();
         break;
-      case MENU_ADMIN_PING_LORA_BRIDGE:
-        resetMenu();
-        handler->queueEvent(PingLoraBridge);
-        break;
-      case MENU_ADMIN_DELETE_CLUSTER:
-        resetMenu();
-        Serial.println("Delete cluster...");
-        handler->handleEvent(UserRequestDeletecluster);
-        break;
-      case MENU_ADMIN_SECURE_FACTORY_RESET:
+      //case MENU_ADMIN_PING_LORA_BRIDGE:
+      //  resetMenu();
+      //  handler->queueEvent(PingLoraBridge);
+      //  break;
+      case MENU_DEVICE_SECURE_FACTORY_RESET:
         resetMenu();
         Serial.println("Secure Factory reset...");
         handler->handleEvent(UserRequestSecureFactoryReset);
         break;
-      case MENU_ADMIN_CREATE_CLUSTER:
-        resetMenu();
-        Serial.println("Create cluster...");
-        handler->handleEvent(UserRequestNewCluster);
-        break;
-      case MENU_ADMIN_SET_TIME:
+      case MENU_DEVICE_SET_TIME:
         resetMenu();
         mode = MenuValueEntry;
         for (uint8_t datePart = 0; datePart < 6; datePart++) {
@@ -247,16 +249,26 @@ void Menu::adminActions() {
   }
 }
 
-void Menu::onboardingActions() {
-  if (oledMenu.menuId == MENU_ID_ONBOARDING) {  
+void Menu::clusterActions() {
+  if (oledMenu.menuId == MENU_ID_CLUSTER) {  
     switch (oledMenu.selectedMenuItem) {
-      case MENU_ONBOARDING_JOIN_CLUSTER:
+      case MENU_CLUSTER_DELETE_CLUSTER:
         resetMenu();
-        handler->handleEvent(UserRequestBleJoinCluster);
+        Serial.println("Delete cluster...");
+        handler->handleEvent(UserRequestDeletecluster);
         break;
-      case MENU_ONBOARDING_ONBOARD_DEVICE:
+      case MENU_CLUSTER_CREATE_CLUSTER:
         resetMenu();
-        handler->handleEvent(UserRequestBleOnboard);
+        Serial.println("Create cluster...");
+        handler->handleEvent(UserRequestNewCluster);
+        break;
+      case MENU_CLUSTER_JOIN_CLUSTER:
+        resetMenu();
+        handler->handleEvent(UserRequestJoinCluster);
+        break;
+      case MENU_CLUSTER_ONBOARD_DEVICE:
+        resetMenu();
+        handler->handleEvent(UserRequestOnboard);
         break;
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
@@ -330,11 +342,11 @@ void Menu::menuActions () {
   if (oledMenu.menuId == MENU_ID_MAIN) {
     mainActions();
   }
-  else if (oledMenu.menuId == MENU_ID_ADMIN) {
-    adminActions();
+  else if (oledMenu.menuId == MENU_ID_DEVICE) {
+    deviceActions();
   }
-  else if (oledMenu.menuId == MENU_ID_ONBOARDING) {
-    onboardingActions();
+  else if (oledMenu.menuId == MENU_ID_CLUSTER) {
+    clusterActions();
   }
   else if (oledMenu.menuId == MENU_ID_ITERATOR) {
     iteratorActions();
@@ -348,50 +360,22 @@ void Menu::mainActions() {
   if (oledMenu.menuId == MENU_ID_MAIN) {  
 
     switch (oledMenu.selectedMenuItem) {
-      case MENU_MAIN_DIRECT_MESSAGE:
-        resetMenu(true);
-        handler->handleEvent(UserRequestDirectMessage);
-        break;
-      case MENU_MAIN_SECURE_BROADCAST:
-        resetMenu();
-        handler->handleEvent(UserRequestSecureBroadcast);
-        break;
-     // case MENU_MAIN_OPEN_BROADCAST:
-     //   resetMenu();
-     //   handler->handleEvent(UserRequestOpenBroadcast);
-     //   break;
-      case MENU_MAIN_ANNOUNCE_PRESENCE:
-        resetMenu();
-        handler->queueEvent(UserRequestSelfAnnounce);
-        break;
-      case MENU_MAIN_ONBOARDING:
-        onboardingMenu();
+      case MENU_MAIN_CLUSTER:
+        clusterMenu();
         mode = MenuActive;
         needsRepainted = true;
         break;        
-      case MENU_MAIN_CLEAR_MESSAGES:
-        Serial.println("User chose clear msg");
-        resetMenu();
-        handler->handleEvent(UserDeleteAllMessages);
-        break;
-      case MENU_MAIN_ADMIN:
-        Serial.println("User chose admin");
-        adminMenu();
+      case MENU_MAIN_DEVICE:
+        deviceMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;        
+      case MENU_MAIN_POWER:
+        powerMenu();
         mode = MenuActive;
         needsRepainted = true;
         break;        
     }
-    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
-  }
-  else if (oledMenu.menuId == MENU_ID_MESSAGES) {
-
-    // back to main menu
-    if (oledMenu.selectedMenuItem == 1) {
-      if (serialDebug) Serial.println("View messages: back to main menu");
-      mainMenu();
-      mode = MenuActive;
-    }
-
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
   }
 }

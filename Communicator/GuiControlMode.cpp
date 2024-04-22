@@ -21,6 +21,7 @@ bool GuiControlMode::init() {
 
       // set keyboard orientation
       ((TouchEnabledDisplay*)display)->setKeyboardOrientation(chatter->getDeviceStore()->getKeyboardOrientedLandscape() ? Landscape : Portrait);
+      deviceMeshEnabled = chatter->getDeviceStore()->getMeshEnabled();
     }
 
     if (parentInitialized) {
@@ -290,7 +291,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       delay(2000);// give user a chance to see
       fullRepaint = true;
       return result;
-    case UserRequestBleJoinCluster:
+    case UserRequestJoinCluster:
       display->showAlert("Join Cluster", AlertActivity);
 
       // disable message receiving, put the radio in sleep mode
@@ -321,6 +322,11 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
           fullRepaint = true;
         }
       }
+      return true;
+    case UserRequestClearMeshCache:
+      chatter->getMeshPacketStore()->clearAllPackets();
+      display->showAlert("Cache Cleared", AlertSuccess);
+      delay(3000);
       return true;
 
     case UserRequestQuickFactoryReset:
@@ -370,7 +376,7 @@ bool GuiControlMode::attemptDirectSend () {
     sentViaBridge = sendViaBridge();
   }
   
-  if (!result && !sentViaBridge && chatter->clusterSupportsMesh()) {
+  if (!result && !sentViaBridge && deviceMeshEnabled &&  chatter->clusterSupportsMesh()) {
     sentViaMesh = sendViaMesh();
   }
 

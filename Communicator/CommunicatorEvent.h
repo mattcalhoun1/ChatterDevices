@@ -7,8 +7,8 @@
 #define EVENT_DATA_SIZE 128
 
 enum CommunicatorEventType {
-    UserRequestBleOnboard = 0,
-    UserRequestBleJoinCluster = 1,
+    UserRequestOnboard = 0,
+    UserRequestJoinCluster = 1,
     UserRequestNewCluster = 2,
     UserRequestDeletecluster = 3,
     UserRequestQuickFactoryReset = 4,
@@ -24,7 +24,8 @@ enum CommunicatorEventType {
     UserDeleteAllMessages = 14,
     UserRequestReply = 15,
     UserRequestScreenLock = 16,
-    UserRequestPowerOff = 17
+    UserRequestPowerOff = 17,
+    UserRequestClearMeshCache = 18
 };
 
 struct CommunicatorEvent {

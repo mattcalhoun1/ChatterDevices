@@ -136,6 +136,9 @@ bool HeadsUpControlMode::isPreferenceEnabled (CommunicatorPreference pref) {
       return chatter->getDeviceStore()->getKeyboardOrientedLandscape();
     case PreferenceWifiEnabled:
       return chatter->getDeviceStore()->getWifiEnabled();
+    case PreferenceMeshEnabled:
+      return chatter->getDeviceStore()->getMeshEnabled();
+
   }
 
   logConsole("Unknown preference read attempt");
@@ -169,6 +172,14 @@ void HeadsUpControlMode::enablePreference (CommunicatorPreference pref) {
       restartDevice();
 
       break;
+    case PreferenceMeshEnabled:
+      chatter->getDeviceStore()->setMeshEnabled(true);
+      logConsole("Mesh enabled");
+
+      // reset device
+      restartDevice();
+
+      break;
     
     default:
       logConsole("Unknown preference enable attempt");
@@ -196,6 +207,14 @@ void HeadsUpControlMode::disablePreference (CommunicatorPreference pref) {
     case PreferenceWifiEnabled:
       chatter->getDeviceStore()->setWifiEnabled(false);
       logConsole("Wifi disabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceMeshEnabled:
+      chatter->getDeviceStore()->setMeshEnabled(false);
+      logConsole("Mesh disabled");
 
       // reset device
       restartDevice();
