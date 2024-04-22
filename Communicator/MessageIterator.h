@@ -6,7 +6,7 @@
 
 class MessageIterator : public ItemIterator {
     public:
-        MessageIterator (MessageStore* _messageStore, TrustStore* _trustStore) {messageStore = _messageStore; trustStore = _trustStore; }
+        MessageIterator (MessageStore* _messageStore, TrustStore* _trustStore, Chatter* _chatter) {messageStore = _messageStore; trustStore = _trustStore; chatter = _chatter; }
         bool init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc);
         uint8_t getNumItems ();
         bool loadItemName (uint8_t itemNum, char* nameBuffer);
@@ -16,6 +16,7 @@ class MessageIterator : public ItemIterator {
     protected:
         MessageStore* messageStore;
         TrustStore* trustStore;
+        Chatter* chatter;
 
         uint8_t messageSlots[STORAGE_MAX_STORED_MESSAGES];
         bool previewable[STORAGE_MAX_STORED_MESSAGES];

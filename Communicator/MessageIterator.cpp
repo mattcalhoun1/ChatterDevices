@@ -50,7 +50,7 @@ bool MessageIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
     nameBuffer[2] = isLarge ? 'L' : 'S';
 
     // if it was a sent broadcast, the recipient is everyone (*)
-    if (thisDeviceSent && sendMethodBuffer == SentViaBroadcast) {
+    if (thisDeviceSent && sendMethodBuffer == SentViaBroadcast && memcmp(recipientIdBuffer, chatter->getClusterBroadcastId(), CHATTER_DEVICE_ID_SIZE) == 0) {
         sprintf(aliasBuffer, "%s", "[all]");
     }
     else {

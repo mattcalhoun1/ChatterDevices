@@ -27,7 +27,7 @@ bool GuiControlMode::init() {
       deviceIterator = new DeviceAliasIterator(chatter->getTrustStore());
 
       // load message history, if allowed/configured
-      messageIterator = new MessageIterator(chatter->getMessageStore(), chatter->getTrustStore());
+      messageIterator = new MessageIterator(chatter->getMessageStore(), chatter->getTrustStore(), chatter);
 
       memset(title, 0, 32);
       sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
@@ -130,8 +130,6 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
       messageTitleBuffer[c] = messageTitleBuffer[c+12];
     }
  
-    //logConsole(messageTitleBuffer);
-
     // if it's a small message, go ahead and print. otherwise, user will have to look
     if (messageIterator->isPreviewable(msg)) {
       chatter->getMessageStore()->loadMessage (messageIterator->getItemVal(msg), (uint8_t*)messagePreviewBuffer, MESSAGE_PREVIEW_BUFFER_SIZE);
@@ -362,6 +360,8 @@ bool GuiControlMode::attemptDirectSend () {
 
   bool sentViaBridge = false;
   bool result = false;
+  bool sentViaMesh = false;
+
   display->showAlert("Send DM", AlertActivity);
 
   result = sendDirectMessage();
@@ -371,10 +371,13 @@ bool GuiControlMode::attemptDirectSend () {
   }
   
   if (!result && !sentViaBridge && chatter->clusterSupportsMesh()) {
-    sendViaMesh();
+    sentViaMesh = sendViaMesh();
   }
 
-  if (sentViaBridge) {
+  if (sentViaMesh) {
+    display->showAlert("Sent (mesh)", AlertWarning);
+  }
+  else if (sentViaBridge) {
     display->showAlert("Sent (Bridge)", AlertWarning);
   }
   else if(result) {
