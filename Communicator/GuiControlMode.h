@@ -45,6 +45,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         bool sendDirectMessage ();
         bool sendViaBridge ();
+        bool sendViaMesh ();
 
         bool handleScreenTouched (int touchX, int touchY);
 

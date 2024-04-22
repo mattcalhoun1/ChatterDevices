@@ -146,6 +146,7 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
       messageTsBuffer, 
       messageTitleBuffer[3] == '<', 
       messageTitleBuffer[1], 
+      messageTitleBuffer[0], 
       messageTitleBuffer[0] == SentViaBroadcast ? DarkBlue : Yellow, 
       LightBlue, 
       msg - messagePreviewOffset);
@@ -368,6 +369,10 @@ bool GuiControlMode::attemptDirectSend () {
   if (!result && chatter->clusterHasDevice(ChatterDeviceBridgeLora)) {
     sentViaBridge = sendViaBridge();
   }
+  
+  if (!result && !sentViaBridge && chatter->clusterSupportsMesh()) {
+    sendViaMesh();
+  }
 
   if (sentViaBridge) {
     display->showAlert("Sent (Bridge)", AlertWarning);
@@ -432,6 +437,22 @@ bool GuiControlMode::sendViaBridge() {
   }
 }
 
+bool GuiControlMode::sendViaMesh() {
+  display->resetProgress();
+
+  logConsole("Sending via mesh..");
+  ChatterMessageFlags flags;
+
+  // drop message into mesh
+  if (chatter->sendViaMesh(messageBuffer, messageBufferLength, otherDeviceId, &flags)) {
+    logConsole("Message successfully sent via mesh");
+    return true;
+  }
+  else {
+    logConsole("Message not sent via mesh!");
+    return false;
+  }
+}
 
 bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
   switch (event->EventType) {

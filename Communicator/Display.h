@@ -86,7 +86,7 @@ class Display {
     virtual void clearStatus ();
 
     virtual void showMessage (const char* text, DisplayColor color, uint8_t position);
-    virtual void showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, char status, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
+    virtual void showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, char status, char sendMethod, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
     virtual uint8_t getMessagePosition (int positionX, int positionY);
     //virtual void showHasMessagesBefore ();
     //virtual void showHasMessagesAfter ();

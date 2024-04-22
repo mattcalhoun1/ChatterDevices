@@ -22,7 +22,7 @@ void Display::showMessage (const char* message, DisplayColor color, uint8_t posi
   showText(message, getMessageAreaX(), getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, color);
 }
 
-void Display::showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, char status, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
+void Display::showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, char status, char sendMethod, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
   // show a line above the message for separation
   if (position != 0) {
     int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2);
@@ -54,12 +54,45 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
     getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
     TextSmall, 
     received ? titleColor : LightGray);
-  showText(
-    status == 'A' ? "+" : "-", 
-    getMessageAreaX() + getMessageAreaWidth() - 71, 
-    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
-    TextSmall, 
-    received ? titleColor : LightGray);
+  
+  // if it was a direct message, add an ack indicator
+  if (sendMethod == 'D') {
+    if (status == 'A') {
+      // checkmark
+      drawLine(
+        getMessageAreaX() + getMessageAreaWidth() - 72,
+        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 6,
+        getMessageAreaX() + getMessageAreaWidth() - 71,
+        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 8,
+        received ? titleColor : LightGray
+      );
+
+      drawLine(
+        getMessageAreaX() + getMessageAreaWidth() - 71,
+        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 8,
+        getMessageAreaX() + getMessageAreaWidth() - 68,
+        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 3,
+        received ? titleColor : LightGray
+      );
+    }
+  }
+  else if (sendMethod == 'I') { // if sent via intermediary (mesh)
+    drawCircle(
+      getMessageAreaX() + getMessageAreaWidth() - 71,
+      getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,
+      3,
+      received ? LightGray : BrightGreen
+    );
+
+    if (status == 'A') {
+      fillCircle(
+        getMessageAreaX() + getMessageAreaWidth() - 71,
+        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,
+        2,
+        received ? LightGray : BrightGreen
+      );
+    }
+  }
   
 
   changeFont(FontNormal);
