@@ -30,6 +30,12 @@ enum DeviceType {
   DeviceTypeCommunicatorMini = 1
 };
 
+enum StartupState {
+  StartupComplete = 1,
+  StartupInitializeDevice = 2,
+  StartupError = 3
+};
+
 /**
  * Base class for the different control modes available for this vehicle.
  */
@@ -37,7 +43,7 @@ class ControlMode : ChatStatusCallback {
   public:
     ControlMode (DeviceType _deviceType) { deviceType = _deviceType; }
     virtual void loop();
-    virtual bool init();
+    virtual StartupState init();
     virtual void showStatus (const char* status);
 
     virtual void showTime();
@@ -52,10 +58,12 @@ class ControlMode : ChatStatusCallback {
     virtual void updateChatDashboard (); // redisplay chat dashboard
     void updateChatProgress(float progress);
     void resetChatProgress ();
+    void hideChatProgress ();
 
     // touch screen, etc
-    bool isFullyInteractive () { return false; }
+    virtual bool isFullyInteractive () { return false; }
     virtual bool initializeNewDevice ();
+    virtual void handleStartupError ();
 
   protected:
     // miscellaneous

@@ -6,7 +6,7 @@
 class HeadlessControlMode : public CommunicatorControlMode {
     public:
         HeadlessControlMode (DeviceType _deviceType) : CommunicatorControlMode (_deviceType) {}
-        bool init ();
+        StartupState init ();
         void showStatus (const char* status);
         void showStatus (String status);
         void showTime ();

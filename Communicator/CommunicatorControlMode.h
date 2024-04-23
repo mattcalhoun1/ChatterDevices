@@ -12,9 +12,10 @@
 class CommunicatorControlMode : public ControlMode, public CommunicatorEventHandler {
     public:
         CommunicatorControlMode (DeviceType _deviceType) : ControlMode (_deviceType) {}
-        virtual bool init ();
-        virtual void loop ();
+        StartupState init ();
+        void loop ();
         bool isInteractive () {return false;}
+        virtual void beginInteractiveIfPossible () {}
 
         bool sendPacketBatchAir ();
         bool sendPacketBatchBridge ();
@@ -50,6 +51,7 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         char otherDeviceId[CHATTER_DEVICE_ID_SIZE+1];
         bool handleConnectedDevice ();
         bool deviceMeshEnabled = true;
+        bool initialized = false;
     
     private:
         void sendEchoText();
@@ -67,7 +69,6 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
 
         bool queuedBridgeTraffic = false;
         bool queuedAirTraffic = false;
-        bool initialized = false;
 
         void logPublicKey ();
         bool listeningForMessages = false;

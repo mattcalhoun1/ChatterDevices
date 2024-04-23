@@ -65,6 +65,7 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     void changeFont (FontType fontType);
 
+    void setTouchListening(bool _listening);
     void touchInterrupt();
     void showButtons ();
     DisplayedButton getButtonAt (int x, int y);
@@ -207,5 +208,8 @@ class Display_TFT : public FullyInteractiveDisplay {
     const char* btnBroadcast = "Cast";
     const char* btnMenu = "Menu";
     const char* buttonTexts[NUM_DISPLAYED_BUTTONS] = {btnDM, btnBroadcast, btnMenu};
+
+    bool touchListening = false;
+    bool touchInitialized = false;
 };
 #endif

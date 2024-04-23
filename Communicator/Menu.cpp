@@ -106,7 +106,7 @@ void Menu::mainMenu(bool fullRepaint) {
 void Menu::deviceMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_DEVICE;
-  oledMenu.noOfmenuItems = 7;
+  oledMenu.noOfmenuItems = 8;
   oledMenu.menuTitle = "Device";
 
   oledMenu.menuItems[MENU_DEVICE_CLEAR_MESSAGES] = "Clear Messages";

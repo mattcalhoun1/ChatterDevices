@@ -21,24 +21,12 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
   changeFont(FontNormal);
   showProgressBar(.25);
 
-  #if defined(TOUCH_CONTROL_RAK)
-  touch = new TouchControlRak();
-  touch->init(); 
-  #elif defined(TOUCH_CONTROL_ADAFRUIT)
-  touch = new TouchControlAdafruit();
-  touch->init(); 
-  #else
-  touch = new TouchControlNone();
-  logConsole("No touch control defined");
-  #endif
-  touch->resetToDefaultTouchSensitivity();
-
-  showProgressBar(.75);
-
 }
 
 void Display_TFT::touchInterrupt() {
-  touch->touchInterrupt();
+  if (touchListening) {
+    touch->touchInterrupt();
+  }
 }
 
 void Display_TFT::changeFont (FontType fontType) {
@@ -115,7 +103,30 @@ void Display_TFT::setBrightness(uint8_t brightness) {
   }
 }
 
+void Display_TFT::setTouchListening(bool _listening) {
+  if (_listening && !touchInitialized) {
+    logConsole("finishing touch setup");
+    #if defined(TOUCH_CONTROL_RAK)
+    touch = new TouchControlRak();
+    #elif defined(TOUCH_CONTROL_ADAFRUIT)
+    touch = new TouchControlAdafruit();
+    #else
+    touch = new TouchControlNone();
+    logConsole("No touch control defined");
+    #endif
+
+    touch->init();
+    touch->resetToDefaultTouchSensitivity();
+    touchInitialized = true;
+  }
+  touchListening = _listening;
+}
+
 bool Display_TFT::handleIfTouched () {
+  if (!touchListening) {
+    return false;
+  }
+
   bool success = true;
   int transposedX;
   int transposedY;
@@ -131,7 +142,9 @@ bool Display_TFT::handleIfTouched () {
 }
 
 void Display_TFT::clearTouchInterrupts () {
-  touch->clearTouchInterrupt();
+  if (touchListening) {
+    touch->clearTouchInterrupt();
+  }
 }
 
 

@@ -1,6 +1,6 @@
 #include "ControlMode.h"
 
-bool ControlMode::init() {
+StartupState ControlMode::init() {
 
 #if defined(ARDUINO_UNOR4_WIFI)
   rtc = new R4RtClock();
@@ -21,8 +21,8 @@ bool ControlMode::init() {
     #endif
 
     bool chatterReady = chatter->init();
-    if (factoryResetCheck()) {
-      return false;
+    if (!chatter->isDeviceInitialized()) {
+      return StartupInitializeDevice;
     }
 
     if (chatterReady) {
@@ -43,7 +43,7 @@ bool ControlMode::init() {
           logConsole("Device wifi disabled by user pref");
         }
       #endif
-      return true;
+      return StartupComplete;
     }
     else {
       logConsole("Realtime clock not functioning!");
@@ -53,7 +53,11 @@ bool ControlMode::init() {
   // if we get down here, something didn't initialize properly
   logConsole("Error: init did not complete");
   showStatus("ERROR!");
-  return false;
+  return StartupError;
+}
+
+void ControlMode::handleStartupError() {
+  logConsole("Startup error, no handler code!");
 }
 
 void ControlMode::updateChatDashboard () {
@@ -107,6 +111,10 @@ void ControlMode::updateChatProgress (float progress) {
 
 void ControlMode::resetChatProgress () {
   logConsole("Reset progress");
+}
+
+void ControlMode::hideChatProgress () {
+  logConsole("hide chat progress");  
 }
 
 void ControlMode::showStatus (const char* status) {
@@ -168,6 +176,7 @@ bool ControlMode::factoryResetCheck (bool forceReset, bool writeZeros) {
     else {
       logConsole("New device init failed.");
     }
+    return false;
   }
 
   return false;

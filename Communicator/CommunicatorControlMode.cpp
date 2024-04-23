@@ -1,17 +1,18 @@
 #include "CommunicatorControlMode.h"
 
-bool CommunicatorControlMode::init() {
+StartupState CommunicatorControlMode::init() {
     logConsole("CommunicatorControlMode Initializing");
 
     // make sure parent is initialized
-    if (ControlMode::init()) {
+    StartupState returnState = ControlMode::init();
+    if (returnState == StartupComplete) {
       airChannel = chatter->getChannel(0);
       //bridgeChannel = chatter->getChannel(1);
 
       //showTitle("Communicator");
       logConsole("CommunicatorControlMode running");
-      showTime();
-      showStatus("Ready");
+      //showTime();
+      //showStatus("Ready");
 
       initialized = true;
       
@@ -20,7 +21,7 @@ bool CommunicatorControlMode::init() {
       enableMessaging();
     }
 
-    return initialized;
+    return returnState;
 }
 
 void CommunicatorControlMode::loop () {
@@ -77,7 +78,7 @@ void CommunicatorControlMode::loop () {
   }
 
   if (loopCount % 10 == 0) {
-    Serial.print("Free Memory: "); Serial.println(freeMemory());
+    //Serial.print("Free Memory: "); Serial.println(freeMemory());
     showTime();
 
     chatter->syncMesh(3000);

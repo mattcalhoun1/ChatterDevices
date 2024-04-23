@@ -1,6 +1,6 @@
 #include "HeadlessControlMode.h"
 
-bool HeadlessControlMode::init () {
+StartupState HeadlessControlMode::init () {
     logConsole("Headless Control Mode Initializing");
 
     //ledMatrix.begin();

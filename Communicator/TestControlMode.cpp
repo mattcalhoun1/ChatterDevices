@@ -1,9 +1,9 @@
 #include "TestControlMode.h"
 
-bool TestControlMode::init () {
+StartupState TestControlMode::init () {
     GuiControlMode::init();
     logConsole("Test Mode");
-    return true;
+    return StartupComplete;
 }
 
 void TestControlMode::loop () {

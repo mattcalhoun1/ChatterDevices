@@ -42,9 +42,7 @@ void setup() {
   controlMode = new GuiControlMode(selectDeviceType());
   //controlMode = new TestControlMode(selectDeviceType(), isAdmin());
 
-  if(!controlMode->init()) {
-    logConsole("Error initializing!");
-  }
+  StartupState startupState = controlMode->init();
 
   // register interrupt routine
   #ifdef ROTARY_ENABLED
@@ -56,6 +54,21 @@ void setup() {
     pinMode(PIN_TOUCH_INT, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(PIN_TOUCH_INT), handleTouch, FALLING);
   #endif
+
+  controlMode->beginInteractiveIfPossible();
+
+  if (startupState == StartupInitializeDevice) {
+    logConsole("Startup returned initialize new device");
+    controlMode->initializeNewDevice();
+  }
+  else if (startupState == StartupError) {
+    logConsole("Startup returned error");
+    controlMode->handleStartupError();
+  }
+  if(startupState != StartupComplete) {
+    logConsole("Error initializing!");
+  }
+
 }
 
 DeviceType selectDeviceType () {

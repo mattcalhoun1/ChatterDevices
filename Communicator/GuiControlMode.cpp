@@ -1,6 +1,6 @@
 #include "GuiControlMode.h"
 
-bool GuiControlMode::init() {
+StartupState GuiControlMode::init() {
     logConsole("GuiControlMode Initializing");
     #ifdef ROTARY_ENABLED
       logConsole("Rotary control is enabled");
@@ -8,7 +8,7 @@ bool GuiControlMode::init() {
     #endif
 
     // make sure parent is initialized
-    bool parentInitialized = HeadsUpControlMode::init();
+    StartupState returnState = HeadsUpControlMode::init();
 
     // setup the menu
     menu = new Menu((MenuEnabledDisplay*)display, rotary, this, chatter->isRootDevice(chatter->getDeviceId()), this);
@@ -24,7 +24,7 @@ bool GuiControlMode::init() {
       deviceMeshEnabled = chatter->getDeviceStore()->getMeshEnabled();
     }
 
-    if (parentInitialized) {
+    if (returnState == StartupComplete) {
       deviceIterator = new DeviceAliasIterator(chatter->getTrustStore());
 
       // load message history, if allowed/configured
@@ -32,26 +32,35 @@ bool GuiControlMode::init() {
 
       memset(title, 0, 32);
       sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
-      showTitle(title);
-      showStatus("Ready");
+      //showTitle(title);
+      //showStatus("Ready");
 
-      showMessageHistory(true);
-      showButtons();
-    }
-    else {
-      // force landscape for easier user input
-      if (fullyInteractive) {
-        ((FullyInteractiveDisplay*)display)->setKeyboardOrientation(Landscape);
-      }
-
-      display->showAlert("Startup Error!", AlertError);
-      delay(5000);
-
-      // prompt factory reset
-      handleEvent(UserRequestQuickFactoryReset);
+      //showMessageHistory(true);
+      //showButtons();
+      fullRepaint = true;
     }
 
-    return parentInitialized;
+    return returnState;
+}
+
+
+void GuiControlMode::beginInteractiveIfPossible() {
+    ((FullyInteractiveDisplay*)display)->showProgressBar(.75);
+    showStatus("touch screen");
+    ((FullyInteractiveDisplay*)display)->setTouchListening(true);
+}
+
+void GuiControlMode::handleStartupError() {
+    // force landscape for easier user input
+    if (fullyInteractive) {
+      ((FullyInteractiveDisplay*)display)->setKeyboardOrientation(Landscape);
+    }
+
+    display->showAlert("Startup Error!", AlertError);
+    delay(5000);
+
+    // prompt factory reset
+    handleEvent(UserRequestSecureFactoryReset);
 }
 
 void GuiControlMode::loop () {
@@ -357,6 +366,10 @@ void GuiControlMode::updateChatProgress(float progress) {
 void GuiControlMode::resetChatProgress () {
   display->resetProgress();
   display->showProgressBar(0.0);
+}
+
+void GuiControlMode::hideChatProgress () {
+  fullRepaint = true;
 }
 
 // Sends a direct message and executes any other logic
@@ -704,6 +717,7 @@ void GuiControlMode::handleRotaryInterrupt () {
 bool GuiControlMode::initializeNewDevice () {
   // default to landscape keyboard
   if (fullyInteractive) {
+    ((FullyInteractiveDisplay*)display)->setTouchListening(true);
     ((FullyInteractiveDisplay*)display)->setKeyboardOrientation(Landscape);
   }
 

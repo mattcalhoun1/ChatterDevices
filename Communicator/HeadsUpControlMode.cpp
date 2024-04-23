@@ -1,6 +1,6 @@
 #include "HeadsUpControlMode.h"
 
-bool HeadsUpControlMode::init () {
+StartupState HeadsUpControlMode::init () {
     encoder = new ThermalEncoder(THERMAL_HEIGHT, THERMAL_WIDTH, false);
 
     // if display hasn't already been set

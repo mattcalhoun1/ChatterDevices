@@ -5,7 +5,7 @@ class TestControlMode : public GuiControlMode {
     public:
         TestControlMode(DeviceType _deviceType) : GuiControlMode (_deviceType) {}
         void loop ();
-        bool init ();
+        StartupState init ();
 
     protected:
         void testKeyboard ();

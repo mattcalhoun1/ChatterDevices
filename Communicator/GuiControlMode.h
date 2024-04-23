@@ -21,10 +21,11 @@
 class GuiControlMode : public HeadsUpControlMode, public TouchListener {
     public:
         GuiControlMode(DeviceType _deviceType) : HeadsUpControlMode (_deviceType) {}
-        bool init ();
+        StartupState init ();
         void buttonInterrupt();
         void touchInterrupt();
         bool isInteractive () {return true;}
+        void beginInteractiveIfPossible();
 
         void showLastMessage ();
 
@@ -57,6 +58,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         void updateChatProgress (float progress);
         void resetChatProgress ();
+        void hideChatProgress ();
+        void handleStartupError ();
 
     protected:
         bool updateMessagePreviewsIfNecessary ();
@@ -69,6 +72,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void unlockScreen ();
 
     private:
+
         bool screenLocked = false;
         bool fullRepaint = false;
         uint8_t lastChannel = 0;

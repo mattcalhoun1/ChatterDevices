@@ -1,6 +1,7 @@
 #include "TouchControlRak.h"
 
 bool TouchControlRak::init() {
+    Serial.println("FT6336U touch initializing"); 
     // reset the touch
     digitalWrite(PIN_TOUCH_RS, LOW);
     delay(1000);
@@ -12,7 +13,6 @@ bool TouchControlRak::init() {
     delay(1000);*/
 
 
-    Serial.println("FT6336U touch initializing"); 
     int maxRetries = 5;
     int retryCount = 0;
     while(ft6336u.begin() == false && ++retryCount <= maxRetries) 
