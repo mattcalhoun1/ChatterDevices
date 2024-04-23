@@ -715,6 +715,9 @@ void GuiControlMode::handleRotaryInterrupt () {
 }
 
 bool GuiControlMode::initializeNewDevice () {
+  // wipe all data
+  chatter->factoryReset(true);
+
   // default to landscape keyboard
   if (fullyInteractive) {
     ((FullyInteractiveDisplay*)display)->setTouchListening(true);
@@ -823,6 +826,9 @@ bool GuiControlMode::initializeNewDevice () {
   display->showAlert("Initializing", AlertWarning);
   bool result = admin->genesis(newDeviceAlias, newDevicePassword, passwordLength, newClusterAlias, newFrequency, wifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, wifiPreferred);
   display->showProgressBar(1.0);
+
+  restartDevice();
+
   return result;
 }
 

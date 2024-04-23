@@ -77,14 +77,31 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
     }
   }
   else if (sendMethod == 'I') { // if sent via intermediary (mesh)
-    drawCircle(
-      getMessageAreaX() + getMessageAreaWidth() - 71,
-      getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,
-      3,
-      received ? LightGray : BrightGreen
-    );
-
-    if (status == 'A') {
+    // if it was accepted, draw a circle
+    if (status == 'M') {
+      drawCircle(
+        getMessageAreaX() + getMessageAreaWidth() - 71,
+        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,
+        3,
+        received ? LightGray : BrightGreen
+      );
+    }
+    else if (status == 'N') {
+      // not yet accepted, just a dot      
+      fillCircle(
+        getMessageAreaX() + getMessageAreaWidth() - 71,
+        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,
+        1,
+        received ? LightGray : BrightGreen
+      );
+    }
+    else if (status == 'A') { // it was acknowledged, cricle with dot
+      drawCircle(
+        getMessageAreaX() + getMessageAreaWidth() - 71,
+        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,
+        3,
+        received ? LightGray : BrightGreen
+      );
       fillCircle(
         getMessageAreaX() + getMessageAreaWidth() - 71,
         getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,

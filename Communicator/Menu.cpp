@@ -173,6 +173,10 @@ void Menu::deviceActions() {
         }
         resetMenu();
         break;
+      case MENU_DEVICE_CLEAR_MESSAGES:
+        handler->handleEvent(UserDeleteAllMessages);
+        resetMenu();
+        break;
       case MENU_DEVICE_MESSAGE_HISTORY:
         // a change to message history will trigger a reboot
         if (prefHandler->isPreferenceEnabled(PreferenceMessageHistory)) {
