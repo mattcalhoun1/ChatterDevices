@@ -64,14 +64,14 @@ void GuiControlMode::handleStartupError() {
 }
 
 void GuiControlMode::loop () {
-  // scroll message
-  updateMessagePreviewsIfNecessary();
-
   // check for input
   menu->menuUpdate();
 
   // if the user is interacting, skip the main loop
   if (!menu->isShowing()) {
+    // scroll message
+    updateMessagePreviewsIfNecessary();
+
     //display->showProgress(((float)(millis() % 100)) / 100.0);
     if (fullRepaint) {
       fullRepaint = false;
@@ -81,6 +81,7 @@ void GuiControlMode::loop () {
       showMessageHistory(true);
       showButtons();
       showReady();
+      display->showCacheUsed(chatter->getMeshPacketStore()->getCachePercentActive(), true);;
     }
 
     // execute main loop
@@ -147,7 +148,7 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
     else {
       sprintf(messagePreviewBuffer, "%s", "[large message]");
     }
-    //logConsole(messageTitleBuffer);
+    logConsole(messageTitleBuffer);
     display->showMessageAndTitle(
       messageTitleBuffer+5, 
       messagePreviewBuffer, 
@@ -334,7 +335,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       return true;
     case UserRequestClearMeshCache:
       chatter->getMeshPacketStore()->clearAllPackets();
-      display->showAlert("Cache Cleared", AlertSuccess);
+      display->showAlert("Mesh Clear", AlertSuccess);
       delay(3000);
       return true;
 
@@ -370,6 +371,10 @@ void GuiControlMode::resetChatProgress () {
 
 void GuiControlMode::hideChatProgress () {
   fullRepaint = true;
+}
+
+void GuiControlMode::updateMeshCacheUsed (float percent) {
+  display->showCacheUsed(percent);
 }
 
 // Sends a direct message and executes any other logic

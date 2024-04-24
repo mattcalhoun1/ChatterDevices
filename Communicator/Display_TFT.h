@@ -76,6 +76,11 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getStatusWidth();
     int getStatusHeight();
 
+    int getCacheStatusX() { return DISPLAY_TFT_CACHE_STATUS_X; }
+    int getCacheStatusY() { return DISPLAY_TFT_CACHE_STATUS_Y; }
+    int getCacheStatusWidth() { return DISPLAY_TFT_CACHE_STATUS_WIDTH; }
+    int getCacheStatusHeight() { return DISPLAY_TFT_CACHE_STATUS_HEIGHT; }
+
     int getImageAreaX (bool isAlt);
     int getImageAreaY (bool isAlt);
     int getImageAreaWidth (bool isAlt);

@@ -59,6 +59,9 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void updateChatProgress (float progress);
         void resetChatProgress ();
         void hideChatProgress ();
+        void updateMeshCacheUsed (float percent);
+
+
         void handleStartupError ();
 
     protected:

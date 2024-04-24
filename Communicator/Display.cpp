@@ -257,6 +257,33 @@ void Display::showDashboardItems (const char* item, DisplayColor itemColor[], ui
 
 }
 
+void Display::showLatestCacheUsed () {
+  showCacheUsed(currentCacheUsed, true);
+}
+
+void Display::showCacheUsed (float percent, bool forceRepaint) {
+  if (percent != currentCacheUsed || forceRepaint) {
+    if (currentCacheUsed == 0 || percent < currentCacheUsed) {
+
+      // draw outer rectangle
+      fillRect(getCacheStatusX(), getCacheStatusY(), getCacheStatusWidth(), getCacheStatusHeight(), DarkBlue);
+
+      if (percent < 20) {
+        changeFont(FontPico);
+        showText("Mesh Cache", getCacheStatusX() + 20, getCacheStatusY() + getTextLowerVerticalOffset(TextSmall) + 1, TextSmall, Beige);
+        changeFont(FontNormal);
+      }
+    }
+
+    currentCacheUsed = percent;
+
+    // draw the inner rectangle
+    if (percent > 0) {
+      fillRect(getCacheStatusX() + 1, getCacheStatusY() + 1, (getCacheStatusWidth() -2) * (max(percent, 0.05)), getCacheStatusHeight() - 2, Beige);
+    }
+  }
+}
+
 void Display::showProgress(float percent) {
   if (percent != currentProgress) {
 

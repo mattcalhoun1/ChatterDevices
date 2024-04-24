@@ -115,6 +115,10 @@ class Display {
     void showProgress (float percent);
     void showAlert (const char* alertText, AlertType alertType);
     void showProgressBar (float percent);
+    void showCacheUsed (float percent, bool forceRepaint = false);
+
+    void showLatestCacheUsed ();
+
 
     void showDashboardItems (const char* item, DisplayColor itemColor[], uint8_t numItems);
 
@@ -138,12 +142,18 @@ class Display {
 
   protected:
     float currentProgress = 0; // placeholder for progress spinner
+    float currentCacheUsed = 0; // placeholder for cache pct
     void logConsole (String msg);
 
     virtual int getStatusX() = 0;
     virtual int getStatusY() = 0;
     virtual int getStatusWidth() = 0;
     virtual int getStatusHeight() = 0;
+
+    virtual int getCacheStatusX() = 0;
+    virtual int getCacheStatusY() = 0;
+    virtual int getCacheStatusWidth() = 0;
+    virtual int getCacheStatusHeight() = 0;
 
     virtual int getImageAreaX (bool isAlt) = 0;
     virtual int getImageAreaY (bool isAlt) = 0;
