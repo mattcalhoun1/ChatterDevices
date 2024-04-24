@@ -900,6 +900,7 @@ void GuiControlMode::promptFactoryReset () {
 
 bool GuiControlMode::promptYesNo (const char* message) {
   char promptResp[2];
+  memset(promptResp, 0, 2);
   uint8_t respLen = ((FullyInteractiveDisplay*)display)->getModalInput(message, 1, CharacterFilterYesNo, promptResp);
   return respLen > 0 && promptResp[0] == 'y';
 }

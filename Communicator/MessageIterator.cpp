@@ -54,6 +54,11 @@ bool MessageIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
         sprintf(aliasBuffer, "%s", "[all]");
     }
     else {
+        Serial.print("iterator device id: ");
+        for (uint8_t i = 0; i < CHATTER_DEVICE_ID_SIZE; i++) {
+            Serial.print((char)(thisDeviceSent ? recipientIdBuffer[i] : senderIdBuffer[i]));
+        }
+        Serial.println("");
         // load the alias of the other device
         trustStore->loadAlias(thisDeviceSent ? recipientIdBuffer : senderIdBuffer, aliasBuffer);
     }
