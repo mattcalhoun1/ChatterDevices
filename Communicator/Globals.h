@@ -61,7 +61,7 @@
 #define PIN_TOUCH_RS A4
 #define TOUCH_CONTROL_RAK // TOUCH_CONTROL_RAK, TOUCH_CONTROL_ADAFRUIT
 #define DISPLAY_TYPE_HOYSOND // DISPLAY_TYPE_ADAFRUIT / DISPLAY_TYPE_HOYSOND
-#elif defined (ARDUINO_SAMD_ZERO) || defined(ARDUINO_FEATHER_M4) // adafruit
+#elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4) // adafruit
 //#define ROTARY_ENABLED
 #define BUTTON_A_PIN A3  
 #define PIN_ROTARY_IN1 A1
@@ -130,17 +130,23 @@
 //#define ESP32_GPIO0   -1  // Not connected
 
 /*adafruit*/
-/*#elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4)
-#define LORA_RFM9X_CS 8
-#define LORA_RFM9X_INT 3
-#define LORA_RFM9X_RST 4
+#elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4)
+// for onboard rfm95x, which doesnt work because it interferes with fram chip
+//#define LORA_RFM9X_CS 8
+//#define LORA_RFM9X_INT 3
+//#define LORA_RFM9X_RST 4
 
-#define CHATTER_WIFI_ENABLED
+#define LORA_RFM9X_CS A4
+#define LORA_RFM9X_INT A5
+#define LORA_RFM9X_RST A0
+
+
+//#define CHATTER_WIFI_ENABLED
 #define ESP32_RESETN A3  // was btn a
 #define SPIWIFI_SS A1 // was rotary 1
 #define SPIWIFI_ACK A2 // was rotary 2 // a.k.a BUSY or READY
 #define ESP32_GPIO0   -1  // Not connected
-*/
+
 //mkrzero
 #elif defined (ARDUINO_SAMD_MKRZERO)
 #define LORA_RFM9X_CS 20 // (A5)
@@ -180,13 +186,13 @@
 #define Display_TFT_CS 6
 #define DISPLAY_TFT_BACKLIGHT -1
 // adafruit
-/*
+
 #elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4)
 #define Display_TFT_RS 5
 #define Display_TFT_DC 6
 #define Display_TFT_CS 9
-#define DISPLAY_TFT_BACKLIGHT -1
-*/
+#define DISPLAY_TFT_BACKLIGHT 13
+
 // sparkfun rf pro
 #elif defined (ARDUINO_SAMD_ZERO)
 #define Display_TFT_RS 3
