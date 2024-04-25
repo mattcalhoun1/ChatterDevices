@@ -102,6 +102,7 @@ class Display {
 
     // pass through methods
     virtual void fillRect(int lineX, int lineY, int lineWidth, int lineHeight, DisplayColor color) = 0;      
+    virtual void drawRect(int lineX, int lineY, int lineWidth, int lineHeight, DisplayColor color) = 0;      
     virtual void drawLine (int lineX, int lineY, int lineEndX, int lineEndY, DisplayColor color) = 0;     
     virtual void drawCircle (int circleX, int circleY, int radius, DisplayColor color) = 0;     
     virtual void fillCircle (int circleX, int circleY, int radius, DisplayColor color) = 0;     

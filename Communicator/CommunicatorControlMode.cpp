@@ -324,21 +324,6 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
         logConsole("Assistant failed to init");
       }
       break;
-    case UserRequestSelfAnnounce:
-      // announce self
-      if (chatter->isRunning()) {
-        if (chatter->selfAnnounce(true)) {
-          showStatus("Presence broadcast");
-          return true;
-        }
-        else {
-          showStatus("Broadcast failed");
-        }
-      }
-      else {
-        showStatus("No cluster connection");
-      }
-      break;
     case PingLoraBridge:
     logConsole("Ping lora bridge");
       // send a ping, requesting echo to the bridge

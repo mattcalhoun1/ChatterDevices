@@ -282,6 +282,10 @@ void Display_TFT::fillRect(int lineX, int lineY, int lineWidth, int lineHeight, 
   display.fillRect(lineX, lineY, lineWidth, lineHeight, getTFTColor(color));
 }
 
+void Display_TFT::drawRect(int lineX, int lineY, int lineWidth, int lineHeight, DisplayColor color) {
+  display.drawRect(lineX, lineY, lineWidth, lineHeight, getTFTColor(color));
+}
+
 void Display_TFT::drawLine (int lineX, int lineY, int lineEndX, int lineEndY, DisplayColor color) {
   display.drawLine(lineX, lineY, lineEndX, lineEndY, getTFTColor(color));
 }

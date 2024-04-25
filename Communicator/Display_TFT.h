@@ -39,6 +39,7 @@ class Display_TFT : public FullyInteractiveDisplay {
     void clearArea (int x, int y, int width, int height, DisplayColor color);
     void repaint ();
     void fillRect(int lineX, int lineY, int lineWidth, int lineHeight, DisplayColor color);
+    void drawRect(int lineX, int lineY, int lineWidth, int lineHeight, DisplayColor color);
     void drawLine (int lineX, int lineY, int lineEndX, int lineEndY, DisplayColor color);
     void drawCircle (int circleX, int circleY, int radius, DisplayColor color);
     void fillCircle (int circleX, int circleY, int radius, DisplayColor color);
