@@ -229,10 +229,21 @@ void Display::clearDashboard () {
   clearArea(getDashboardAreaX(), getDashboardAreaY() - getTextUpperVerticalOffset(TextSmall), getDashboardAreaWidth(), getDashboardAreaHeight(), DarkGray);
 }
 
-void Display::showTick () {
+void Display::showTick (uint8_t connectionQuality) {
   // if the ticker is showing hide it
   if (tickerShowing) {
-    fillCircle(getTickerX(), getTickerY(), getTickerSize(), LightBlue);
+    if (connectionQuality >= 3) {
+      fillCircle(getTickerX(), getTickerY(), getTickerSize(), Green);
+    }
+    else if (connectionQuality == 2) {
+      fillCircle(getTickerX(), getTickerY(), getTickerSize(), LightBlue);
+    }
+    else if (connectionQuality == 1) {
+      fillCircle(getTickerX(), getTickerY(), getTickerSize(), Yellow);
+    }
+    else {
+      fillCircle(getTickerX(), getTickerY(), getTickerSize(), DarkRed);
+    }
   }
   else {
     fillCircle(getTickerX(), getTickerY(), getTickerSize(), DarkGreen);

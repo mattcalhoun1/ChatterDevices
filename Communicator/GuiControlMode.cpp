@@ -88,7 +88,8 @@ void GuiControlMode::loop () {
     HeadsUpControlMode::loop();
 
     if (millis() - lastTick > tickFrequency) {
-      display->showTick();
+      uint8_t connectionQuality = chatter->getConnectionQuality();
+      display->showTick(connectionQuality);
       lastTick = tickFrequency;
     }
   }

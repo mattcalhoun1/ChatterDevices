@@ -134,7 +134,7 @@ class Display {
 
     // call it regularly so there is some indication on the screen
     // that the device isn't frozen
-    virtual void showTick ();
+    virtual void showTick (uint8_t connectionQuality);
 
     void showMainScrolls (bool _scrollUpEnabled, bool _scrollDownEnabled);
     bool isScrollUpEnabled () { return scrollUpEnabled; }
