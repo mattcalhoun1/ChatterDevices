@@ -149,7 +149,7 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
     else {
       sprintf(messagePreviewBuffer, "%s", "[large message]");
     }
-    logConsole(messageTitleBuffer);
+    //logConsole(messageTitleBuffer);
     display->showMessageAndTitle(
       messageTitleBuffer+5, 
       messagePreviewBuffer, 
