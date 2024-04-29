@@ -78,7 +78,7 @@ void CommunicatorControlMode::loop () {
   }
 
   if (loopCount % 10 == 0) {
-    //Serial.print("Free Memory: "); Serial.println(freeMemory());
+    Serial.print("Free Memory: "); Serial.println(freeMemory());
     showTime();
 
     chatter->syncMesh(3000);

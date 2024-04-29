@@ -113,12 +113,17 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
 
   if (resetOffset) {
     // reload from message store
+    Serial.println("message iterator");
     messageIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+    Serial.println("message iterator initialized");
+
     //sprintf(messagePreviewBuffer, "%s Messages: %d", chatter->getClusterId(), messageIterator->getNumItems());
 
     // set the offset (if necessary) so that the newest messages are shown by default
     // and the user would have to scroll up to see older ones
     messageHistorySize = messageIterator->getNumItems();
+    Serial.print("iterator items:");Serial.println(messageHistorySize);
+
     if (messageIterator->getNumItems() > display->getMaxDisplayableMessages()) {
       messagePreviewOffset = messageIterator->getNumItems() - display->getMaxDisplayableMessages();
     }

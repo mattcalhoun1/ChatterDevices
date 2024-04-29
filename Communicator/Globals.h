@@ -61,7 +61,7 @@
 #define PIN_TOUCH_RS A4
 #define TOUCH_CONTROL_RAK // TOUCH_CONTROL_RAK, TOUCH_CONTROL_ADAFRUIT
 #define DISPLAY_TYPE_HOYSOND // DISPLAY_TYPE_ADAFRUIT / DISPLAY_TYPE_HOYSOND
-#elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4) // adafruit
+#elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4) || defined(ADAFRUIT_FEATHER_M4_EXPRESS) // adafruit
 //#define ROTARY_ENABLED
 #define BUTTON_A_PIN A3  
 #define PIN_ROTARY_IN1 A1
@@ -130,7 +130,7 @@
 //#define ESP32_GPIO0   -1  // Not connected
 
 /*adafruit*/
-#elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4)
+#elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4)|| defined(ADAFRUIT_FEATHER_M4_EXPRESS)
 // for onboard rfm95x, which doesnt work because it interferes with fram chip
 //#define LORA_RFM9X_CS 8
 //#define LORA_RFM9X_INT 3
@@ -187,20 +187,20 @@
 #define DISPLAY_TFT_BACKLIGHT -1
 // adafruit
 
-#elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4)
+#elif defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4) || defined(ADAFRUIT_FEATHER_M4_EXPRESS)
 #define Display_TFT_RS 5
 #define Display_TFT_DC 6
 #define Display_TFT_CS 9
 #define DISPLAY_TFT_BACKLIGHT 13
 
 // sparkfun rf pro
-#elif defined (ARDUINO_SAMD_ZERO)
+/*#elif defined (ARDUINO_SAMD_ZERO)
 #define Display_TFT_RS 3
 #define Display_TFT_DC 1
 #define Display_TFT_CS 2
 #define DISPLAY_TFT_BACKLIGHT A3
-#endif
 /** end Display pins */
+#endif
 
 #define THERMAL_INTERPOLATE_BUFFER_SIZE 768
 #define THERMAL_INTERPOLATE_LEVEL 2 // Each interpolation level (max 2) doubles image size, requiring larger interpolation buffer
