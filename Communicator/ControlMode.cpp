@@ -6,6 +6,8 @@ StartupState ControlMode::init() {
   rtc = new R4RtClock();
 #elif defined(ARDUINO_SAM_DUE)
   rtc = new DueRtClock();
+#elif defined (ADAFRUIT_FEATHER_M4_EXPRESS)
+  rtc = new Samd51RtClock();
 #elif defined(ARDUINO_SAMD_MKRZERO) || defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_ZERO) || defined(ARDUINO_FEATHER_M4)
   logConsole("ZeroRtClock selected");
   rtc = new ZeroRtClock();

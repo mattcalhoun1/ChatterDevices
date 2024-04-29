@@ -4,7 +4,10 @@
 #include "CommunicatorEventHandler.h"
 #include "FullyInteractiveDisplay.h"
 #include "TouchControl.h"
+
+#if !defined(ADAFRUIT_FEATHER_M4_EXPRESS)
 #include <ArduinoLowPower.h>
+#endif
 
 #ifndef COMMUNICATORCONTROLMODE_H
 #define COMMUNICATORCONTROLMODE_H

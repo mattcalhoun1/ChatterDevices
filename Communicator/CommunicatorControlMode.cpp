@@ -159,7 +159,9 @@ void CommunicatorControlMode::sleepOrBackground(unsigned long sleepTime) {
 
 void CommunicatorControlMode::deepSleep() {
   logConsole("sleeping");
+  #if !defined(ADAFRUIT_FEATHER_M4_EXPRESS)
   LowPower.deepSleep();
+  #endif
 }
 
 bool CommunicatorControlMode::sendPacketBatchAir () {
