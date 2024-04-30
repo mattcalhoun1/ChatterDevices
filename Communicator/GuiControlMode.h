@@ -19,11 +19,6 @@
 
 #define MESSAGE_PREVIEW_BUFFER_SIZE 32
 
-enum DisplayContext {
-    DisplayFullHistory = 0,
-    DisplayFilteredHistory = 1,
-    DisplayNearbyDevices = 2
-};
 
 class GuiControlMode : public HeadsUpControlMode, public TouchListener {
     public:
@@ -129,7 +124,6 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         unsigned long tickFrequency = 3000; // how often the ticker should blink
         unsigned long lastTick = 0;
-        DisplayContext displayContext = DisplayFullHistory;
 };
 
 #endif

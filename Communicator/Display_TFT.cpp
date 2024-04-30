@@ -521,13 +521,28 @@ void Display_TFT::showButtons() {
   // show the lock button
   display.drawRoundRect(getLockButtonX(),getLockButtonY(), getLockButtonX() + getLockButtonSize(), getLockButtonY() + getLockButtonSize(), 1, getTFTColor(LightGreen));
   display.fillRoundRect(getLockButtonX() + 1,getLockButtonY() + 1, getLockButtonX() + getLockButtonSize() - 2, getLockButtonY() + getLockButtonSize() - 2, 1, getTFTColor(DarkGreen));
-  drawCircle(getLockButtonX() + (.5*getLockButtonSize()), getLockButtonY() + (.5*getLockButtonSize()) + 1, .3*getLockButtonSize(), Beige);
-  drawLine(getLockButtonX() + .5*getLockButtonSize(), getLockButtonY() + .5*getLockButtonSize(), getLockButtonX() + .5*getLockButtonSize(), getLockButtonY() + .1*getLockButtonSize(), Beige);
+  fillCircle(getLockButtonX() + (.5*getLockButtonSize()), getLockButtonY() + (.5*getLockButtonSize()) + 1, .23*getLockButtonSize(), Beige);
+  drawCircle(getLockButtonX() + (.5*getLockButtonSize()), getLockButtonY() + (.27*getLockButtonSize()), .14*getLockButtonSize(), Beige);
 
   // show the flip button
   display.drawRoundRect(getFlipButtonX(),getFlipButtonY(), getFlipButtonSize(), getFlipButtonY() + getFlipButtonSize(), 1, getTFTColor(LightGreen));
   display.fillRoundRect(getFlipButtonX() + 1,getFlipButtonY() + 1, getFlipButtonSize() - 2, getFlipButtonSize() - 2, 1, getTFTColor(DarkGreen));
-  drawCircle(getFlipButtonX() + (.5*getFlipButtonSize()), getFlipButtonY() + (.5*getFlipButtonSize()) + 1, .3*getFlipButtonSize(), Beige);
+
+  // icon depends on which display context we are in.
+  // this button will reflect the opposite
+  if (displayContext == DisplayFullHistory) {
+    display.drawRoundRect(getFlipButtonX() + 5,getFlipButtonY() + 4, getFlipButtonSize() - 10, getFlipButtonSize()  - 8, 1, getTFTColor(Beige));
+    display.fillRoundRect(getFlipButtonX() + 7,getFlipButtonY() + 6, getFlipButtonSize() - 14, getFlipButtonSize()  - 15, 1, getTFTColor(Beige));
+
+    drawLine(getFlipButtonX() + getFlipButtonSize() - 6, getFlipButtonY() + 4, getFlipButtonX() + getFlipButtonSize() - 6, getFlipButtonY() + 2, Beige);
+  }
+  else {
+    display.drawRoundRect(getFlipButtonX() + 3,getFlipButtonY() + 3, getFlipButtonSize() - 6, getFlipButtonSize()  - 6, 1, getTFTColor(Beige));
+
+    for (uint8_t i = 0; i < 4; i++) {
+      drawLine(getFlipButtonX() + 5, getFlipButtonY() + 5 + (i*3), getFlipButtonX() + getFlipButtonSize() - 8, getFlipButtonY() + 5 + (i * 3), Beige);
+    }
+  }
 }
 
 DisplayedButton Display_TFT::getButtonAt (int x, int y) {

@@ -162,6 +162,34 @@ DisplayColor Display::getColorForConnectionQuality(uint8_t connectionQuality) {
   }
 }
 
+void Display::getRgbwForConnectionQuality(uint8_t connectionQuality, uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& w) {
+  if (connectionQuality >= 3) {
+    r = 0;
+    g = 254;
+    b = 0;
+    w = 0;
+  }
+  else if (connectionQuality == 2) {
+    r = 0;
+    g = 0;
+    b = 254;
+    w = 0;
+  }
+  else if (connectionQuality == 1) {
+    r = 254;
+    g = 254;
+    b = 0;
+    w = 0;
+  }
+  else {
+    r = 254;
+    g = 0;
+    b = 0;
+    w = 0;
+  }
+}
+
+
 void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, uint8_t connectionQuality, uint8_t meshDirectRating, uint8_t meshIndirectRating, const char* readableTS, bool isTrusted, int16_t rssi, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
   // show a line above the message for separation
   if (position != 0) {
@@ -287,6 +315,27 @@ void Display::showTick (uint8_t connectionQuality) {
   else {
     fillCircle(getTickerX(), getTickerY(), getTickerSize(), DarkGreen);
   }
+
+  #if defined(ADAFRUIT_FEATHER_M4_EXPRESS)
+  if (!statusPixelReady) {
+    statusPixel.begin();
+    statusPixel.setBrightness(32);
+    statusPixel.show(); // Initialize all pixels to 'off'
+    statusPixelReady = true;
+  }
+  if (tickerShowing) {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t w;
+    getRgbwForConnectionQuality(connectionQuality, r, g, b, w);
+    statusPixel.setPixelColor(0, r, g, b, w);
+  }
+  else {
+    statusPixel.setPixelColor(0, 0, 0, 0, 0);
+  }
+  statusPixel.show();
+  #endif
 
   // toggle the ticker flag
   tickerShowing = !tickerShowing;

@@ -379,11 +379,11 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       return result;
     case UserRequestFlipScreen:
       logConsole("Flipping screen");
-      if (displayContext == DisplayFullHistory) {
-        displayContext = DisplayNearbyDevices;
+      if (display->getDisplayContext() == DisplayFullHistory) {
+        display->setDisplayContext(DisplayNearbyDevices);
       }
       else {
-        displayContext = DisplayFullHistory;
+        display->setDisplayContext(DisplayFullHistory);
       }
       fullRepaint = true;
       return true;
@@ -445,7 +445,7 @@ void GuiControlMode::updateMeshCacheUsed (float percent) {
 }
 
 void GuiControlMode::pingReceived (uint8_t deviceAddress) {
-  if (displayContext == DisplayNearbyDevices) {
+  if (display->getDisplayContext() == DisplayNearbyDevices) {
     // refresh? that might be distracting?
     showNearbyDevices(true);
   }
@@ -704,7 +704,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
         bool messageTargetFound = false;
 
         if (selectedPreview != DISPLAY_MESSAGE_POSITION_NULL && selectedPreview < previewSize) {
-          if (displayContext == DisplayNearbyDevices) {
+          if (display->getDisplayContext() == DisplayNearbyDevices) {
             // get the id of the target
             uint8_t selectedDevAddr = nearbyDeviceIterator->getItemVal(selectedPreview + previewOffset);
             chatter->loadDeviceId(selectedDevAddr, eventBuffer.EventTarget);
@@ -760,13 +760,13 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
 void GuiControlMode::showLastMessage () {
   //display->showMessage((const char*)messageBuffer, Green, 0);
   // refresh the message history if enabled
-  displayContext = DisplayFullHistory;
+  display->setDisplayContext(DisplayFullHistory);
   refreshDisplayContext(true);
 }
 
 
 void GuiControlMode::refreshDisplayContext(bool fullRefresh) {
-  switch (displayContext) {
+  switch (display->getDisplayContext()) {
     case DisplayFullHistory:
       logConsole("refresh full message history");
       showMessageHistory(true);

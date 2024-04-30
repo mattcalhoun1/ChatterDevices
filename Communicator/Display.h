@@ -2,6 +2,10 @@
 #include "Globals.h"
 #include "ThermalEncoder.h"
 
+#if defined(ADAFRUIT_FEATHER_M4_EXPRESS)
+#include "Adafruit_NeoPixel.h"
+#endif
+
 #ifndef DISPLAY_H
 #define DISPLAY_H
 enum TextSize {
@@ -60,6 +64,12 @@ enum ScrollButton {
     ScrollNone = 2
 };
 
+enum DisplayContext {
+    DisplayFullHistory = 0,
+    DisplayFilteredHistory = 1,
+    DisplayNearbyDevices = 2
+};
+
 #define DISPLAY_MESSAGE_POSITION_NULL 255
 
 class Display {
@@ -92,6 +102,7 @@ class Display {
     virtual void showNearbyDevice (const char* deviceAlias, const char* deviceId, uint8_t connectionQuality, uint8_t meshDirectRating, uint8_t meshIndirectRating, const char* readableTS, bool isTrusted, int16_t rssi, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
     virtual uint8_t getNearbyDevicePosition (int positionX, int positionY);
     DisplayColor getColorForConnectionQuality(uint8_t connectionQuality);
+    void getRgbwForConnectionQuality(uint8_t connectionQuality, uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& w);
 
     virtual void clearMessageArea ();
     virtual uint8_t getMaxDisplayableMessages () = 0;
@@ -142,6 +153,9 @@ class Display {
     bool isScrollUpEnabled () { return scrollUpEnabled; }
     bool isScrollDownEnabled () { return scrollDownEnabled; }
     ScrollButton getScrollButtonAt (int x, int y);
+
+    DisplayContext getDisplayContext() {return displayContext;}
+    void setDisplayContext (DisplayContext ctx) { displayContext = ctx; }
 
   protected:
     float currentProgress = 0; // placeholder for progress spinner
@@ -224,7 +238,14 @@ class Display {
     ThermalEncoder* encoder;
     ScreenRotation rotation = Portrait;
 
+    DisplayContext displayContext = DisplayFullHistory;
     bool tickerShowing = false;
+
+    #if defined(ADAFRUIT_FEATHER_M4_EXPRESS)
+    bool statusPixelReady = false;
+    Adafruit_NeoPixel statusPixel = Adafruit_NeoPixel(1, 8, NEO_GRB + NEO_KHZ800);
+    #endif
+
 
     bool scrollUpEnabled = false;
     bool scrollDownEnabled = false;
