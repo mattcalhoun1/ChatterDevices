@@ -25,7 +25,8 @@ enum CommunicatorEventType {
     UserRequestReply = 15,
     UserRequestScreenLock = 16,
     UserRequestPowerOff = 17,
-    UserRequestClearMeshCache = 18
+    UserRequestClearMeshCache = 18,
+    UserRequestFlipScreen = 19
 };
 
 struct CommunicatorEvent {

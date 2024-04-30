@@ -190,6 +190,11 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getLockButtonY() { return DISPLAY_TFT_LOCK_BUTTON_Y; }
     int getLockButtonSize() { return DISPLAY_TFT_LOCK_BUTTON_SIZE; }
 
+    int getFlipButtonX() { return DISPLAY_TFT_FLIP_BUTTON_X; }
+    int getFlipButtonY() { return DISPLAY_TFT_FLIP_BUTTON_Y; }
+    int getFlipButtonSize() { return DISPLAY_TFT_FLIP_BUTTON_SIZE; }
+
+
     void showButton(uint8_t buttonPosition, const char* buttonText);
     const char* getButtonText (DisplayedButton btn){return buttonTexts[btn];}
 

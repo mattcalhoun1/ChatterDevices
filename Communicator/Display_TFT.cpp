@@ -521,12 +521,13 @@ void Display_TFT::showButtons() {
   // show the lock button
   display.drawRoundRect(getLockButtonX(),getLockButtonY(), getLockButtonX() + getLockButtonSize(), getLockButtonY() + getLockButtonSize(), 1, getTFTColor(LightGreen));
   display.fillRoundRect(getLockButtonX() + 1,getLockButtonY() + 1, getLockButtonX() + getLockButtonSize() - 2, getLockButtonY() + getLockButtonSize() - 2, 1, getTFTColor(DarkGreen));
-  //changeFont(FontSymbol);
-
-  //showSymbol(0x05, getLockButtonX(), getLockButtonY() + getTextUpperVerticalOffset(TextSmall), Beige);
   drawCircle(getLockButtonX() + (.5*getLockButtonSize()), getLockButtonY() + (.5*getLockButtonSize()) + 1, .3*getLockButtonSize(), Beige);
   drawLine(getLockButtonX() + .5*getLockButtonSize(), getLockButtonY() + .5*getLockButtonSize(), getLockButtonX() + .5*getLockButtonSize(), getLockButtonY() + .1*getLockButtonSize(), Beige);
-  //changeFont(FontNormal);
+
+  // show the flip button
+  display.drawRoundRect(getFlipButtonX(),getFlipButtonY(), getFlipButtonSize(), getFlipButtonY() + getFlipButtonSize(), 1, getTFTColor(LightGreen));
+  display.fillRoundRect(getFlipButtonX() + 1,getFlipButtonY() + 1, getFlipButtonSize() - 2, getFlipButtonSize() - 2, 1, getTFTColor(DarkGreen));
+  drawCircle(getFlipButtonX() + (.5*getFlipButtonSize()), getFlipButtonY() + (.5*getFlipButtonSize()) + 1, .3*getFlipButtonSize(), Beige);
 }
 
 DisplayedButton Display_TFT::getButtonAt (int x, int y) {
@@ -535,6 +536,11 @@ DisplayedButton Display_TFT::getButtonAt (int x, int y) {
   if (x >= (getLockButtonX() - powerLeeway) && x <= getLockButtonX() + getLockButtonSize() + powerLeeway) {
     if (y >= getLockButtonY() - powerLeeway && y <= getLockButtonY() + getLockButtonSize() + powerLeeway) {
       return ButtonLock;
+    }
+  }
+  else if (x >= (getFlipButtonX() - powerLeeway) && x <= getFlipButtonX() + getFlipButtonSize() + powerLeeway) {
+    if (y >= getFlipButtonY() - powerLeeway && y <= getFlipButtonY() + getFlipButtonSize() + powerLeeway) {
+      return ButtonFlip;
     }
   }
 

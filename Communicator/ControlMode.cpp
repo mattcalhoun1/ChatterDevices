@@ -123,6 +123,11 @@ void ControlMode::showStatus (const char* status) {
   logConsole(status);
 }
 
+void ControlMode::pingReceived (uint8_t deviceAddress) {
+  logConsole("Ping received");  
+}
+
+
 void ControlMode::loop () {
   logConsole("in loop...");
   delay(2000);

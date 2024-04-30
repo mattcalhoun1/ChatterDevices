@@ -8,6 +8,7 @@
 #include "MessageIterator.h"
 #include "TestIterator.h"
 #include "ItemIterator.h"
+#include "NearbyDeviceIterator.h"
 #include <SHA256.h>
 
 #ifndef GUICONTROLMODE_H
@@ -17,6 +18,12 @@
 #define MESSAGE_TITLE_BUFFER_SIZE 3 + STORAGE_TS_SIZE + 1 +  CHATTER_ALIAS_NAME_SIZE + 1 + CHATTER_DEVICE_ID_SIZE + 1 + 1 + 2 + 2
 
 #define MESSAGE_PREVIEW_BUFFER_SIZE 32
+
+enum DisplayContext {
+    DisplayFullHistory = 0,
+    DisplayFilteredHistory = 1,
+    DisplayNearbyDevices = 2
+};
 
 class GuiControlMode : public HeadsUpControlMode, public TouchListener {
     public:
@@ -60,13 +67,16 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void resetChatProgress ();
         void hideChatProgress ();
         void updateMeshCacheUsed (float percent);
+        void pingReceived (uint8_t deviceAddress);
 
 
         void handleStartupError ();
 
     protected:
-        bool updateMessagePreviewsIfNecessary ();
+        void refreshDisplayContext(bool fullRefresh);
+        bool updatePreviewsIfNecessary ();
         void showMessageHistory(bool resetOffset);
+        void showNearbyDevices(bool resetOffset);
         void showButtons ();
         void sleepOrBackground (unsigned long sleepTime);
 
@@ -103,12 +113,15 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         ItemIterator* deviceIterator;
         ItemIterator* messageIterator;
-        uint8_t messagePreviewOffset = 0;
-        uint8_t messageHistorySize = 0;
+        ItemIterator* nearbyDeviceIterator;
+        uint8_t previewOffset = 0;
+        uint8_t previewSize = 0;
 
-        char messageTitleBuffer[MESSAGE_TITLE_BUFFER_SIZE + 1];
-        char messagePreviewBuffer[MESSAGE_PREVIEW_BUFFER_SIZE + 1];
-        char messageTsBuffer[12];
+        char previewTitleBuffer[MESSAGE_TITLE_BUFFER_SIZE + 1];
+        char previewTextBuffer[MESSAGE_PREVIEW_BUFFER_SIZE + 1];
+        char previewTsBuffer[12];
+        char previewDevIdBuffer[CHATTER_DEVICE_ID_SIZE + 1];
+        char previewAliasBuffer[CHATTER_ALIAS_NAME_SIZE + 1];
 
         CommunicatorEvent eventBuffer;
         char histSenderId[CHATTER_DEVICE_ID_SIZE+1];
@@ -116,6 +129,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         unsigned long tickFrequency = 3000; // how often the ticker should blink
         unsigned long lastTick = 0;
+        DisplayContext displayContext = DisplayFullHistory;
 };
 
 #endif

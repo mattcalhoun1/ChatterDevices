@@ -30,6 +30,8 @@ StartupState GuiControlMode::init() {
       // load message history, if allowed/configured
       messageIterator = new MessageIterator(chatter->getMessageStore(), chatter->getTrustStore(), chatter);
 
+      nearbyDeviceIterator = new NearbyDeviceIterator(chatter->getPingTable(), chatter->getTrustStore(), chatter);
+
       memset(title, 0, 32);
       sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
       //showTitle(title);
@@ -70,7 +72,7 @@ void GuiControlMode::loop () {
   // if the user is interacting, skip the main loop
   if (!menu->isShowing()) {
     // scroll message
-    updateMessagePreviewsIfNecessary();
+    updatePreviewsIfNecessary();
 
     //display->showProgress(((float)(millis() % 100)) / 100.0);
     if (fullRepaint) {
@@ -78,7 +80,7 @@ void GuiControlMode::loop () {
       display->clearAll();
       showTitle(title);
       showTime();
-      showMessageHistory(true);
+      refreshDisplayContext(true);
       showButtons();
       showReady();
       display->showCacheUsed(chatter->getMeshPacketStore()->getCachePercentActive(), true);;
@@ -109,68 +111,117 @@ void GuiControlMode::showButtons () {
 }
 
 void GuiControlMode::showMessageHistory(bool resetOffset) {
-  //logConsole("=== Current Message History ===");
-
   if (resetOffset) {
     // reload from message store
-    Serial.println("message iterator");
     messageIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
-    Serial.println("message iterator initialized");
-
-    //sprintf(messagePreviewBuffer, "%s Messages: %d", chatter->getClusterId(), messageIterator->getNumItems());
 
     // set the offset (if necessary) so that the newest messages are shown by default
     // and the user would have to scroll up to see older ones
-    messageHistorySize = messageIterator->getNumItems();
-    Serial.print("iterator items:");Serial.println(messageHistorySize);
+    previewSize = messageIterator->getNumItems();
 
     if (messageIterator->getNumItems() > display->getMaxDisplayableMessages()) {
-      messagePreviewOffset = messageIterator->getNumItems() - display->getMaxDisplayableMessages();
+      previewOffset = messageIterator->getNumItems() - display->getMaxDisplayableMessages();
     }
   }
 
   // clear the message area
   display->clearMessageArea();
 
-  for (int msg = messagePreviewOffset; msg < messageIterator->getNumItems() && (msg - messagePreviewOffset) < display->getMaxDisplayableMessages(); msg++) {
-    memset(messageTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE + 1);
-    memset(messagePreviewBuffer, 0, MESSAGE_PREVIEW_BUFFER_SIZE + 1);
-    memset(messageTsBuffer, 0, 12);
+  for (int msg = previewOffset; msg < messageIterator->getNumItems() && (msg - previewOffset) < display->getMaxDisplayableMessages(); msg++) {
+    memset(previewTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE + 1);
+    memset(previewTextBuffer, 0, MESSAGE_PREVIEW_BUFFER_SIZE + 1);
+    memset(previewTsBuffer, 0, 12);
 
-    messageIterator->loadItemName(msg, messageTitleBuffer);
+    messageIterator->loadItemName(msg, previewTitleBuffer);
 
     // timestamp is in position5 and 11 chars long
-    memcpy(messageTsBuffer, messageTitleBuffer + 5, 11);
+    memcpy(previewTsBuffer, previewTitleBuffer + 5, 11);
 
     // shift the rest of the title left, so we wipe the timestamp
     for (uint8_t c = 5; c + 12 < MESSAGE_TITLE_BUFFER_SIZE + 1; c++) {
-      messageTitleBuffer[c] = messageTitleBuffer[c+12];
+      previewTitleBuffer[c] = previewTitleBuffer[c+12];
     }
  
     // if it's a small message, go ahead and print. otherwise, user will have to look
     if (messageIterator->isPreviewable(msg)) {
-      chatter->getMessageStore()->loadMessage (messageIterator->getItemVal(msg), (uint8_t*)messagePreviewBuffer, MESSAGE_PREVIEW_BUFFER_SIZE);
+      chatter->getMessageStore()->loadMessage (messageIterator->getItemVal(msg), (uint8_t*)previewTextBuffer, MESSAGE_PREVIEW_BUFFER_SIZE);
     }
     else {
-      sprintf(messagePreviewBuffer, "%s", "[large message]");
+      sprintf(previewTextBuffer, "%s", "[large message]");
     }
-    //logConsole(messageTitleBuffer);
+    //logConsole(previewTitleBuffer);
     display->showMessageAndTitle(
-      messageTitleBuffer+5, 
-      messagePreviewBuffer, 
-      messageTsBuffer, 
-      messageTitleBuffer[3] == '<', 
-      messageTitleBuffer[1], 
-      messageTitleBuffer[0], 
-      messageTitleBuffer[0] == SentViaBroadcast ? DarkBlue : Yellow, 
+      previewTitleBuffer+5, 
+      previewTextBuffer, 
+      previewTsBuffer, 
+      previewTitleBuffer[3] == '<', 
+      previewTitleBuffer[1], 
+      previewTitleBuffer[0], 
+      previewTitleBuffer[0] == SentViaBroadcast ? DarkBlue : Yellow, 
       LightBlue, 
-      msg - messagePreviewOffset);
+      msg - previewOffset);
   }
 
   // if there are more messages, indicate that
-  display->showMainScrolls(messagePreviewOffset > 0, messageHistorySize > messagePreviewOffset + display->getMaxDisplayableMessages());
+  display->showMainScrolls(previewOffset > 0, previewSize > previewOffset + display->getMaxDisplayableMessages());
+}
 
-  //logConsole("=== End Message History === ");
+void GuiControlMode::showNearbyDevices(bool resetOffset) {
+  if (resetOffset) {
+    // reload from ping table
+    //Serial.println("nearby dev iterator");
+    nearbyDeviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+    //Serial.println("nearby dev iterator initialized");
+    previewOffset = 0; // 0 will have closest device
+  }
+
+  // clear the message area
+  display->clearMessageArea();
+
+  uint8_t nearAddr;
+  int16_t nearRssi;
+  uint8_t nearDirectRating;
+  uint8_t nearIndirectRating;
+  uint8_t nearPingQuality;
+  bool nearTrusted;
+
+  for (int prevNum = previewOffset; prevNum < nearbyDeviceIterator->getNumItems() && (prevNum - previewOffset) < display->getMaxDisplayableMessages(); prevNum++) {
+    memset(previewTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE + 1);
+    memset(previewTextBuffer, 0, MESSAGE_PREVIEW_BUFFER_SIZE + 1);
+    memset(previewTsBuffer, 0, 12);
+    memset(previewDevIdBuffer, 0, CHATTER_DEVICE_ID_SIZE + 1);
+    memset(previewAliasBuffer, 0, CHATTER_ALIAS_NAME_SIZE + 1);
+
+    nearbyDeviceIterator->loadItemName(prevNum, previewTitleBuffer);
+    nearTrusted = previewTitleBuffer[0];
+    nearDirectRating = previewTitleBuffer[1];
+    nearIndirectRating = previewTitleBuffer[2];
+    nearPingQuality = previewTitleBuffer[3];
+
+    memcpy(&nearRssi, previewTitleBuffer+4, 2);
+    memcpy(previewTsBuffer, previewTitleBuffer + 6, 8);
+    memcpy(previewDevIdBuffer, previewTitleBuffer + 6 + 8, CHATTER_DEVICE_ID_SIZE);
+
+    memcpy(previewAliasBuffer, previewTitleBuffer + 6 + 8 + CHATTER_DEVICE_ID_SIZE, CHATTER_ALIAS_NAME_SIZE);
+
+    // change the title buffer to just include the 
+    display->showNearbyDevice(
+      previewAliasBuffer,
+      previewDevIdBuffer,
+      nearPingQuality,
+      nearDirectRating,
+      nearIndirectRating,
+      previewTsBuffer,
+      nearTrusted,
+      nearRssi,
+      DarkBlue, 
+      LightBlue, 
+      prevNum - previewOffset      
+    );
+  }
+
+  // if there are more messages, indicate that
+  display->showMainScrolls(previewOffset > 0, previewSize > previewOffset + display->getMaxDisplayableMessages());
 }
 
 bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
@@ -326,6 +377,16 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
 
       fullRepaint = true;
       return result;
+    case UserRequestFlipScreen:
+      logConsole("Flipping screen");
+      if (displayContext == DisplayFullHistory) {
+        displayContext = DisplayNearbyDevices;
+      }
+      else {
+        displayContext = DisplayFullHistory;
+      }
+      fullRepaint = true;
+      return true;
     case UserDeleteAllMessages:
       if (isFullyInteractive()) {
         int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Delete All?", "Permanently erase message history", 1, CharacterFilterYesNo, (char*)messageBuffer, "", 0);
@@ -381,6 +442,13 @@ void GuiControlMode::hideChatProgress () {
 
 void GuiControlMode::updateMeshCacheUsed (float percent) {
   display->showCacheUsed(percent);
+}
+
+void GuiControlMode::pingReceived (uint8_t deviceAddress) {
+  if (displayContext == DisplayNearbyDevices) {
+    // refresh? that might be distracting?
+    showNearbyDevices(true);
+  }
 }
 
 // Sends a direct message and executes any other logic
@@ -586,7 +654,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
     if (pressedButton != ButtonNone) {
       switch (pressedButton) {
         case ButtonLock:
-          if (screenLocked) {
+          if (screenLocked) { // this looks like a redundant check
             // prompt for password or unlock
             unlockScreen();
           }
@@ -604,7 +672,8 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
             ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
           }
           return true;
-
+        case ButtonFlip:
+          return handleEvent(UserRequestFlipScreen);
         case ButtonBroadcast:
           return handleEvent(UserRequestSecureBroadcast);
         case ButtonDM:
@@ -615,37 +684,50 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
           return true;
       }
     }
-    else if (messageHistorySize > 0) {
+    else if (previewSize > 0) {
       // if it's a scrollbar
       ScrollButton scroller = display->getScrollButtonAt(touchX, touchY);
       if (scroller != ScrollNone) {
-        if (scroller == ScrollUp && display->isScrollUpEnabled() && messagePreviewOffset > 0) {
-          messagePreviewOffset--;
-          showMessageHistory(false);
+        if (scroller == ScrollUp && display->isScrollUpEnabled() && previewOffset > 0) {
+          previewOffset--;
+          refreshDisplayContext(false);
           return true;
         }
-        else if (scroller == ScrollDown && display->isScrollDownEnabled() && messagePreviewOffset + display->getMaxDisplayableMessages() < messageHistorySize) {
-          messagePreviewOffset++;
-          showMessageHistory(false);
+        else if (scroller == ScrollDown && display->isScrollDownEnabled() && previewOffset + display->getMaxDisplayableMessages() < previewSize) {
+          previewOffset++;
+          refreshDisplayContext(false);
           return true;
         }
       }
       else {
-        uint8_t selectedMessage = display->getMessagePosition(touchX, touchY);
+        uint8_t selectedPreview = display->getMessagePosition(touchX, touchY);
+        bool messageTargetFound = false;
 
-        if (selectedMessage != DISPLAY_MESSAGE_POSITION_NULL && selectedMessage < messageHistorySize) {
-          uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedMessage + messagePreviewOffset);
-        
-          // queue a reply event to that message slot
-          if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
-            // whichever is not this device becomes the target
-            if (memcmp(chatter->getDeviceId(), histSenderId, CHATTER_DEVICE_ID_SIZE) != 0) {
-              memcpy(eventBuffer.EventTarget, histSenderId, CHATTER_DEVICE_ID_SIZE);
-            }
-            else {
-              memcpy(eventBuffer.EventTarget, histRecipientId, CHATTER_DEVICE_ID_SIZE);
-            }
+        if (selectedPreview != DISPLAY_MESSAGE_POSITION_NULL && selectedPreview < previewSize) {
+          if (displayContext == DisplayNearbyDevices) {
+            // get the id of the target
+            uint8_t selectedDevAddr = nearbyDeviceIterator->getItemVal(selectedPreview + previewOffset);
+            chatter->loadDeviceId(selectedDevAddr, eventBuffer.EventTarget);
+            messageTargetFound = true;
+          }
+          else { // showing messages, select the appropriate device
+            uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedPreview + previewOffset);
 
+            // queue a reply event to that message slot
+            if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
+              // whichever is not this device becomes the target
+              if (memcmp(chatter->getDeviceId(), histSenderId, CHATTER_DEVICE_ID_SIZE) != 0) {
+                memcpy(eventBuffer.EventTarget, histSenderId, CHATTER_DEVICE_ID_SIZE);
+              }
+              else {
+                memcpy(eventBuffer.EventTarget, histRecipientId, CHATTER_DEVICE_ID_SIZE);
+              }
+              messageTargetFound = true;
+            }
+          }
+
+          // if a target was placed in the event
+          if (messageTargetFound) {
             // if it's a broadcast, let the generic broadcast handle it
             if (memcmp(chatter->getClusterBroadcastId(), eventBuffer.EventTarget, CHATTER_DEVICE_ID_SIZE) == 0) {
               return handleEvent(UserRequestSecureBroadcast);
@@ -654,7 +736,11 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
             // put the alias into event data
             memset(eventBuffer.EventData, 0, EVENT_DATA_SIZE);
             eventBuffer.EventData[0] = '@';
-            chatter->getTrustStore()->loadAlias(eventBuffer.EventTarget, (char*)eventBuffer.EventData + 1);
+
+            // if not able to lado alias, place the address instead
+            if (!chatter->getTrustStore()->loadAlias(eventBuffer.EventTarget, (char*)eventBuffer.EventData + 1)) {
+              memcpy(eventBuffer.EventData + 1, eventBuffer.EventTarget, CHATTER_DEVICE_ID_SIZE);
+            }
 
             // set the other device id to the target
             memset(otherDeviceId, 0, CHATTER_DEVICE_ID_SIZE+1);
@@ -674,9 +760,23 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
 void GuiControlMode::showLastMessage () {
   //display->showMessage((const char*)messageBuffer, Green, 0);
   // refresh the message history if enabled
-  showMessageHistory(true);
+  displayContext = DisplayFullHistory;
+  refreshDisplayContext(true);
 }
 
+
+void GuiControlMode::refreshDisplayContext(bool fullRefresh) {
+  switch (displayContext) {
+    case DisplayFullHistory:
+      logConsole("refresh full message history");
+      showMessageHistory(true);
+      break;
+    case DisplayNearbyDevices:
+      logConsole("refresh display nearby devices");
+      showNearbyDevices(true);
+      break;
+  }
+}
 
 void GuiControlMode::buttonInterrupt () {
   menu->notifyButtonPressed();
@@ -690,22 +790,22 @@ void GuiControlMode::touchInterrupt () {
   //sendText = true;
 }
 
-bool GuiControlMode::updateMessagePreviewsIfNecessary () {
+bool GuiControlMode::updatePreviewsIfNecessary () {
   // get current rotary position
   if (rotaryMoved) {
     rotaryMoved = false;
     int newRotaryPostion = rotary->getPosition();
     if (newRotaryPostion > selection) {
-      if (messagePreviewOffset + display->getMaxDisplayableMessages() < messageHistorySize) {
-        messagePreviewOffset++;
-        showMessageHistory(false);
+      if (previewOffset + display->getMaxDisplayableMessages() < previewSize) {
+        previewOffset++;
+        refreshDisplayContext(false);
       }
     }
     else if (newRotaryPostion < selection) {
       // if the offset is > 0, decrement
-      if (messagePreviewOffset > 0) {
-        messagePreviewOffset--;
-        showMessageHistory(false);
+      if (previewOffset > 0) {
+        previewOffset--;
+        refreshDisplayContext(false);
       }
     }
     selection = newRotaryPostion;

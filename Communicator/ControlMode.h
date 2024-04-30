@@ -59,6 +59,7 @@ class ControlMode : ChatStatusCallback {
     void updateChatProgress(float progress);
     void resetChatProgress ();
     void hideChatProgress ();
+    void pingReceived (uint8_t deviceAddress);
 
     // touch screen, etc
     virtual bool isFullyInteractive () { return false; }

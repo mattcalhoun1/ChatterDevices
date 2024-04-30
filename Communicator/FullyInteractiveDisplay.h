@@ -12,7 +12,8 @@ enum DisplayedButton {
     ButtonBroadcast = 1,
     ButtonMenu = 2,
     ButtonNone = 3,
-    ButtonLock = 4
+    ButtonLock = 4,
+    ButtonFlip = 5
 };
 
 class FullyInteractiveDisplay : public TouchEnabledDisplay {
@@ -54,6 +55,10 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         virtual int getLockButtonX() = 0;
         virtual int getLockButtonY() = 0;
         virtual int getLockButtonSize() = 0;
+
+        virtual int getFlipButtonX() = 0;
+        virtual int getFlipButtonY() = 0;
+        virtual int getFlipButtonSize() = 0;
 
         virtual void showButton(uint8_t buttonPosition, const char* buttonText);
 

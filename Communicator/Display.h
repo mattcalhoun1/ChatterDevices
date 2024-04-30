@@ -88,8 +88,10 @@ class Display {
     virtual void showMessage (const char* text, DisplayColor color, uint8_t position);
     virtual void showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, char status, char sendMethod, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
     virtual uint8_t getMessagePosition (int positionX, int positionY);
-    //virtual void showHasMessagesBefore ();
-    //virtual void showHasMessagesAfter ();
+
+    virtual void showNearbyDevice (const char* deviceAlias, const char* deviceId, uint8_t connectionQuality, uint8_t meshDirectRating, uint8_t meshIndirectRating, const char* readableTS, bool isTrusted, int16_t rssi, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
+    virtual uint8_t getNearbyDevicePosition (int positionX, int positionY);
+    DisplayColor getColorForConnectionQuality(uint8_t connectionQuality);
 
     virtual void clearMessageArea ();
     virtual uint8_t getMaxDisplayableMessages () = 0;
@@ -226,5 +228,7 @@ class Display {
 
     bool scrollUpEnabled = false;
     bool scrollDownEnabled = false;
+
+    char textBuffer[64];
 };
 #endif

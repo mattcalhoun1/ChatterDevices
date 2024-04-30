@@ -109,6 +109,8 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
         received ? LightGray : BrightGreen
       );
     }
+    changeFont(FontNormal);
+
   }
   
 
@@ -120,19 +122,7 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
     TextSmall, 
     received ? messageColor : DarkGray);
 }
-/*
-void Display::showHasMessagesBefore () {
-  for (uint8_t pxWide = 0; pxWide < 4; pxWide++) {
-    showText("<", pxWide + getMessageAreaX() + getMessageAreaWidth() - 40, getMessageAreaY() + getMessageAreaHeight() - getTextUpperVerticalOffset(TextSmall), TextSmall, Cyan);
-  }
-}
 
-void Display::showHasMessagesAfter () {
-  for (uint8_t pxWide = 0; pxWide < 4; pxWide++) {
-    showText(">", pxWide + getMessageAreaX() + getMessageAreaWidth() - 20, getMessageAreaY() + getMessageAreaHeight() - getTextUpperVerticalOffset(TextSmall), TextSmall, Cyan);
-  }
-}
-*/
 uint8_t Display::getMessagePosition (int positionX, int positionY) {
   // the touch must be toward the title area (left)
   if (positionX < getScreenWidth() / 3) {
@@ -156,6 +146,66 @@ uint8_t Display::getMessagePosition (int positionX, int positionY) {
 
   return DISPLAY_MESSAGE_POSITION_NULL;
 }
+
+DisplayColor Display::getColorForConnectionQuality(uint8_t connectionQuality) {
+  if (connectionQuality >= 3) {
+    return Green;
+  }
+  else if (connectionQuality == 2) {
+    return LightBlue;
+  }
+  else if (connectionQuality == 1) {
+    return Yellow;
+  }
+  else {
+    return DarkRed;
+  }
+}
+
+void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, uint8_t connectionQuality, uint8_t meshDirectRating, uint8_t meshIndirectRating, const char* readableTS, bool isTrusted, int16_t rssi, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
+  // show a line above the message for separation
+  if (position != 0) {
+    int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2);
+    drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, Beige);
+  }
+  int dotYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall);
+  fillCircle(getMessageAreaX(), dotYPos, getTickerSize(), getColorForConnectionQuality(connectionQuality));
+
+  changeFont(isTrusted ? FontBold : FontNormal);
+  showText(
+    deviceAlias, 
+    getMessageAreaX() + 15, 
+    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), 
+    TextSmall, 
+    isTrusted ? titleColor : LightGray
+  );
+
+  // add message timestamp
+  changeFont(FontTiny);
+  showText(
+    readableTS, 
+    getMessageAreaX() + getMessageAreaWidth() - 65, 
+    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
+    TextSmall, 
+    isTrusted ? titleColor : LightGray);
+
+  memset(textBuffer, 0, 64);
+  sprintf(textBuffer, "%s %s:%02d, %s:%02d", deviceId, "RSSI", rssi, "Mesh Rating", meshDirectRating);
+
+  changeFont(FontTiny);
+  showText(
+    textBuffer,
+    getMessageAreaX(), 
+    getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), 
+    TextSmall, 
+    isTrusted ? messageColor : DarkGray);
+  changeFont(FontNormal);
+}
+
+uint8_t Display::getNearbyDevicePosition (int positionX, int positionY) {
+  return getMessagePosition(positionX, positionY);
+}
+
 
 void Display::showAlert (const char* alertText, AlertType alertType) {
     DisplayColor color = BrightGreen;
@@ -232,18 +282,7 @@ void Display::clearDashboard () {
 void Display::showTick (uint8_t connectionQuality) {
   // if the ticker is showing hide it
   if (tickerShowing) {
-    if (connectionQuality >= 3) {
-      fillCircle(getTickerX(), getTickerY(), getTickerSize(), Green);
-    }
-    else if (connectionQuality == 2) {
-      fillCircle(getTickerX(), getTickerY(), getTickerSize(), LightBlue);
-    }
-    else if (connectionQuality == 1) {
-      fillCircle(getTickerX(), getTickerY(), getTickerSize(), Yellow);
-    }
-    else {
-      fillCircle(getTickerX(), getTickerY(), getTickerSize(), DarkRed);
-    }
+    fillCircle(getTickerX(), getTickerY(), getTickerSize(), getColorForConnectionQuality(connectionQuality));
   }
   else {
     fillCircle(getTickerX(), getTickerY(), getTickerSize(), DarkGreen);
