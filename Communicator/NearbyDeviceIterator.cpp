@@ -6,7 +6,7 @@ bool NearbyDeviceIterator::init (const char* _clusterId, const char* _thisDevice
 
     meshGraph = chatter->getMeshGraph();
 
-    numDevices = pingTable->loadNearbyDevices (PingQualityLow, deviceSlots, CHATTER_MAX_NEARBY_DEVICES, 180);
+    numDevices = pingTable->loadNearbyDevices (PingQualityBad, deviceSlots, CHATTER_MAX_NEARBY_DEVICES, 180);
     //Serial.print("Iterator loaded "); Serial.print(numDevices); Serial.print(" nearby devices for cluster ");Serial.println(_clusterId);
     return true;
 }
