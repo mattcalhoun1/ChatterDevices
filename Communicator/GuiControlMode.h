@@ -78,6 +78,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         bool attemptDirectSend ();
         void lockScreen ();
         void unlockScreen ();
+        void showMeshPath (const char* recipientId);
+        bool promptSelectDevice ();
 
     private:
 
@@ -124,6 +126,9 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         unsigned long tickFrequency = 3000; // how often the ticker should blink
         unsigned long lastTick = 0;
+
+        uint8_t meshPath[CHATTER_MESH_MAX_HOPS];
+        uint8_t meshPathLength = 0;
 };
 
 #endif

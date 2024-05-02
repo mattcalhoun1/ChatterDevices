@@ -166,6 +166,50 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
   display->showMainScrolls(previewOffset > 0, previewSize > previewOffset + display->getMaxDisplayableMessages());
 }
 
+void GuiControlMode::showMeshPath (const char* recipientId) {
+  meshPathLength = chatter->findMeshPath (chatter->getDeviceId(), recipientId, meshPath);
+
+  // copy the path into the message buffer so we can display
+  memset(messageBuffer, 0, GUI_MAX_MESSAGE_LENGTH+1);
+  uint8_t* pos = messageBuffer;
+
+  if (meshPathLength > 0) {
+    for (uint8_t p = 0; p < meshPathLength; p++) {
+      memset(previewDevIdBuffer, 0, CHATTER_DEVICE_ID_SIZE + 1);
+      memset(previewAliasBuffer, 0, CHATTER_ALIAS_NAME_SIZE + 1);
+
+      // find cluster device with that address
+      chatter->loadDeviceId(meshPath[p], previewDevIdBuffer);
+
+      // laod from truststore
+      if (chatter->getTrustStore()->loadAlias(previewDevIdBuffer, previewAliasBuffer)) {
+        memcpy(pos, previewAliasBuffer, strlen(previewAliasBuffer));
+        pos += strlen(previewAliasBuffer);
+      }
+      else {
+        sprintf((char*)pos, "%c%s%c", '[', previewDevIdBuffer, ']');
+        pos += (2 + CHATTER_DEVICE_ID_SIZE);
+      }
+
+      if (p+1 < meshPathLength) {
+        memcpy(pos, " -> ", 4);
+        pos += 4;
+      }
+    }
+  }
+  else {
+    memcpy(pos, "no path!", 8);
+  }
+
+  display->clearAll();
+
+  // show the message until the user closes
+  display->showMessage((const char*)messageBuffer, Beige, 0);
+
+  // pause for a short time
+  delay(4000);
+}
+
 void GuiControlMode::showNearbyDevices(bool resetOffset) {
   if (resetOffset) {
     // reload from ping table
@@ -247,46 +291,11 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       }
       return true;
     case UserRequestDirectMessage:
-      memset(otherDeviceId, 0, CHATTER_DEVICE_ID_SIZE+1);
-      if (isFullyInteractive()) {
-        // select a recipient (or broadcast)
-        deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
-        menu->setItemIterator(deviceIterator);
-        menu->iteratorMenu(true); // modal
-
-        // menu will be showing, turn up sensitivity
-        ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
-
-        // wait for result of contact selections
-        while (menu->isShowing()) {
-          menu->menuUpdate();
-          delay(10);
-          ((FullyInteractiveDisplay*)display)->handleIfTouched();
-        }
-        ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
-
-        if (menu->getIteratorSelection() != ITERATOR_SELECTION_NONE) {
-          // find the associated device id for the given slot
-          uint8_t selectedSlot = deviceIterator->getItemVal(menu->getIteratorSelection());
-
-          // populate recipient name for modal display
-          memset(newDeviceAlias, 0, CHATTER_ALIAS_NAME_SIZE+2);
-          deviceIterator->loadItemName(menu->getIteratorSelection(), newDeviceAlias+1);
-          newDeviceAlias[0] = '@';
-
-          chatter->getTrustStore()->loadDeviceId(selectedSlot, otherDeviceId);
-          logConsole("User chose to DM :");
-          logConsole(otherDeviceId);
-
-          // fall through to the other send message logic
-        }
-        else {
-          logConsole("Canceled");
-          return false;
-        }
+      if (!promptSelectDevice()) {
+        logConsole("Canceled");
+        return false;
       }
-
-      // fall through to next case
+      // fall through to the other send message logic
 
     case UserRequestSecureBroadcast:
     case UserRequestOpenBroadcast:
@@ -405,6 +414,12 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       display->showAlert("Mesh Clear", AlertSuccess);
       delay(3000);
       return true;
+    case UserRequestMeshShowPath:
+      // user must choose a recipient
+      if (promptSelectDevice()) {
+        showMeshPath(otherDeviceId);
+      }
+      return true;
 
     case UserRequestQuickFactoryReset:
     case UserRequestSecureFactoryReset:
@@ -425,6 +440,47 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
 
   // let base class handle
   return HeadsUpControlMode::handleEvent(eventType);
+}
+
+bool GuiControlMode::promptSelectDevice() {
+  memset(otherDeviceId, 0, CHATTER_DEVICE_ID_SIZE+1);
+  if (isFullyInteractive()) {
+    // select a recipient (or broadcast)
+    deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+    menu->setItemIterator(deviceIterator);
+    menu->iteratorMenu(true); // modal
+
+    // menu will be showing, turn up sensitivity
+    ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
+
+    // wait for result of contact selections
+    while (menu->isShowing()) {
+      menu->menuUpdate();
+      delay(10);
+      ((FullyInteractiveDisplay*)display)->handleIfTouched();
+    }
+    ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
+
+    if (menu->getIteratorSelection() != ITERATOR_SELECTION_NONE) {
+      // find the associated device id for the given slot
+      uint8_t selectedSlot = deviceIterator->getItemVal(menu->getIteratorSelection());
+
+      // populate recipient name for modal display
+      memset(newDeviceAlias, 0, CHATTER_ALIAS_NAME_SIZE+2);
+      deviceIterator->loadItemName(menu->getIteratorSelection(), newDeviceAlias+1);
+      newDeviceAlias[0] = '@';
+
+      chatter->getTrustStore()->loadDeviceId(selectedSlot, otherDeviceId);
+      logConsole("User chose device :");
+      logConsole(otherDeviceId);
+      return true;
+    }
+  }
+  else {
+    logConsole("not interactive");
+  }
+
+  return false;
 }
 
 void GuiControlMode::updateChatProgress(float progress) {

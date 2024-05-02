@@ -19,6 +19,12 @@ void Display::clearStatus () {
 }
 
 void Display::showMessage (const char* message, DisplayColor color, uint8_t position) {
+  if (strlen(message) > 24) {
+    changeFont(FontTiny);
+  }
+  else {
+    changeFont(FontNormal);
+  }
   showText(message, getMessageAreaX(), getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, color);
 }
 

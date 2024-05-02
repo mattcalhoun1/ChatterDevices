@@ -91,11 +91,12 @@ void Menu::populateIteratorMenu () {
 void Menu::mainMenu(bool fullRepaint) {
   resetMenu(fullRepaint); // clear any previous menu
   oledMenu.menuId = MENU_ID_MAIN;
-  oledMenu.noOfmenuItems = 3;
+  oledMenu.noOfmenuItems = 4;
   oledMenu.menuTitle = "Main Menu";
 
-  oledMenu.menuItems[MENU_MAIN_CLUSTER] = "Cluster Settings";
-  oledMenu.menuItems[MENU_MAIN_DEVICE] = "Device Settings";
+  oledMenu.menuItems[MENU_MAIN_CLUSTER] = "Cluster";
+  oledMenu.menuItems[MENU_MAIN_DEVICE] = "Device";
+  oledMenu.menuItems[MENU_MAIN_MESH] = "Mesh";
   oledMenu.menuItems[MENU_MAIN_POWER] = "Power";
 
   // highlight the center item to make he menu full
@@ -106,13 +107,11 @@ void Menu::mainMenu(bool fullRepaint) {
 void Menu::deviceMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_DEVICE;
-  oledMenu.noOfmenuItems = 8;
+  oledMenu.noOfmenuItems = 6;
   oledMenu.menuTitle = "Device";
 
   oledMenu.menuItems[MENU_DEVICE_CLEAR_MESSAGES] = "Clear Messages";
   oledMenu.menuItems[MENU_DEVICE_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
-  oledMenu.menuItems[MENU_DEVICE_MESH_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceMeshEnabled) ? "Disable Mesh" : "Enable Mesh";
-  oledMenu.menuItems[MENU_DEVICE_CLEAR_MESH] = "Clear Mesh Cache";
   oledMenu.menuItems[MENU_DEVICE_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
   oledMenu.menuItems[MENU_DEVICE_WIFI_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceWifiEnabled) ? "Disable Wifi" : "Enable Wifi";
   oledMenu.menuItems[MENU_DEVICE_SET_TIME] = "Set Time";
@@ -142,6 +141,27 @@ void Menu::clusterMenu() {
   }
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
+
+  mode = MenuActive;
+  needsRepainted = true;
+}
+
+void Menu::meshMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_MESH;
+  oledMenu.noOfmenuItems = 3;
+  oledMenu.menuTitle = "Device";
+
+  oledMenu.menuItems[MENU_MESH_SHOW_PATH] = "Show Path";
+  oledMenu.menuItems[MENU_MESH_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceMeshEnabled) ? "Disable Mesh" : "Enable Mesh";
+  oledMenu.menuItems[MENU_MESH_CLEAR] = "Clear Cache";
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+
+  mode = MenuActive;
+  needsRepainted = true;
 }
 
 void Menu::powerMenu() {
@@ -186,20 +206,6 @@ void Menu::deviceActions() {
           prefHandler->enablePreference(PreferenceMessageHistory);
         }
         resetMenu();
-        break;
-      case MENU_DEVICE_MESH_ENABLE:
-        // a change to message history will trigger a reboot
-        if (prefHandler->isPreferenceEnabled(PreferenceMeshEnabled)) {
-          prefHandler->disablePreference(PreferenceMeshEnabled);
-        } 
-        else {
-          prefHandler->enablePreference(PreferenceWifiEnabled);
-        }
-        resetMenu();
-        break;
-      case MENU_DEVICE_CLEAR_MESH:
-        resetMenu();
-        handler->handleEvent(UserRequestClearMeshCache);
         break;
       case MENU_DEVICE_WIFI_ENABLE:
         // a change to message history will trigger a reboot
@@ -248,6 +254,33 @@ void Menu::deviceActions() {
         mode = MenuOff;
         break;
 
+    }
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
+void Menu::meshActions() {
+  if (oledMenu.menuId == MENU_ID_MESH) {  
+    switch (oledMenu.selectedMenuItem) {
+      // preference toggles
+      case MENU_MESH_SHOW_PATH:
+        resetMenu();
+        handler->handleEvent(UserRequestMeshShowPath);
+        break;
+      case MENU_MESH_ENABLE:
+        // a change to message history will trigger a reboot
+        if (prefHandler->isPreferenceEnabled(PreferenceMeshEnabled)) {
+          prefHandler->disablePreference(PreferenceMeshEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceWifiEnabled);
+        }
+        resetMenu();
+        break;
+      case MENU_MESH_CLEAR:
+        resetMenu();
+        handler->handleEvent(UserRequestClearMeshCache);
+        break;
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
   }
@@ -358,6 +391,9 @@ void Menu::menuActions () {
   else if (oledMenu.menuId == MENU_ID_POWER) {
     powerMenuActions();
   }
+  else if (oledMenu.menuId == MENU_ID_MESH) {
+    meshActions();
+  }
 }
 
 void Menu::mainActions() {
@@ -379,6 +415,11 @@ void Menu::mainActions() {
         mode = MenuActive;
         needsRepainted = true;
         break;        
+      case MENU_MAIN_MESH:
+        meshMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;        
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
   }
@@ -386,7 +427,7 @@ void Menu::mainActions() {
 
 void Menu::iteratorActions () {
   if (oledMenu.selectedMenuItem != ITERATOR_SELECTION_NONE) {
-    Serial.print("User selected: "); Serial.print(oledMenu.selectedMenuItem + iteratorOffset -1);
+    //Serial.print("User selected: "); Serial.print(oledMenu.selectedMenuItem + iteratorOffset -1);
     mode = MenuOff;
     iteratorSelection = oledMenu.selectedMenuItem + iteratorOffset -1; // this menu system is indexed to 1 instead of 0
     resetMenu();

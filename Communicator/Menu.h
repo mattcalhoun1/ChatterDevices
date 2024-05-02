@@ -14,7 +14,8 @@
 
 #define MENU_MAIN_CLUSTER 1
 #define MENU_MAIN_DEVICE 2
-#define MENU_MAIN_POWER 3
+#define MENU_MAIN_MESH 3
+#define MENU_MAIN_POWER 4
 
 #define MENU_CLUSTER_CHANGE_CLUSTER 1
 #define MENU_CLUSTER_JOIN_CLUSTER 2
@@ -22,14 +23,16 @@
 #define MENU_CLUSTER_DELETE_CLUSTER 4
 #define MENU_CLUSTER_ONBOARD_DEVICE 5
 
+#define MENU_MESH_SHOW_PATH 1
+#define MENU_MESH_ENABLE 2
+#define MENU_MESH_CLEAR 3
+
 #define MENU_DEVICE_CLEAR_MESSAGES 1
 #define MENU_DEVICE_MESSAGE_HISTORY 2
-#define MENU_DEVICE_MESH_ENABLE 3
-#define MENU_DEVICE_CLEAR_MESH 4
-#define MENU_DEVICE_KEYBOARD_ORIENTATION 5
-#define MENU_DEVICE_WIFI_ENABLE 6
-#define MENU_DEVICE_SET_TIME 7
-#define MENU_DEVICE_SECURE_FACTORY_RESET 8
+#define MENU_DEVICE_KEYBOARD_ORIENTATION 3
+#define MENU_DEVICE_WIFI_ENABLE 4
+#define MENU_DEVICE_SET_TIME 5
+#define MENU_DEVICE_SECURE_FACTORY_RESET 6
 
 #define MENU_POWER_LOCK_SCREEN 1
 #define MENU_POWER_POWEROFF 2
@@ -37,8 +40,9 @@
 #define MENU_ID_MAIN 0
 #define MENU_ID_CLUSTER 1
 #define MENU_ID_DEVICE 2
-#define MENU_ID_POWER 3
-#define MENU_ID_ITERATOR 4
+#define MENU_ID_MESH 3
+#define MENU_ID_POWER 4
+#define MENU_ID_ITERATOR 5
 
 #define MENU_HIGHLIGHT_CENTER false
 #define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
@@ -79,6 +83,7 @@ class Menu : public TouchListener {
         void mainMenu (bool fullRepaint = false);
         void deviceMenu();
         void clusterMenu ();
+        void meshMenu ();
         void powerMenu();
         void iteratorMenu (bool fullRepaint = false);
         void iteratorActions ();        
@@ -112,6 +117,7 @@ class Menu : public TouchListener {
         void deviceActions ();
         void mainActions ();
         void clusterActions ();
+        void meshActions ();
         void powerMenuActions ();
 
         void populateIteratorMenu ();

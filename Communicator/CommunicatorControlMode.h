@@ -76,6 +76,8 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         void logPublicKey ();
         bool listeningForMessages = false;
         CommunicatorEventType queuedEventType = CommunicatorEventNone;
+
+        bool sendingTestTraffic = false; // enabling causes public keys to be broadcast often, filling air with traffic
 };
 
 #endif
