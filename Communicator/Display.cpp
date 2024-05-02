@@ -26,6 +26,7 @@ void Display::showMessage (const char* message, DisplayColor color, uint8_t posi
     changeFont(FontNormal);
   }
   showText(message, getMessageAreaX(), getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), TextSmall, color);
+  changeFont(FontNormal);
 }
 
 void Display::showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, char status, char sendMethod, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
@@ -368,11 +369,10 @@ void Display::showLatestCacheUsed () {
 
 void Display::showCacheUsed (float percent, bool forceRepaint) {
   if (percent != currentCacheUsed || forceRepaint) {
-    if (currentCacheUsed == 0 || percent < currentCacheUsed) {
+    // draw outer rectangle
+    drawRect(getCacheStatusX(), getCacheStatusY(), getCacheStatusWidth(), getCacheStatusHeight(), DarkBlue);
 
-      // draw outer rectangle
-      drawRect(getCacheStatusX(), getCacheStatusY(), getCacheStatusWidth(), getCacheStatusHeight(), DarkBlue);
-
+    if (currentCacheUsed < 20 || percent < currentCacheUsed) {
       if (percent < 20) {
         changeFont(FontPico);
         showText("Mesh Cache", getCacheStatusX() + 20, getCacheStatusY() + getTextLowerVerticalOffset(TextSmall) + 1, TextSmall, Beige);
