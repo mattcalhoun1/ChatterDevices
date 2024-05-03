@@ -228,32 +228,8 @@ void Menu::deviceActions() {
         break;
       case MENU_DEVICE_SET_TIME:
         resetMenu();
-        mode = MenuValueEntry;
-        for (uint8_t datePart = 0; datePart < 6; datePart++) {
-          buttonPressed = false; // clear the button press
-
-          setDatePartOptionsFor(datePart);
-          needsRepainted = true;
-
-          selectedDateParts[datePart] = serviceValue(1);
-        }
-
-        // apply the user selected date
-        eventBuffer.EventType = UserChangedTime;
-        eventBuffer.EventDataLength = 12;
-        sprintf(
-          (char*)eventBuffer.EventData, 
-          "%02d%02d%02d%02d%02d%02d", 
-          selectedDateParts[2]-2000, selectedDateParts[0], selectedDateParts[1], selectedDateParts[3], selectedDateParts[4], selectedDateParts[5]);
-        
-        handler->handleEvent(&eventBuffer);
-
-        // set default menu back to main, and clear
-        resetMenu();
-        mainMenu();
-        mode = MenuOff;
+        handler->handleEvent(UserRequestChangeTime);
         break;
-
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
   }

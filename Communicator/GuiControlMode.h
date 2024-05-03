@@ -80,6 +80,11 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void unlockScreen ();
         void showMeshPath (const char* recipientId);
         bool promptSelectDevice ();
+        void promptUserNewTime();
+        bool validateDatePart(int partVal, uint8_t partNum);
+
+        void showTime(bool forceRepaint);
+        void showTime();
 
     private:
 
@@ -90,6 +95,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         Menu* menu;
 
         char title[32];
+        char lastTime[16];
 
         //ChatterAdmin* admin;
         int selection = 0;

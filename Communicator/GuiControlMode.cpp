@@ -79,7 +79,7 @@ void GuiControlMode::loop () {
       fullRepaint = false;
       display->clearAll();
       showTitle(title);
-      showTime();
+      showTime(true);
       refreshDisplayContext(true);
       showButtons();
       showReady();
@@ -420,6 +420,9 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         showMeshPath(otherDeviceId);
       }
       return true;
+    case UserRequestChangeTime:
+      promptUserNewTime ();
+      return true;
 
     case UserRequestQuickFactoryReset:
     case UserRequestSecureFactoryReset:
@@ -441,6 +444,95 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   // let base class handle
   return HeadsUpControlMode::handleEvent(eventType);
 }
+
+void GuiControlMode::promptUserNewTime () {
+  uint8_t timePositions[6] = {0, 2, 4, 6, 8, 10}; // buffer positions of 2 digit pieces
+  char userEnteredPart[3];
+  char fullDateTime[13];
+  memset(fullDateTime, 0, 13);
+
+  char partTitle[7];
+  char partSubtitle[32];
+  int userInputLength = 0;
+  for (uint8_t pos = 0; pos < 6; pos++) {
+    switch (pos) {
+      case 0:
+        sprintf(partTitle, "%s", "Year");
+        sprintf(partSubtitle, "%s", "2 digit year (ex: 24)");
+        break;
+      case 1:
+        sprintf(partTitle, "%s", "Month");
+        sprintf(partSubtitle, "%s", "Current month (ex: 12)");
+        break;
+      case 2:
+        sprintf(partTitle, "%s", "Day");
+        sprintf(partSubtitle, "%s", "Current day (ex: 31)");
+        break;
+      case 3:
+        sprintf(partTitle, "%s", "Hour");
+        sprintf(partSubtitle, "%s", "Current hour, 24hr format (ex: 13)");
+        break;
+      case 4:
+        sprintf(partTitle, "%s", "Minute");
+        sprintf(partSubtitle, "%s", "Current minutes (ex: 59)");
+        break;
+      case 5:
+        sprintf(partTitle, "%s", "Second");
+        sprintf(partSubtitle, "%s", "Current seconds (ex: 59)");
+        break;
+    }
+
+    bool partOk = false;
+    while (!partOk) {
+      memset(userEnteredPart, 0, 3);
+      userInputLength = ((FullyInteractiveDisplay*)display)->getModalInput(partTitle, partSubtitle, 2, CharacterFilterNumeric, userEnteredPart, "", 0);
+      if (userInputLength > 0) {
+        // if the user only entered one digit, pad it to the right
+        if (userInputLength == 1) {
+          userEnteredPart[1] = userEnteredPart[0];
+          userEnteredPart[0] = '0';
+        }
+        int userVal = atoi(userEnteredPart);
+        // validate
+        if (validateDatePart(userVal, pos)) {
+          // if it IS ok, move on to next date part
+          memcpy(fullDateTime + timePositions[pos], userEnteredPart, 2);
+          partOk = true;
+        }
+
+        // if it's not ok, reprompt
+      }
+      else {
+        // get out of loop and don't update
+        return;
+      }
+    }
+  }
+
+  // if we get this far, we've got a valid date
+  Serial.print("user wants new time of: ");Serial.println(fullDateTime);
+  rtc->setNewDateTime(fullDateTime);
+}
+
+bool GuiControlMode::validateDatePart(int partVal, uint8_t partNum) {
+  switch (partNum)
+  {
+  case 0:
+    return partVal > 23 && partVal < 100;
+  case 1:
+    return partVal > 0 && partVal < 13;
+  case 2:
+    return partVal > 0 && partVal < 32;
+  case 3:
+    return partVal >= 0 && partVal < 24;
+  case 4:
+  case 5:
+    return partVal >= 0 && partVal < 60;  
+  default:
+    return false;
+  }
+}
+
 
 bool GuiControlMode::promptSelectDevice() {
   memset(otherDeviceId, 0, CHATTER_DEVICE_ID_SIZE+1);
@@ -1086,4 +1178,13 @@ void GuiControlMode::sleepOrBackground(unsigned long sleepTime) {
   }
 }
 
+void GuiControlMode::showTime () {
+    memcpy(lastTime, rtc->getViewableTime(), 16);
+    HeadsUpControlMode::showTime();
+}
 
+void GuiControlMode::showTime (bool forceRepaint) {
+  if (forceRepaint || memcmp(lastTime, rtc->getViewableTime(), 16) != 0) {
+    showTime();
+  }
+}
