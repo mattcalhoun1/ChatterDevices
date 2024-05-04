@@ -47,7 +47,7 @@ void TestControlMode::loop () {
         }
     } 
     else if (lastAckTime > lastSendTime) { // we receive an ack on the last message
-        if (now - sendFrequency > lastSendTime) {
+        if (nextSendTime == 0 && now - sendFrequency > lastSendTime) {
             logConsole("last test completed, schedule next test");
             nextSendTime = now + random(0, 30000);
         }
