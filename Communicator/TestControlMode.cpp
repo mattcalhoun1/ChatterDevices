@@ -104,6 +104,7 @@ void TestControlMode::logCurrentResults() {
                 testAcks[p],
                 (float)testSends[p]/(float)testAcks[p]
             );
+            logConsole(logBuffer);
         }
 
     }
@@ -116,7 +117,7 @@ bool TestControlMode::sendTestMessage () {
     uint8_t nextTargetId = 254;
     while (nextTarget == 254) {
         // randomly select a target from the pool
-        nextTargetId = random(0, testPoolSize+1);
+        nextTargetId = random(0, 100) % testPoolSize;
         nextTarget = testPool[nextTargetId];
         
         if (isExcluded(nextTarget)) {
