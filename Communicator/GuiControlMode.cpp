@@ -328,7 +328,8 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
             result = chatter->broadcastUnencrypted(messageBuffer, messageBufferLength, nullptr);
           }
           else {
-            result = attemptDirectSend();
+            MessageSendResult rs = attemptDirectSend();
+            result = rs != MessageNotSent;
             if (result) {
               fullRepaint = true;
             }
@@ -601,8 +602,10 @@ void GuiControlMode::pingReceived (uint8_t deviceAddress) {
 
 // Sends a direct message and executes any other logic
 // as necessary to trigger routing. shows result to user
-bool GuiControlMode::attemptDirectSend () {
+MessageSendResult GuiControlMode::attemptDirectSend () {
   display->resetProgress();
+
+  MessageSendResult messageSendResult = MessageNotSent;
 
   bool sentViaBridge = false;
   bool result = false;
@@ -622,12 +625,15 @@ bool GuiControlMode::attemptDirectSend () {
 
   if (sentViaMesh) {
     display->showAlert("Sent (mesh)", AlertWarning);
+    messageSendResult = MessageSentMesh;
   }
   else if (sentViaBridge) {
     display->showAlert("Sent (Bridge)", AlertWarning);
+    messageSendResult = MessageSentBridge;
   }
   else if(result) {
     display->showAlert("Sent", AlertSuccess);
+    messageSendResult = MessageSentDirect;
   } 
   else {
     display->showAlert("Not Sent!", AlertError);
@@ -636,7 +642,7 @@ bool GuiControlMode::attemptDirectSend () {
   // full repaint
   delay(1000);
   fullRepaint = true;
-  return result;
+  return messageSendResult;
 }
 
 bool GuiControlMode::sendDirectMessage () {
@@ -713,7 +719,7 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
         messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput((const char*)eventBuffer.EventData, "Send to the selected device", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 0);
         if (messageBufferLength > 0) {
           // send it
-          return attemptDirectSend();
+          return attemptDirectSend() != MessageNotSent;
         }
         else {
           fullRepaint = true;

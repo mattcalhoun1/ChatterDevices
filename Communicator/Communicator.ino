@@ -5,7 +5,7 @@
 #include "CommunicatorControlMode.h"
 #include "HeadlessControlMode.h"
 #include "GuiControlMode.h"
-//#include "TestControlMode.h"
+#include "TestControlMode.h"
 
 CommunicatorControlMode* controlMode;
 
@@ -39,8 +39,8 @@ void setup() {
 
   SPI.begin();
 
-  controlMode = new GuiControlMode(selectDeviceType());
-  //controlMode = new TestControlMode(selectDeviceType(), isAdmin());
+  //controlMode = new GuiControlMode(selectDeviceType());
+  controlMode = new TestControlMode(selectDeviceType());
 
   StartupState startupState = controlMode->init();
 

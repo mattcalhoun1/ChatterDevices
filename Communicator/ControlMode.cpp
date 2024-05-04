@@ -128,6 +128,9 @@ void ControlMode::pingReceived (uint8_t deviceAddress) {
   logConsole("Ping received");  
 }
 
+void ControlMode::ackReceived(const char* sender, const char* messageId) {
+  logConsole("ack received");
+}
 
 void ControlMode::loop () {
   logConsole("in loop...");

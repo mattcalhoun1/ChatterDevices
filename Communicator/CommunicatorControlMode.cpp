@@ -77,18 +77,6 @@ void CommunicatorControlMode::loop () {
     showReady();
   }
 
-  if (sendingTestTraffic) {
-    if (loopCount % random(10, 30) == 0) {
-      if (chatter->broadcastDeviceInfo(false)) {
-        logConsole("Test traffic sent");
-      }
-      else {
-        logConsole("Test traffic NOT sent");
-      }
-      hideChatProgress();
-    }
-  }
-
   if (loopCount % 10 == 0) {
     Serial.print("Free Memory: "); Serial.println(freeMemory());
     showTime();

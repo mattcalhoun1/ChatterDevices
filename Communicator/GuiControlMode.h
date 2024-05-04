@@ -19,6 +19,13 @@
 
 #define MESSAGE_PREVIEW_BUFFER_SIZE 32
 
+enum MessageSendResult {
+    MessageSentDirect = 0,
+    MessageSentMesh = 1,
+    MessageSentBridge = 2,
+    MessageNotSent = 3
+};
+
 
 class GuiControlMode : public HeadsUpControlMode, public TouchListener {
     public:
@@ -75,7 +82,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void showButtons ();
         void sleepOrBackground (unsigned long sleepTime);
 
-        bool attemptDirectSend ();
+        MessageSendResult attemptDirectSend ();
         void lockScreen ();
         void unlockScreen ();
         void showMeshPath (const char* recipientId);

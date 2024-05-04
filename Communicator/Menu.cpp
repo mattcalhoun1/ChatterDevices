@@ -249,7 +249,7 @@ void Menu::meshActions() {
           prefHandler->disablePreference(PreferenceMeshEnabled);
         } 
         else {
-          prefHandler->enablePreference(PreferenceWifiEnabled);
+          prefHandler->enablePreference(PreferenceMeshEnabled);
         }
         resetMenu();
         break;
