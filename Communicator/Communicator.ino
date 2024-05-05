@@ -40,11 +40,11 @@ void setup() {
   SPI.begin();
 
   //controlMode = new GuiControlMode(selectDeviceType());
-  #if defined (ARDUINO_FEATHER_M4) || defined(ADAFRUIT_FEATHER_M4_EXPRESS)
-  controlMode = new TestControlMode(selectDeviceType());
-  #else
+  //#if defined (ARDUINO_FEATHER_M4) || defined(ADAFRUIT_FEATHER_M4_EXPRESS)
+  //controlMode = new TestControlMode(selectDeviceType());
+  //#else
   controlMode = new GuiControlMode(selectDeviceType());
-  #endif
+  //#endif
 
   StartupState startupState = controlMode->init();
 

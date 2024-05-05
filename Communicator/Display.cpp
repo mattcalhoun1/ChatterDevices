@@ -372,6 +372,11 @@ void Display::showCacheUsed (float percent, bool forceRepaint) {
     // draw outer rectangle
     drawRect(getCacheStatusX(), getCacheStatusY(), getCacheStatusWidth(), getCacheStatusHeight(), DarkBlue);
 
+    if (percent < currentCacheUsed) {
+      // clear out the inner rectangle
+      fillRect(getCacheStatusX() + 1, getCacheStatusY() + 1, (getCacheStatusWidth() -2), getCacheStatusHeight() - 2, Black);
+    }
+
     if (currentCacheUsed < 20 || percent < currentCacheUsed) {
       if (percent < 20) {
         changeFont(FontPico);
