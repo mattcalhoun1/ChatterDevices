@@ -149,12 +149,13 @@ void Menu::clusterMenu() {
 void Menu::meshMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_MESH;
-  oledMenu.noOfmenuItems = 3;
-  oledMenu.menuTitle = "Device";
+  oledMenu.noOfmenuItems = 4;
+  oledMenu.menuTitle = "Mesh";
 
   oledMenu.menuItems[MENU_MESH_SHOW_PATH] = "Show Path";
   oledMenu.menuItems[MENU_MESH_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceMeshEnabled) ? "Disable Mesh" : "Enable Mesh";
-  oledMenu.menuItems[MENU_MESH_CLEAR] = "Clear Cache";
+  oledMenu.menuItems[MENU_MESH_CLEAR_PACKETS] = "Clear Cache";
+  oledMenu.menuItems[MENU_MESH_CLEAR_GRAPH] = "Mesh Reset";
 
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
@@ -253,9 +254,13 @@ void Menu::meshActions() {
         }
         resetMenu();
         break;
-      case MENU_MESH_CLEAR:
+      case MENU_MESH_CLEAR_PACKETS:
         resetMenu();
         handler->handleEvent(UserRequestClearMeshCache);
+        break;
+      case MENU_MESH_CLEAR_GRAPH:
+        resetMenu();
+        handler->handleEvent(UserRequestClearMeshGraph);
         break;
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned

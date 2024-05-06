@@ -415,6 +415,22 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       display->showAlert("Mesh Clear", AlertSuccess);
       delay(3000);
       return true;
+    case UserRequestClearMeshGraph:
+      if (isFullyInteractive()) {
+        int newMessageLength = ((FullyInteractiveDisplay*)display)->getModalInput("Mesh Reset?", "Connections will be re-learned. Continue?", 1, CharacterFilterYesNo, (char*)messageBuffer, "", 0);
+        if (newMessageLength > 0 && (messageBuffer[0] == 'y' || messageBuffer[0] == 'Y')) {
+          chatter->resetMesh();
+          display->showAlert("Reset Complete", AlertSuccess);
+          delay(3000);
+          fullRepaint = true;
+        }
+        else {
+          logConsole("delete all canceled.");
+          fullRepaint = true;
+        }
+      }
+      return true;
+
     case UserRequestMeshShowPath:
       // user must choose a recipient
       if (promptSelectDevice()) {
