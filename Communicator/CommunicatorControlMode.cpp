@@ -69,6 +69,10 @@ void CommunicatorControlMode::loop () {
               }
             }
           }
+          handleEvent(MessageReceived);
+        }
+        else {
+          handleEvent(AckReceived);
         }
 
         showLastMessage ();
@@ -299,6 +303,7 @@ bool CommunicatorControlMode::queueEvent(CommunicatorEventType eventType) {
 }
 
 bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
+  int size;
   switch(eventType) {
     case UserRequestQuickFactoryReset:
       logConsole("FACTORY RESET TRIGGERED");
@@ -327,7 +332,7 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
       }
       break;
     case PingLoraBridge:
-    logConsole("Ping lora bridge");
+      logConsole("Ping lora bridge");
       // send a ping, requesting echo to the bridge
       if (chatter->isRunning()) {
         sendEchoText();
@@ -338,6 +343,32 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
         showStatus("No cluster connection");
       }
       break;
+    case MessageReceived:
+      if (BACKPACK_ENABLED) {
+        // if backpack enabled, notify the backpack
+        Serial1.print("MSG:");
+        Serial1.print(chatter->getLastSender());
+        size = chatter->getMessageSize();
+        Serial1.write((byte*)&size, 2);
+        for (int i = 0; i < size; i++) {
+          Serial1.print(chatter->getTextMessage()[i]);
+        }
+        Serial1.print('\n');
+      }
+      break;
+    case AckReceived:
+      if (BACKPACK_ENABLED) {
+        Serial1.print("ACK:");
+        Serial1.print(chatter->getLastSender());
+        size = chatter->getMessageSize();
+        Serial1.write((byte*)&size, 2);
+        for (int i = 0; i < size; i++) {
+          Serial1.print(chatter->getTextMessage()[i]);
+        }
+        Serial1.print('\n');
+      }
+      break;
+
   }
 
   return false;

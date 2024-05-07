@@ -23,6 +23,30 @@ void setup() {
   }
   delay(100);
 
+  if (BACKPACK_ENABLED) {
+    logConsole("connecting to backpack");
+    start = millis();
+    Serial1.begin(9600);
+    // if log enabled, wait up to 5 sec for backpack to become available
+    while (!Serial1) {
+      if (start + 5000 < millis()) {
+        break;
+      }
+      delay(10);
+    } 
+    if (Serial1) {
+      logConsole("Connected to backpack!");
+      Serial1.print("HELO!");
+      Serial1.print("\n");
+    }
+    else {
+      logConsole("No backpack connected");
+    }
+    delay(100);
+  }
+
+
+
   // the bridge type test pins
   //pinMode(CLUSTER_ADMIN_PIN, INPUT_PULLUP);
   //pinMode(DEVICE_TYPE_PIN_MINI, INPUT_PULLUP);
@@ -101,6 +125,17 @@ void handleTouch () {
 }
 
 void loop() {
+  if (BACKPACK_ENABLED) {
+    // check if info from backpack
+    if (Serial1.available()) {
+      while (Serial1.available()) {
+        Serial.print((char)Serial1.read());
+      }
+      //Serial1.clear();
+      Serial.print('\n');
+    }
+    Serial1.print("!"); // just keep alive
+  }
   controlMode->loop();
 }
 

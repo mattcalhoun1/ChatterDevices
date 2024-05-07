@@ -25,6 +25,8 @@
 // how long for ui ot wait for initial connect
 #define CLUSTER_ONBOARD_TIMEOUT 30000
 
+#define BACKPACK_ENABLED false // will trigger interaction with serial1 port if enabled
+
 // ------ deprecated -------
 #define FACTORY_RESET_PIN 2
 #define CLUSTER_ADMIN_PIN A2 // if turned on, this is the cluster owner
