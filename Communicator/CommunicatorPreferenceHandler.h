@@ -5,7 +5,9 @@ enum CommunicatorPreference {
     PreferenceKeyboardLandscape = 0,
     PreferenceMessageHistory = 1,
     PreferenceWifiEnabled = 2,
-    PreferenceMeshEnabled = 3
+    PreferenceMeshEnabled = 3,
+    PreferenceWiredEnabled = 4,
+    PreferenceLoraEnabled = 5
 };
 
 class CommunicatorPreferenceHandler {

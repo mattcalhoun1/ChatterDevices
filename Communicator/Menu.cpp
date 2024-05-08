@@ -91,12 +91,13 @@ void Menu::populateIteratorMenu () {
 void Menu::mainMenu(bool fullRepaint) {
   resetMenu(fullRepaint); // clear any previous menu
   oledMenu.menuId = MENU_ID_MAIN;
-  oledMenu.noOfmenuItems = 4;
+  oledMenu.noOfmenuItems = 5;
   oledMenu.menuTitle = "Main Menu";
 
   oledMenu.menuItems[MENU_MAIN_CLUSTER] = "Cluster";
   oledMenu.menuItems[MENU_MAIN_DEVICE] = "Device";
   oledMenu.menuItems[MENU_MAIN_MESH] = "Mesh";
+  oledMenu.menuItems[MENU_MAIN_CONNECTIONS] = "Connections";
   oledMenu.menuItems[MENU_MAIN_POWER] = "Power";
 
   // highlight the center item to make he menu full
@@ -107,15 +108,29 @@ void Menu::mainMenu(bool fullRepaint) {
 void Menu::deviceMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_DEVICE;
-  oledMenu.noOfmenuItems = 6;
+  oledMenu.noOfmenuItems = 5;
   oledMenu.menuTitle = "Device";
 
   oledMenu.menuItems[MENU_DEVICE_CLEAR_MESSAGES] = "Clear Messages";
   oledMenu.menuItems[MENU_DEVICE_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
   oledMenu.menuItems[MENU_DEVICE_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
-  oledMenu.menuItems[MENU_DEVICE_WIFI_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceWifiEnabled) ? "Disable Wifi" : "Enable Wifi";
   oledMenu.menuItems[MENU_DEVICE_SET_TIME] = "Set Time";
   oledMenu.menuItems[MENU_DEVICE_SECURE_FACTORY_RESET] = "Factory Reset";
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+}
+
+void Menu::connectionsMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_CONNECTIONS;
+  oledMenu.noOfmenuItems = 3;
+  oledMenu.menuTitle = "Connections";
+
+  oledMenu.menuItems[MENU_CONNECTIONS_LORA_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceLoraEnabled) ? "Disable LoRa" : "Enable LoRa";
+  oledMenu.menuItems[MENU_CONNECTIONS_WIFI_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceWifiEnabled) ? "Disable Wifi" : "Enable Wifi";
+  oledMenu.menuItems[MENU_CONNECTIONS_WIRED_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceWiredEnabled) ? "Disable Wired" : "Enable Wired";
 
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
@@ -208,20 +223,6 @@ void Menu::deviceActions() {
         }
         resetMenu();
         break;
-      case MENU_DEVICE_WIFI_ENABLE:
-        // a change to message history will trigger a reboot
-        if (prefHandler->isPreferenceEnabled(PreferenceWifiEnabled)) {
-          prefHandler->disablePreference(PreferenceWifiEnabled);
-        } 
-        else {
-          prefHandler->enablePreference(PreferenceWifiEnabled);
-        }
-        resetMenu();
-        break;
-      //case MENU_ADMIN_PING_LORA_BRIDGE:
-      //  resetMenu();
-      //  handler->queueEvent(PingLoraBridge);
-      //  break;
       case MENU_DEVICE_SECURE_FACTORY_RESET:
         resetMenu();
         Serial.println("Secure Factory reset...");
@@ -230,6 +231,42 @@ void Menu::deviceActions() {
       case MENU_DEVICE_SET_TIME:
         resetMenu();
         handler->handleEvent(UserRequestChangeTime);
+        break;
+    }
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
+void Menu::connectionsActions() {
+  if (oledMenu.menuId == MENU_ID_CONNECTIONS) {  
+    switch (oledMenu.selectedMenuItem) {
+      // preference toggles
+      case MENU_CONNECTIONS_WIFI_ENABLE:
+        if (prefHandler->isPreferenceEnabled(PreferenceWifiEnabled)) {
+          prefHandler->disablePreference(PreferenceWifiEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceWifiEnabled);
+        }
+        resetMenu();
+        break;
+      case MENU_CONNECTIONS_WIRED_ENABLE:
+        if (prefHandler->isPreferenceEnabled(PreferenceWiredEnabled)) {
+          prefHandler->disablePreference(PreferenceWiredEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceWiredEnabled);
+        }
+        resetMenu();
+        break;
+      case MENU_CONNECTIONS_LORA_ENABLE:
+        if (prefHandler->isPreferenceEnabled(PreferenceLoraEnabled)) {
+          prefHandler->disablePreference(PreferenceLoraEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceWiredEnabled);
+        }
+        resetMenu();
         break;
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
@@ -363,6 +400,9 @@ void Menu::menuActions () {
   else if (oledMenu.menuId == MENU_ID_DEVICE) {
     deviceActions();
   }
+  else if (oledMenu.menuId == MENU_ID_CONNECTIONS) {
+    connectionsActions();
+  }
   else if (oledMenu.menuId == MENU_ID_CLUSTER) {
     clusterActions();
   }
@@ -400,7 +440,12 @@ void Menu::mainActions() {
         meshMenu();
         mode = MenuActive;
         needsRepainted = true;
-        break;        
+        break;
+      case MENU_MAIN_CONNECTIONS:
+        connectionsMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
   }

@@ -30,8 +30,14 @@ StartupState ControlMode::init() {
 
     if (chatterReady) {
       #ifdef CHATTER_LORA_ENABLED
-      showStatus("Init LoRa...");
-      chatter->addLoRaChannel(LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
+        if (chatter->getDeviceStore()->getLoraEnabled()) {
+          showStatus("Init LoRa...");
+          chatter->addLoRaChannel(LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
+        }
+        else {
+          logConsole("Device LoRa disabled by user pref");
+        }
+
       #endif
 
       #ifdef CHATTER_WIFI_ENABLED
@@ -43,9 +49,22 @@ StartupState ControlMode::init() {
           #endif
         }
         else {
-          logConsole("Device wifi disabled by user pref");
+          logConsole("Device WiFi disabled by user pref");
         }
       #endif
+
+      #ifdef CHATTER_UART_ENABLED
+        if (chatter->getDeviceStore()->getUartEnabled()) {
+          showStatus("Init UART...");
+          chatter->addUartChannel(UART_CHANNEL_LOG_ENABLED);
+        }
+        else {
+          logConsole("Device LoRa disabled by user pref");
+        }
+
+      #endif
+
+
       return StartupComplete;
     }
     else {

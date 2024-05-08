@@ -25,8 +25,6 @@
 // how long for ui ot wait for initial connect
 #define CLUSTER_ONBOARD_TIMEOUT 30000
 
-#define BACKPACK_ENABLED false // will trigger interaction with serial1 port if enabled
-
 // ------ deprecated -------
 #define FACTORY_RESET_PIN 2
 #define CLUSTER_ADMIN_PIN A2 // if turned on, this is the cluster owner
@@ -39,6 +37,8 @@
 #define WIFI_CRED_MAX_LEN 24
 
 #define CHATTER_LORA_ENABLED // lora enabled on all devices (needed for onboarding)
+#define CHATTER_UART_ENABLED // uart enabled on all devices (if user turns on pref)
+#define BACKPACK_ENABLED false // backpacks not yet supported, would share same port as uart
 
 // Button Pins (need interrupts)
 // Nano

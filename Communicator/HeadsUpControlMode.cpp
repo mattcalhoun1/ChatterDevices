@@ -138,7 +138,10 @@ bool HeadsUpControlMode::isPreferenceEnabled (CommunicatorPreference pref) {
       return chatter->getDeviceStore()->getWifiEnabled();
     case PreferenceMeshEnabled:
       return chatter->getDeviceStore()->getMeshEnabled();
-
+    case PreferenceWiredEnabled:
+      return chatter->getDeviceStore()->getUartEnabled();
+    case PreferenceLoraEnabled:
+      return chatter->getDeviceStore()->getLoraEnabled();
   }
 
   logConsole("Unknown preference read attempt");
@@ -180,6 +183,18 @@ void HeadsUpControlMode::enablePreference (CommunicatorPreference pref) {
       restartDevice();
 
       break;
+    case PreferenceWiredEnabled:
+      chatter->getDeviceStore()->setUartEnabled(true);
+      logConsole("Wired enabled");
+      // reset device
+      restartDevice();
+      break;
+    case PreferenceLoraEnabled:
+      chatter->getDeviceStore()->setLoraEnabled(true);
+      logConsole("Lora enabled");
+      // reset device
+      restartDevice();
+      break;
     
     default:
       logConsole("Unknown preference enable attempt");
@@ -215,6 +230,22 @@ void HeadsUpControlMode::disablePreference (CommunicatorPreference pref) {
     case PreferenceMeshEnabled:
       chatter->getDeviceStore()->setMeshEnabled(false);
       logConsole("Mesh disabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceLoraEnabled:
+      chatter->getDeviceStore()->setLoraEnabled(false);
+      logConsole("Lora disabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceWiredEnabled:
+      chatter->getDeviceStore()->setUartEnabled(false);
+      logConsole("Wired disabled");
 
       // reset device
       restartDevice();
