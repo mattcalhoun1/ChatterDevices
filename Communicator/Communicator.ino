@@ -50,7 +50,11 @@ void setup() {
   // the bridge type test pins
   //pinMode(CLUSTER_ADMIN_PIN, INPUT_PULLUP);
   //pinMode(DEVICE_TYPE_PIN_MINI, INPUT_PULLUP);
-  //pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
+  
+  #ifdef FACTORY_RESET_PIN
+  pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
+  #endif
+
   pinMode(DISPLAY_TFT_BACKLIGHT, OUTPUT);
 
   #ifdef ROTARY_ENABLED

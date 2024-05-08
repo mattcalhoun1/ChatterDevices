@@ -25,11 +25,15 @@
 // how long for ui ot wait for initial connect
 #define CLUSTER_ONBOARD_TIMEOUT 30000
 
+
 // ------ deprecated -------
-#define FACTORY_RESET_PIN 2
 #define CLUSTER_ADMIN_PIN A2 // if turned on, this is the cluster owner
 #define DEVICE_TYPE_PIN_MINI A3
 // ----------------------------
+
+#if defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4) || defined(ADAFRUIT_FEATHER_M4_EXPRESS) // adafruit
+#define FACTORY_RESET_PIN 4
+#endif
 
 #define COMMUNICATOR_MESSAGE_BUFFER_SIZE 128
 

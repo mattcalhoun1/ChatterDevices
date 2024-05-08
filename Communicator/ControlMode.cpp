@@ -27,6 +27,9 @@ StartupState ControlMode::init() {
     if (!chatter->isDeviceInitialized()) {
       return StartupInitializeDevice;
     }
+    else if (factoryResetButtonHeld()) {
+      return StartupInitializeDevice;
+    }
 
     if (chatterReady) {
       #ifdef CHATTER_LORA_ENABLED
@@ -210,6 +213,29 @@ bool ControlMode::factoryResetCheck (bool forceReset, bool writeZeros) {
   }
 
   return false;
+}
+
+bool ControlMode::factoryResetButtonHeld() {
+  #ifdef FACTORY_RESET_PIN
+  // check if factory rest button being held
+  if (!digitalRead(FACTORY_RESET_PIN)) {
+    // pin needs to be held down for 3 seconds
+    int resetMillis = 30000;
+    bool held = true;
+    for (uint8_t timerCount = 0; held && timerCount < resetMillis / 250; timerCount++) {
+      logConsole("Button held, factory reset countdown");
+      held = !digitalRead(FACTORY_RESET_PIN);
+      delay(250);
+    }
+    if (held) {
+      logConsole("Factory reset by button upon startup");
+      //return true;
+    }
+  }
+  #endif
+
+  return false;
+
 }
 
 void ControlMode::restartDevice() {

@@ -1066,7 +1066,6 @@ bool GuiControlMode::initializeNewDevice () {
   bool wifiEnabled = false;
   bool wifiPreferred = false;
 
-  #if defined(CHATTER_WIFI_ENABLED)
   while (ssidLength == 0) {
     ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("Enable WiFi?", "Common WiFi network (for UDP/etc)", 1, CharacterFilterYesNo, newDeviceWifiSsid, "", 0);
   }
@@ -1096,11 +1095,6 @@ bool GuiControlMode::initializeNewDevice () {
     sprintf(newDeviceWifiSsid, "none", 4);
     sprintf(newDeviceWifiCred, "none", 4);
   }
-  #else
-    sprintf(newDeviceWifiSsid, "none", 4);
-    sprintf(newDeviceWifiCred, "none", 4);
-  #endif
-
 
   ClusterAdmin* admin = new ClusterAdmin(chatter);
 
