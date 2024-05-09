@@ -264,7 +264,7 @@ void Menu::connectionsActions() {
           prefHandler->disablePreference(PreferenceLoraEnabled);
         } 
         else {
-          prefHandler->enablePreference(PreferenceWiredEnabled);
+          prefHandler->enablePreference(PreferenceLoraEnabled);
         }
         resetMenu();
         break;
