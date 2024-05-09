@@ -209,7 +209,7 @@ void GuiControlMode::showMeshPath (const char* recipientId) {
   display->showMessage((const char*)messageBuffer, Beige, 0);
 
   // pause for a short time
-  delay(4000);
+  delay(8000);
 }
 
 void GuiControlMode::showNearbyDevices(bool resetOffset) {
