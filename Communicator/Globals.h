@@ -93,7 +93,7 @@
 
 // channel level logs
 #define LORA_CHANNEL_LOG_ENABLED false
-#define UDP_CHANNEL_LOG_ENABLED false
+#define UDP_CHANNEL_LOG_ENABLED true
 #define CAN_CHANNEL_LOG_ENABLED false
 #define UART_CHANNEL_LOG_ENABLED false
 
@@ -147,7 +147,7 @@
 #define LORA_RFM9X_RST A0
 
 
-//#define CHATTER_WIFI_ENABLED
+#define CHATTER_WIFI_ENABLED
 #define ESP32_RESETN A3  // was btn a
 #define SPIWIFI_SS A1 // was rotary 1
 #define SPIWIFI_ACK A2 // was rotary 2 // a.k.a BUSY or READY
