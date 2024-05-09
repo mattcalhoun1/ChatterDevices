@@ -17,6 +17,7 @@ class HeadsUpControlMode : public CommunicatorControlMode, public CommunicatorPr
         void showTime ();
         void showTitle (const char* title);
         void updateChatDashboard ();
+        void updateChatDashboard (bool forceRepaint);
 
         void showBusy ();
         void showReady ();
@@ -44,6 +45,9 @@ class HeadsUpControlMode : public CommunicatorControlMode, public CommunicatorPr
         const char* channelUnknown = "?";
         char dashboardChannels[MAX_CHANNELS][CHANNEL_DISPLAY_SIZE];
         DisplayColor dashboardColors[MAX_CHANNELS];
+        ChatStatus lastChannelStatus[MAX_CHANNELS];
+
+        char lastStatus[24];
 };
 
 #endif

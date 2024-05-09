@@ -195,9 +195,20 @@ void Display::getRgbwForConnectionQuality(uint8_t connectionQuality, uint8_t& r,
     w = 0;
   }
 }
+const char* Display::getChannelName(char pingChannelId) {
+  switch(pingChannelId) {
+    case 'U': // udp
+      return NEARBY_CHANNEL_NAME_WIFI;
+    case 'L':
+      return NEARBY_CHANNEL_NAME_LORA;
+    case 'W': // wire
+      return NEARBY_CHANNEL_NAME_WIRE;
+  }
 
+  return NEARBY_CHANNEL_NAME_NONE;
+}
 
-void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, uint8_t connectionQuality, uint8_t meshDirectRating, uint8_t meshIndirectRating, const char* readableTS, bool isTrusted, int16_t rssi, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
+void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, uint8_t connectionQuality, uint8_t meshDirectRating, uint8_t meshIndirectRating, const char* readableTS, bool isTrusted, int16_t rssi, char channel, char secondaryChannel, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
   // show a line above the message for separation
   if (position != 0) {
     int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2);
@@ -214,6 +225,25 @@ void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, u
     TextSmall, 
     isTrusted ? titleColor : LightGray
   );
+
+  // add channels
+  changeFont(FontPico);
+  showText(
+    getChannelName(channel), 
+    getMessageAreaX() + getMessageAreaWidth() - 85, 
+    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 5), 
+    TextSmall, 
+    isTrusted ? titleColor : LightGray);
+
+  if (secondaryChannel != channel) {
+    showText(
+      getChannelName(secondaryChannel), 
+      getMessageAreaX() + getMessageAreaWidth() - 85, 
+      getMessageAreaY() + 7 + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 5), 
+      TextSmall, 
+      isTrusted ? titleColor : LightGray);
+  }
+  
 
   // add message timestamp
   changeFont(FontTiny);
@@ -259,7 +289,7 @@ void Display::showAlert (const char* alertText, AlertType alertType) {
 }
 
 void Display::clearMessageArea () {
-  clearArea(getMessageAreaX(), getMessageAreaY() - getTextUpperVerticalOffset(TextSmall), getMessageAreaWidth(), getMessageAreaHeight() + 1);
+  clearArea(max(0, getMessageAreaX() - 5), getMessageAreaY() - getTextUpperVerticalOffset(TextSmall), getMessageAreaWidth(), getMessageAreaHeight() + 1);
 }
 
 void Display::showInterpolatedThermal (const uint8_t* image, bool isAlt, String subtitle) {

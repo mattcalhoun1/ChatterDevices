@@ -26,25 +26,38 @@ StartupState HeadsUpControlMode::init () {
 }
 
 void HeadsUpControlMode::updateChatDashboard () {
+  updateChatDashboard(false);
+}
+
+
+void HeadsUpControlMode::updateChatDashboard (bool forceRepaint) {
   //int screenWidth = deviceType == DeviceTypeCommunicatorMini ? 170 : 240;
   //int dashboardY = 280;
   // paint white bar across bottom
   //display->clearArea(0, dashboardY , screenWidth, 16, Gray);
-  display->clearDashboard();
 
+  bool statusChanged = false;
   for (int channelNum = 0; channelNum < chatter->getNumChannels(); channelNum++) {
-    if (chatter->getChatStatus(channelNum) != ChatNoDevice) {
-      sprintf(dashboardChannels[channelNum], "%s@%s", chatter->getChannel(channelNum)->getName(), chatter->getChannel(channelNum)->getConfigName());
-        //dashboardChannels[channelNum] = chatter->getChannel(channelNum)->getName();
-        dashboardColors[channelNum] = getDisplayColorForStatus(chatter->getChatStatus(channelNum));
-    }
-    else {
-        sprintf(dashboardChannels[channelNum], "%s", channelUnknown);
-        dashboardColors[channelNum] = getDisplayColorForStatus(chatter->getChatStatus(channelNum));
+    ChatStatus thisStatus = chatter->getChatStatus(channelNum);
+    if (thisStatus != lastChannelStatus[channelNum] || forceRepaint) {
+      lastChannelStatus[channelNum] = thisStatus;
+      statusChanged = true;
+      if (thisStatus != ChatNoDevice) {
+        sprintf(dashboardChannels[channelNum], "%s@%s", chatter->getChannel(channelNum)->getName(), chatter->getChannel(channelNum)->getConfigName());
+          //dashboardChannels[channelNum] = chatter->getChannel(channelNum)->getName();
+          dashboardColors[channelNum] = getDisplayColorForStatus(thisStatus);
+      }
+      else {
+          sprintf(dashboardChannels[channelNum], "%s", channelUnknown);
+          dashboardColors[channelNum] = getDisplayColorForStatus(thisStatus);
+      }
     }
   }
 
-  display->showDashboardItems((const char*)dashboardChannels, dashboardColors, chatter->getNumChannels());
+  if (statusChanged) {
+    display->clearDashboard();
+    display->showDashboardItems((const char*)dashboardChannels, dashboardColors, chatter->getNumChannels());
+  }
 }
 
 int HeadsUpControlMode::getSymboForDevice(const char* deviceName) {
@@ -84,7 +97,11 @@ DisplayColor HeadsUpControlMode::getDisplayColorForStatus (ChatStatus chatStatus
 
 
 void HeadsUpControlMode::showStatus(const char* status) {
-    display->showStatus(status, BrightGreen);
+  if (strcmp(status, lastStatus) != 0) {
+    strncpy(lastStatus, status, 23); // up to 23
+    lastStatus[23] = 0;// make sure last char is always a term
+    display->showStatus(lastStatus, BrightGreen);
+  }
 }
 
 void HeadsUpControlMode::showStatus(String status) {

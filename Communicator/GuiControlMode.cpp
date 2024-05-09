@@ -82,6 +82,8 @@ void GuiControlMode::loop () {
       showTime(true);
       refreshDisplayContext(true);
       showButtons();
+      lastStatus[0] = 0; // force status to repaint
+      updateChatDashboard(true); // force repaint of chat dashboard
       showReady();
       display->showCacheUsed(chatter->getMeshPacketStore()->getCachePercentActive(), true);;
     }
@@ -228,6 +230,8 @@ void GuiControlMode::showNearbyDevices(bool resetOffset) {
   uint8_t nearIndirectRating;
   uint8_t nearPingQuality;
   bool nearTrusted;
+  char nearChannel;
+  char nearSecondaryChannel;
 
   for (int prevNum = previewOffset; prevNum < nearbyDeviceIterator->getNumItems() && (prevNum - previewOffset) < display->getMaxDisplayableMessages(); prevNum++) {
     memset(previewTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE + 1);
@@ -237,16 +241,22 @@ void GuiControlMode::showNearbyDevices(bool resetOffset) {
     memset(previewAliasBuffer, 0, CHATTER_ALIAS_NAME_SIZE + 1);
 
     nearbyDeviceIterator->loadItemName(prevNum, previewTitleBuffer);
+
     nearTrusted = previewTitleBuffer[0];
     nearDirectRating = previewTitleBuffer[1];
     nearIndirectRating = previewTitleBuffer[2];
     nearPingQuality = previewTitleBuffer[3];
 
     memcpy(&nearRssi, previewTitleBuffer+4, 2);
-    memcpy(previewTsBuffer, previewTitleBuffer + 6, 8);
-    memcpy(previewDevIdBuffer, previewTitleBuffer + 6 + 8, CHATTER_DEVICE_ID_SIZE);
 
-    memcpy(previewAliasBuffer, previewTitleBuffer + 6 + 8 + CHATTER_DEVICE_ID_SIZE, CHATTER_ALIAS_NAME_SIZE);
+
+    nearChannel = previewTitleBuffer[6];
+    nearSecondaryChannel = previewTitleBuffer[7];
+
+    memcpy(previewTsBuffer, previewTitleBuffer + 8, 8);
+    memcpy(previewDevIdBuffer, previewTitleBuffer + 8 + 8, CHATTER_DEVICE_ID_SIZE);
+
+    memcpy(previewAliasBuffer, previewTitleBuffer + 8 + 8 + CHATTER_DEVICE_ID_SIZE, CHATTER_ALIAS_NAME_SIZE);
 
     // change the title buffer to just include the 
     display->showNearbyDevice(
@@ -258,6 +268,8 @@ void GuiControlMode::showNearbyDevices(bool resetOffset) {
       previewTsBuffer,
       nearTrusted,
       nearRssi,
+      nearChannel,
+      nearSecondaryChannel,
       DarkBlue, 
       LightBlue, 
       prevNum - previewOffset      

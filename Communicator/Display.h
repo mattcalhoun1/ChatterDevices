@@ -6,6 +6,11 @@
 #include "Adafruit_NeoPixel.h"
 #endif
 
+#define NEARBY_CHANNEL_NAME_WIFI "WiFi"
+#define NEARBY_CHANNEL_NAME_LORA "LoRa"
+#define NEARBY_CHANNEL_NAME_WIRE "Wire"
+#define NEARBY_CHANNEL_NAME_NONE ""
+
 #ifndef DISPLAY_H
 #define DISPLAY_H
 enum TextSize {
@@ -99,10 +104,11 @@ class Display {
     virtual void showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, char status, char sendMethod, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
     virtual uint8_t getMessagePosition (int positionX, int positionY);
 
-    virtual void showNearbyDevice (const char* deviceAlias, const char* deviceId, uint8_t connectionQuality, uint8_t meshDirectRating, uint8_t meshIndirectRating, const char* readableTS, bool isTrusted, int16_t rssi, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
+    virtual void showNearbyDevice (const char* deviceAlias, const char* deviceId, uint8_t connectionQuality, uint8_t meshDirectRating, uint8_t meshIndirectRating, const char* readableTS, bool isTrusted, int16_t rssi, char channel, char secondaryChannel, DisplayColor titleColor, DisplayColor messageColor, uint8_t position);
     virtual uint8_t getNearbyDevicePosition (int positionX, int positionY);
     DisplayColor getColorForConnectionQuality(uint8_t connectionQuality);
     void getRgbwForConnectionQuality(uint8_t connectionQuality, uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& w);
+    const char* getChannelName (char pingChannelId);
 
     virtual void clearMessageArea ();
     virtual uint8_t getMaxDisplayableMessages () = 0;

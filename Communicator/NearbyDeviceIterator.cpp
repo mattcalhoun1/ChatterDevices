@@ -27,6 +27,8 @@ bool NearbyDeviceIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
     isTrustedBuffer = trustStore->loadAlias(deviceIdBuffer, aliasBuffer);
     timestampBuffer = pingTable->getLastPing(deviceSlots[itemNum]);
     rssiBuffer = pingTable->getLastRssi(deviceSlots[itemNum]);
+    channelBuffer = pingTable->getChannel(deviceSlots[itemNum]);
+    secondaryChannelBuffer = pingTable->getSecondaryChannel(deviceSlots[itemNum]);
 
     if (!isTrustedBuffer) {
         sprintf(aliasBuffer, "unknown");
@@ -47,9 +49,11 @@ bool NearbyDeviceIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
     nameBuffer[2] = meshIndirectRatingBuffer;
     nameBuffer[3] = pingTable->getConnectionQualityForRssi (rssiBuffer);
     memcpy(nameBuffer+4, &rssiBuffer, 2);
-    memcpy(nameBuffer+6, readableTimestampBuffer, 8);
-    memcpy(nameBuffer+6+8, deviceIdBuffer, CHATTER_DEVICE_ID_SIZE);
-    memcpy(nameBuffer+6+8+CHATTER_DEVICE_ID_SIZE, aliasBuffer, min(strlen(aliasBuffer), STORAGE_MAX_ALIAS_LENGTH));
+    nameBuffer[6] = (char)channelBuffer;
+    nameBuffer[7] = (char)secondaryChannelBuffer;
+    memcpy(nameBuffer+8, readableTimestampBuffer, 8);
+    memcpy(nameBuffer+8+8, deviceIdBuffer, CHATTER_DEVICE_ID_SIZE);
+    memcpy(nameBuffer+8+8+CHATTER_DEVICE_ID_SIZE, aliasBuffer, min(strlen(aliasBuffer), STORAGE_MAX_ALIAS_LENGTH));
 
     return true;
 }

@@ -28,6 +28,8 @@ class NearbyDeviceIterator : public ItemIterator {
         uint8_t meshDirectRatingBuffer;
         uint8_t meshIndirectRatingBuffer;
         uint32_t meshRatingTimeBuffer;
+        PingChannel channelBuffer;
+        PingChannel secondaryChannelBuffer;
 
         int16_t rssiBuffer;
         bool isTrustedBuffer;

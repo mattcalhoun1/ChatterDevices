@@ -14,8 +14,8 @@
 #ifndef GUICONTROLMODE_H
 #define GUICONTROLMODE_H
 
-//                                status/etc   ts       :          alias               (           send/rcpient     )   sp  >>  term
-#define MESSAGE_TITLE_BUFFER_SIZE 3 + STORAGE_TS_SIZE + 1 +  CHATTER_ALIAS_NAME_SIZE + 1 + CHATTER_DEVICE_ID_SIZE + 1 + 1 + 2 + 2
+//                                status    channels            ts       :          alias               (           send/rcpient     )   sp  >>  term
+#define MESSAGE_TITLE_BUFFER_SIZE 3 +        2 + STORAGE_TS_SIZE + 1 +  CHATTER_ALIAS_NAME_SIZE + 1 + CHATTER_DEVICE_ID_SIZE + 1 + 1 + 2 + 2
 
 #define MESSAGE_PREVIEW_BUFFER_SIZE 32
 
