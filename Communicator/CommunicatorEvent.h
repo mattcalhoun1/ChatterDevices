@@ -31,7 +31,9 @@ enum CommunicatorEventType {
     UserRequestChangeTime = 21,
     UserRequestClearMeshGraph = 22,
     MessageReceived = 23,
-    AckReceived = 24
+    AckReceived = 24,
+    DeviceBackup = 25,
+    DeviceRestore = 26
 };
 
 struct CommunicatorEvent {

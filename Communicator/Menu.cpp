@@ -108,13 +108,15 @@ void Menu::mainMenu(bool fullRepaint) {
 void Menu::deviceMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_DEVICE;
-  oledMenu.noOfmenuItems = 5;
+  oledMenu.noOfmenuItems = 7;
   oledMenu.menuTitle = "Device";
 
   oledMenu.menuItems[MENU_DEVICE_CLEAR_MESSAGES] = "Clear Messages";
   oledMenu.menuItems[MENU_DEVICE_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
   oledMenu.menuItems[MENU_DEVICE_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
   oledMenu.menuItems[MENU_DEVICE_SET_TIME] = "Set Time";
+  oledMenu.menuItems[MENU_DEVICE_BACKUP] = "Backup";
+  oledMenu.menuItems[MENU_DEVICE_RESTORE] = "Restore";
   oledMenu.menuItems[MENU_DEVICE_SECURE_FACTORY_RESET] = "Factory Reset";
 
   // highlight the center item to make he menu full
@@ -223,9 +225,16 @@ void Menu::deviceActions() {
         }
         resetMenu();
         break;
+      case MENU_DEVICE_BACKUP:
+        resetMenu();
+        handler->handleEvent(DeviceBackup);
+        break;
+      case MENU_DEVICE_RESTORE:
+        resetMenu();
+        handler->handleEvent(DeviceRestore);
+        break;
       case MENU_DEVICE_SECURE_FACTORY_RESET:
         resetMenu();
-        Serial.println("Secure Factory reset...");
         handler->handleEvent(UserRequestSecureFactoryReset);
         break;
       case MENU_DEVICE_SET_TIME:

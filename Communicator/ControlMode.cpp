@@ -18,9 +18,9 @@ StartupState ControlMode::init() {
     logConsole("RTC is OK");
 
     #if defined(STORAGE_FRAM_SPI)
-      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramSPI, this);
+      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramSPI, this, this);
     #elif defined(STORAGE_FRAM_I2C)
-      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramI2C, this);
+      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramI2C, this, this);
     #endif
 
     bool chatterReady = chatter->init();
@@ -152,6 +152,15 @@ void ControlMode::pingReceived (uint8_t deviceAddress) {
 
 void ControlMode::ackReceived(const char* sender, const char* messageId) {
   logConsole("ack received");
+}
+
+void ControlMode::updateBackupProgress (float pct) {
+  logConsole("progress pct: " + String(pct));
+}
+
+uint8_t ControlMode::promptBackupPassword (char* buffer) {
+  logConsole("prompt backup pw");
+  return 0;
 }
 
 void ControlMode::loop () {

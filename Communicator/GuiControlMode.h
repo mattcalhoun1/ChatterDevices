@@ -71,6 +71,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void updateMeshCacheUsed (float percent);
         void pingReceived (uint8_t deviceAddress);
 
+        void updateBackupProgress (float pct);
+        uint8_t promptBackupPassword (char* buffer);
 
         void handleStartupError ();
 

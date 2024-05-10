@@ -449,6 +449,20 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         showMeshPath(otherDeviceId);
       }
       return true;
+    case DeviceBackup:
+      logConsole("backup");
+      if (chatter->performLocalBackup()) {
+        display->showAlert("Backup Complete", AlertSuccess);
+      }
+      else {
+        display->showAlert("Backup Failed", AlertError);
+      }
+      delay(5000);
+      return true;
+    case DeviceRestore:
+      logConsole("restore...");
+      return true;
+
     case UserRequestChangeTime:
       promptUserNewTime ();
       return true;
@@ -627,6 +641,15 @@ void GuiControlMode::pingReceived (uint8_t deviceAddress) {
     showNearbyDevices(true);
   }
 }
+
+void GuiControlMode::updateBackupProgress (float pct) {
+  display->showProgressBar(pct);
+}
+
+uint8_t GuiControlMode::promptBackupPassword (char* buffer) {
+  return promptForPassword (buffer, 16, false);
+}
+
 
 // Sends a direct message and executes any other logic
 // as necessary to trigger routing. shows result to user
