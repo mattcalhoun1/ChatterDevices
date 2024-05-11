@@ -67,9 +67,10 @@ class ControlMode : public ChatStatusCallback, public BackupCallback {
     virtual bool initializeNewDevice ();
     virtual void handleStartupError ();
 
+    void resetBackupProgress ();
     void updateBackupProgress (float pct);
     uint8_t promptBackupPassword (char* buffer);
-    
+
   protected:
     // miscellaneous
     virtual void logConsole(String msg);

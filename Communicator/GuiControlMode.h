@@ -73,6 +73,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         void updateBackupProgress (float pct);
         uint8_t promptBackupPassword (char* buffer);
+        void resetBackupProgress ();
 
         void handleStartupError ();
 

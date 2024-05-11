@@ -154,6 +154,10 @@ void ControlMode::ackReceived(const char* sender, const char* messageId) {
   logConsole("ack received");
 }
 
+void ControlMode::resetBackupProgress() {
+  logConsole("reset backup progress");
+}
+
 void ControlMode::updateBackupProgress (float pct) {
   logConsole("progress pct: " + String(pct));
 }

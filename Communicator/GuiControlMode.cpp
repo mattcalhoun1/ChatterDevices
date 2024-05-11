@@ -642,6 +642,10 @@ void GuiControlMode::pingReceived (uint8_t deviceAddress) {
   }
 }
 
+void GuiControlMode::resetBackupProgress () {
+  display->resetProgress();
+}
+
 void GuiControlMode::updateBackupProgress (float pct) {
   display->showProgressBar(pct);
 }
