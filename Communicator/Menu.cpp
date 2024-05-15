@@ -319,7 +319,12 @@ void Menu::clusterActions() {
       case MENU_CLUSTER_DELETE_CLUSTER:
         resetMenu();
         Serial.println("Delete cluster...");
-        handler->handleEvent(UserRequestDeletecluster);
+        handler->handleEvent(UserRequestDeleteCluster);
+        break;
+      case MENU_CLUSTER_CHANGE_CLUSTER:
+        resetMenu();
+        Serial.println("change cluster");
+        handler->handleEvent(UserRequestChangeCluster);
         break;
       case MENU_CLUSTER_CREATE_CLUSTER:
         resetMenu();

@@ -10,7 +10,7 @@ enum CommunicatorEventType {
     UserRequestOnboard = 0,
     UserRequestJoinCluster = 1,
     UserRequestNewCluster = 2,
-    UserRequestDeletecluster = 3,
+    UserRequestDeleteCluster = 3,
     UserRequestQuickFactoryReset = 4,
     UserRequestSecureFactoryReset = 5,
     UserChangedTime = 6,
@@ -33,7 +33,8 @@ enum CommunicatorEventType {
     MessageReceived = 23,
     AckReceived = 24,
     DeviceBackup = 25,
-    DeviceRestore = 26
+    DeviceRestore = 26,
+    UserRequestChangeCluster = 27
 };
 
 struct CommunicatorEvent {

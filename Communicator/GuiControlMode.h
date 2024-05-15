@@ -9,6 +9,7 @@
 #include "TestIterator.h"
 #include "ItemIterator.h"
 #include "NearbyDeviceIterator.h"
+#include "ClusterAliasIterator.h"
 #include <SHA256.h>
 
 #ifndef GUICONTROLMODE_H
@@ -90,6 +91,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void unlockScreen ();
         void showMeshPath (const char* recipientId);
         bool promptSelectDevice ();
+        bool promptSelectCluster ();
         void promptUserNewTime();
         bool validateDatePart(int partVal, uint8_t partNum);
 
@@ -127,6 +129,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         ItemIterator* deviceIterator;
         ItemIterator* messageIterator;
         ItemIterator* nearbyDeviceIterator;
+        ItemIterator* clusterIterator;
         uint8_t previewOffset = 0;
         uint8_t previewSize = 0;
 

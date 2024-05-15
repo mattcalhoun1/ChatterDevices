@@ -31,9 +31,10 @@
 #define DEVICE_TYPE_PIN_MINI A3
 // ----------------------------
 
-#if defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4) || defined(ADAFRUIT_FEATHER_M4_EXPRESS) // adafruit
-#define FACTORY_RESET_PIN 4
-#endif
+// for some reason, this is shorted on the pcb
+//#if defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4) || defined(ADAFRUIT_FEATHER_M4_EXPRESS) // adafruit
+//#define FACTORY_RESET_PIN 4
+//#endif
 
 #define COMMUNICATOR_MESSAGE_BUFFER_SIZE 128
 

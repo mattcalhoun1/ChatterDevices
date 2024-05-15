@@ -26,11 +26,9 @@ StartupState GuiControlMode::init() {
 
     if (returnState == StartupComplete) {
       deviceIterator = new DeviceAliasIterator(chatter->getTrustStore());
-
-      // load message history, if allowed/configured
       messageIterator = new MessageIterator(chatter->getMessageStore(), chatter->getTrustStore(), chatter);
-
       nearbyDeviceIterator = new NearbyDeviceIterator(chatter->getPingTable(), chatter->getTrustStore(), chatter);
+      clusterIterator = new ClusterAliasIterator(chatter->getClusterStore());
 
       memset(title, 0, 32);
       sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
@@ -381,11 +379,16 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       fullRepaint = true;
       return result;
     case UserRequestJoinCluster:
+      if (chatter->getClusterStore()->getNumClusters() >= 2) {
+        display->showAlert("Delete a cluster first", AlertError);
+        delay(5000);
+        return true;
+      }
+
+
       display->showAlert("Join Cluster", AlertActivity);
 
       // disable message receiving, put the radio in sleep mode
-
-
       result = HeadsUpControlMode::handleEvent(eventType);
       if (result) {
         display->showAlert("Joined", AlertSuccess);
@@ -399,6 +402,46 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
 
       fullRepaint = true;
       return result;
+    case UserRequestChangeCluster:
+      
+      // prompt for which cluster to switch to
+      if (promptSelectCluster()) {
+        // make sure the given cluster exists
+        if (chatter->getClusterStore()->isActive(otherClusterId))
+          // set that as the default cluster
+          chatter->getDeviceStore()->setDefaultClusterId(otherClusterId);
+
+          // restart
+          restartDevice();
+      }
+      else {
+        display->showAlert("Cluster not active", AlertError);
+      }
+      return true;
+
+
+      return true;
+    case UserRequestDeleteCluster:
+      // there must be > 1 clusters
+      if (chatter->getClusterStore()->getNumClusters() <= 1) {
+        display->showAlert("Minimum 1 cluster", AlertError);
+        delay(5000);
+        return true;
+      }
+
+      if (promptSelectCluster()) {
+        if (chatter->getClusterStore()->isActive(otherClusterId)) {
+          if(chatter->getClusterStore()->deleteCluster(otherClusterId)) {
+            display->showAlert("Cluster deleted", AlertSuccess);
+          }
+          else {
+            display->showAlert("Delete failed", AlertError);
+          }
+        }
+      }
+
+      return true;
+
     case UserRequestFlipScreen:
       logConsole("Flipping screen");
       if (display->getDisplayContext() == DisplayFullHistory) {
@@ -608,6 +651,42 @@ bool GuiControlMode::promptSelectDevice() {
       chatter->getTrustStore()->loadDeviceId(selectedSlot, otherDeviceId);
       logConsole("User chose device :");
       logConsole(otherDeviceId);
+      return true;
+    }
+  }
+  else {
+    logConsole("not interactive");
+  }
+
+  return false;
+}
+
+bool GuiControlMode::promptSelectCluster() {
+  memset(otherClusterId, 0, CHATTER_LOCAL_NET_ID_SIZE+CHATTER_GLOBAL_NET_ID_SIZE+1);
+  if (isFullyInteractive()) {
+    // select a recipient (or broadcast)
+    clusterIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+    menu->setItemIterator(clusterIterator);
+    menu->iteratorMenu(true); // modal
+
+    // menu will be showing, turn up sensitivity
+    ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
+
+    // wait for result of contact selections
+    while (menu->isShowing()) {
+      menu->menuUpdate();
+      delay(10);
+      ((FullyInteractiveDisplay*)display)->handleIfTouched();
+    }
+    ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
+
+    if (menu->getIteratorSelection() != ITERATOR_SELECTION_NONE) {
+      // find the associated device id for the given slot
+      uint8_t selectedSlot = clusterIterator->getItemVal(menu->getIteratorSelection());
+
+      chatter->getClusterStore()->loadClusterId(selectedSlot, otherClusterId);
+      logConsole("User chose cluster :");
+      logConsole(otherClusterId);
       return true;
     }
   }

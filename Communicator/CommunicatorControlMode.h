@@ -52,6 +52,7 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         uint8_t messageBuffer[GUI_MESSAGE_BUFFER_SIZE];
         int messageBufferLength = 0;
         char otherDeviceId[CHATTER_DEVICE_ID_SIZE+1];
+        char otherClusterId[CHATTER_LOCAL_NET_ID_SIZE+CHATTER_GLOBAL_NET_ID_SIZE+1];
         bool handleConnectedDevice ();
         bool deviceMeshEnabled = true;
         bool initialized = false;
