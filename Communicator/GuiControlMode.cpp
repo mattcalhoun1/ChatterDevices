@@ -441,7 +441,8 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       }
 
       return true;
-
+    case UserRequestNewCluster:
+      return createNewCluster();
     case UserRequestFlipScreen:
       logConsole("Flipping screen");
       if (display->getDisplayContext() == DisplayFullHistory) {
@@ -1113,14 +1114,110 @@ void GuiControlMode::handleRotaryInterrupt () {
   }
 }
 
+bool GuiControlMode::promptClusterInfo (bool forceInput) {
+  int clusterAliasLength = 0;
+  memset(newClusterAlias, 0, CHATTER_ALIAS_NAME_SIZE+1);
+  sprintf(newClusterAlias, "%s.%d", "Clst", random(2048));
+
+  // prompt for cluster name
+  while (clusterAliasLength == 0) {
+    clusterAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Cluster Name", "Unique(ish) name for your private cluster", 12, CharacterFilterAlphaNumeric, newClusterAlias, newClusterAlias, 0);
+
+    if (clusterAliasLength == 0 && !forceInput) {
+      return false;
+    }
+  }
+  newClusterAlias[clusterAliasLength] = 0;
+
+  int newFreqLength = 0;
+  newFrequency = LORA_DEFAULT_FREQUENCY;
+
+  memset(newFreq, 0, 7);
+  bool goodFreq = false;
+  sprintf(newFreq, "%.1f", newFrequency);
+  while (!goodFreq) {
+    char subtitle[32];
+    sprintf(subtitle, "Between %.1f and %.1f", LORA_MIN_FREQUENCY, LORA_MAX_FREQUENCY);
+    newFreqLength = ((FullyInteractiveDisplay*)display)->getModalInput("LoRa Frequency", subtitle, 5, CharacterFilterNumeric, newFreq, newFreq, 0);
+
+    if (newFreqLength > 0) {
+      newFrequency = atof(newFreq);
+      if (newFrequency >= LORA_MIN_FREQUENCY || newFrequency <= LORA_MAX_FREQUENCY) {
+        goodFreq = true;
+      }
+    }
+    else if (!forceInput) {
+      return false;
+    }
+  }
+
+  // wifi settings
+  memset(newDeviceWifiSsid, 0, WIFI_SSID_MAX_LEN  + 1);
+  memset(newDeviceWifiCred, 0, WIFI_CRED_MAX_LEN  + 1);
+  int ssidLength = 0;
+  newWifiEnabled = false;
+  newWifiPreferred = false;
+
+  while (ssidLength == 0) {
+    ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("Enable WiFi?", "Common WiFi network (for UDP/etc)", 1, CharacterFilterYesNo, newDeviceWifiSsid, "", 0);
+
+    // if no input, allow skipping
+    if (ssidLength == 0 && !forceInput) {
+      return false;
+    }
+  }
+  if (newDeviceWifiSsid[0] == 'y') {
+    newWifiEnabled = true;
+    ssidLength = 0;
+    while (ssidLength == 0) {
+      ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("WiFi SSID", "Enter the WiFi SSID (name)", WIFI_SSID_MAX_LEN, CharacterFilterNone, newDeviceWifiSsid, "", 0);
+    }
+    newDeviceWifiSsid[ssidLength] = 0;
+
+    ssidLength = 0;
+    while (ssidLength == 0) {
+      ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("WiFi Password", "Enter the WiFi Password", WIFI_CRED_MAX_LEN, CharacterFilterNone, newDeviceWifiCred, "", 0);
+    }
+    newDeviceWifiCred[ssidLength] = 0;
+
+    Serial.print("Newly entered creds: ");Serial.println(newDeviceWifiCred);
+
+    ssidLength = 0;
+    while (ssidLength == 0) {
+      ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("Prefer WiFi?", "Should WiFi be the preferred channel?", 1, CharacterFilterYesNo, newDeviceWifiPreferrred, "", 0);
+    }
+    newWifiPreferred = newDeviceWifiPreferrred[0] == 'y';
+  }
+  else {
+    sprintf(newDeviceWifiSsid, "none", 4);
+    sprintf(newDeviceWifiCred, "none", 4);
+  }
+
+  return true;
+}
+
+bool GuiControlMode::createNewCluster () {
+  if (promptClusterInfo(false)) {
+    ClusterAdmin* admin = new ClusterAdmin(chatter);
+    display->showAlert("Initializing", AlertWarning);
+    bool result = admin->generateCluster(newClusterAlias, newFrequency, newWifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, newWifiPreferred);
+    chatter->getDeviceStore()->setClearMeshOnStartup(true);
+    display->showProgressBar(1.0);
+
+    restartDevice();
+  }
+  return true;
+}
+
 bool GuiControlMode::initializeNewDevice () {
+  bool result = false;  
+  
   // wipe all data
   chatter->factoryReset(true);
 
   // default to landscape keyboard
   if (fullyInteractive) {
     ((FullyInteractiveDisplay*)display)->setTouchListening(true);
-    ((FullyInteractiveDisplay*)display)->setKeyboardOrientation(Landscape);
   }
 
   // does the user want to password protect
@@ -1148,79 +1245,18 @@ bool GuiControlMode::initializeNewDevice () {
     deviceAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Device Name", "Unique(ish) name others will see", 12, CharacterFilterAlphaNumeric, newDeviceAlias, newDeviceAlias, 0);
   }
   newDeviceAlias[deviceAliasLength] = 0;//term it, if the user backspaced some
-
-  int clusterAliasLength = 0;
-  memset(newClusterAlias, 0, CHATTER_ALIAS_NAME_SIZE+1);
-  sprintf(newClusterAlias, "%s.%d", "Clst", random(2048));
-
-  // prompt for cluster name
-  while (clusterAliasLength == 0) {
-    clusterAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Cluster Name", "Unique(ish) name for your private cluster", 12, CharacterFilterAlphaNumeric, newClusterAlias, newClusterAlias, 0);
-  }
-  newClusterAlias[clusterAliasLength] = 0;
-
-  int newFreqLength = 0;
-  memset(newFreq, 0, 7);
-  float newFrequency = LORA_DEFAULT_FREQUENCY;
-  bool goodFreq = false;
-  sprintf(newFreq, "%.1f", newFrequency);
-  while (!goodFreq) {
-    char subtitle[32];
-    sprintf(subtitle, "Between %.1f and %.1f", LORA_MIN_FREQUENCY, LORA_MAX_FREQUENCY);
-    newFreqLength = ((FullyInteractiveDisplay*)display)->getModalInput("LoRa Frequency", subtitle, 5, CharacterFilterNumeric, newFreq, newFreq, 0);
-
-    if (newFreqLength > 0) {
-      newFrequency = atof(newFreq);
-      if (newFrequency >= LORA_MIN_FREQUENCY || newFrequency <= LORA_MAX_FREQUENCY) {
-        goodFreq = true;
-      }
-    }
-  }
-
-  // wifi settings
-  memset(newDeviceWifiSsid, 0, WIFI_SSID_MAX_LEN  + 1);
-  memset(newDeviceWifiCred, 0, WIFI_CRED_MAX_LEN  + 1);
-  int ssidLength = 0;
-  bool wifiEnabled = false;
-  bool wifiPreferred = false;
-
-  while (ssidLength == 0) {
-    ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("Enable WiFi?", "Common WiFi network (for UDP/etc)", 1, CharacterFilterYesNo, newDeviceWifiSsid, "", 0);
-  }
-  if (newDeviceWifiSsid[0] == 'y') {
-    wifiEnabled = true;
-    ssidLength = 0;
-    while (ssidLength == 0) {
-      ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("WiFi SSID", "Enter the WiFi SSID (name)", WIFI_SSID_MAX_LEN, CharacterFilterNone, newDeviceWifiSsid, "", 0);
-    }
-    newDeviceWifiSsid[ssidLength] = 0;
-
-    ssidLength = 0;
-    while (ssidLength == 0) {
-      ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("WiFi Password", "Enter the WiFi Password", WIFI_CRED_MAX_LEN, CharacterFilterNone, newDeviceWifiCred, "", 0);
-    }
-    newDeviceWifiCred[ssidLength] = 0;
-
-    Serial.print("Newly entered creds: ");Serial.println(newDeviceWifiCred);
-
-    ssidLength = 0;
-    while (ssidLength == 0) {
-      ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("Prefer WiFi?", "Should WiFi be the preferred channel?", 1, CharacterFilterYesNo, newDeviceWifiPreferrred, "", 0);
-    }
-    wifiPreferred = newDeviceWifiPreferrred[0] == 'y';
-  }
-  else {
-    sprintf(newDeviceWifiSsid, "none", 4);
-    sprintf(newDeviceWifiCred, "none", 4);
-  }
-
   ClusterAdmin* admin = new ClusterAdmin(chatter);
 
-  display->showAlert("Initializing", AlertWarning);
-  bool result = admin->genesis(newDeviceAlias, newDevicePassword, passwordLength, newClusterAlias, newFrequency, wifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, wifiPreferred);
-  display->showProgressBar(1.0);
+  if (promptClusterInfo(true)) {
+    display->showAlert("Initializing", AlertWarning);
+    result = admin->genesis(newDeviceAlias, newDevicePassword, passwordLength, newClusterAlias, newFrequency, newWifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, newWifiPreferred);
+    display->showProgressBar(1.0);
 
-  restartDevice();
+    // queue the mesh data to get cleared on next startup
+    chatter->getDeviceStore()->setClearMeshOnStartup(true);
+
+    restartDevice();
+  }
 
   return result;
 }

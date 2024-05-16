@@ -95,6 +95,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void promptUserNewTime();
         bool validateDatePart(int partVal, uint8_t partNum);
 
+        bool promptClusterInfo (bool forceInput);
+        bool createNewCluster ();
         void showTime(bool forceRepaint);
         void showTime();
 
@@ -121,6 +123,9 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         char newDeviceWifiCred[WIFI_CRED_MAX_LEN + 1];
         char newDeviceWifiPreferrred[2];
         char newFreq[7];
+        float newFrequency = LORA_DEFAULT_FREQUENCY;
+        bool newWifiEnabled = false;
+        bool newWifiPreferred = false;
 
         uint8_t passwordHash[32];
         uint8_t unlockPasswordHash[32];

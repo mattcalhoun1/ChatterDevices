@@ -325,7 +325,13 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
     case UserRequestJoinCluster:
       assistant = new ChatterClusterAssistant(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
       if(assistant->init()) {
-        return assistant->attemptOnboard ();
+        bool success = assistant->attemptOnboard ();
+        if (success) {
+          // queue the mesh data to get cleared on next startup
+          chatter->getDeviceStore()->setClearMeshOnStartup(false);
+        }
+
+        return success;
       }
       else {
         logConsole("Assistant failed to init");
