@@ -1476,10 +1476,9 @@ bool GuiControlMode::syncLearnActivity () {
                   if (isLarge == false) {
                     int msgLength = chatter->getMessageStore()->loadMessage (messageIterator->getItemVal(messageNum), messageBuffer, GUI_MESSAGE_BUFFER_SIZE);
                     if (msgLength >= 10 && memcmp("LRN:", messageBuffer, 4) == 0) {
-                      uint8_t* msgPos = messageBuffer+4;
-                      for (uint8_t i = 0; i < (4 + msgLength); i++) {
+                      for (uint8_t i = 4; i < msgLength; i++) {
                         timeSent *= 10;
-                        timeSent += *msgPos++ - '0';
+                        timeSent += messageBuffer[i]- '0';
                       }
 
                       uint32_t timeToDeliver = rtc->getEpoch(learnTimestampBuffer) - timeSent;
