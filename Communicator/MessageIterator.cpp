@@ -1,10 +1,17 @@
 #include "MessageIterator.h"
 
 bool MessageIterator::init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc) {
+    return init(_clusterId, _thisDeviceId, _thisDeviceId, _sortAsc);
+}
+
+bool MessageIterator::init (const char* _clusterId, const char* _thisDeviceId, const char* _filterDeviceId, bool _sortAsc) {
     memcpy(thisDeviceId, _thisDeviceId, CHATTER_DEVICE_ID_SIZE);
     thisDeviceId[CHATTER_DEVICE_ID_SIZE] = 0;
 
-    numMessages = messageStore->populateMessageIndices (_clusterId, messageSlots, _sortAsc);
+    memcpy(filterDeviceId, _filterDeviceId, CHATTER_DEVICE_ID_SIZE);
+    filterDeviceId[CHATTER_DEVICE_ID_SIZE] = 0;
+
+    numMessages = messageStore->populateMessageIndices (_clusterId, filterDeviceId, messageSlots, _sortAsc);
     //Serial.print("Iterator loaded "); Serial.print(numMessages); Serial.print(" messages for cluster ");Serial.println(_clusterId);
     return true;
 }

@@ -54,6 +54,8 @@ class ControlMode : ChatStatusCallback {
   protected:
     // miscellaneous
     virtual void logConsole(String msg);
+    virtual void logConsole(const char* msg);
+    virtual void logConsole(const char* msg, const char* msg2);
     virtual void sleepOrBackground(unsigned long sleepTime);
     const char* getStatusName (ChatStatus chatStatus);
 

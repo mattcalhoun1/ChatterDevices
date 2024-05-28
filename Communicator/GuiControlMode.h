@@ -100,6 +100,10 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void showTime(bool forceRepaint);
         void showTime();
 
+        bool isLearningEnabled();
+        void enableLearning (unsigned long learnDurationMillis);
+        void disableLearning ();
+
     private:
 
         bool screenLocked = false;
@@ -144,6 +148,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         char previewDevIdBuffer[CHATTER_DEVICE_ID_SIZE + 1];
         char previewAliasBuffer[CHATTER_ALIAS_NAME_SIZE + 1];
 
+        char currentDeviceFilter[CHATTER_DEVICE_ID_SIZE + 1];
+
         CommunicatorEvent eventBuffer;
         char histSenderId[CHATTER_DEVICE_ID_SIZE+1];
         char histRecipientId[CHATTER_DEVICE_ID_SIZE+1];
@@ -155,6 +161,29 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         uint8_t meshPath[CHATTER_MESH_MAX_HOPS];
         uint8_t meshPathLength = 0;
+
+        /** learning mode stuff **/
+
+        // how often (millis), roughly, to trigger learn messages
+        // in learning mode, we want about 1 message per minute across the entire cluster
+        // so this will be calculated, based on the known number of devices
+        unsigned long learnMessageFreq = 60000; 
+        unsigned long nextScheduledLearn = 0;
+        bool syncLearnActivity ();
+        unsigned long lastLearnLog = millis();
+        unsigned long learnLogFreq = 60000; // how often to log learning stats
+        char learningTargetDevice[CHATTER_DEVICE_ID_SIZE+1];
+
+        char learnMessageIdBuffer[CHATTER_MESSAGE_ID_SIZE +1];
+        char learnSenderIdBuffer[CHATTER_DEVICE_ID_SIZE + 1];
+        char learnRecipientIdBuffer[CHATTER_DEVICE_ID_SIZE + 1];
+        char learnAliasBuffer[STORAGE_MAX_ALIAS_LENGTH + 1];
+        MessageSendMethod learnSendMethodBuffer;
+        MessageStatus learnStatusBuffer;
+        char learnTimestampBuffer[STORAGE_TS_SIZE+1];
+
+        /** end learning mode stuff **/
+
 };
 
 #endif

@@ -142,6 +142,21 @@ void ControlMode::logConsole(String msg) {
   }
 }
 
+void ControlMode::logConsole(const char* msg) {
+  if (LOG_ENABLED)
+  {
+    Serial.println(msg);
+  }
+}
+
+void ControlMode::logConsole(const char* msg, const char* msg2) {
+  if (LOG_ENABLED)
+  {
+    Serial.print(msg);
+    Serial.println(msg2);
+  }
+}
+
 bool ControlMode::factoryResetCheck (ChatterDeviceType deviceType) {
   if (!digitalRead(FACTORY_RESET_PIN)) {
     // pin needs to be held down for 3 seconds

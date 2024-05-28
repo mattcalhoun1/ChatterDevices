@@ -192,6 +192,21 @@ void ControlMode::logConsole(String msg) {
   }
 }
 
+void ControlMode::logConsole(const char* msg) {
+  if (LOG_ENABLED)
+  {
+    Serial.println(msg);
+  }
+}
+
+void ControlMode::logConsole(const char* msg, const char* msg2) {
+  if (LOG_ENABLED)
+  {
+    Serial.print(msg);
+    Serial.println(msg2);
+  }
+}
+
 bool ControlMode::initializeNewDevice () {
   // by default, we just generate random stuff
   // if interactive, a subclass will handle this, and prompt for info

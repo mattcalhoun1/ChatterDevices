@@ -159,6 +159,8 @@ bool HeadsUpControlMode::isPreferenceEnabled (CommunicatorPreference pref) {
       return chatter->getDeviceStore()->getUartEnabled();
     case PreferenceLoraEnabled:
       return chatter->getDeviceStore()->getLoraEnabled();
+    case PreferenceMeshLearningEnabled:
+      return chatter->getDeviceStore()->getMeshLearningEnabled();
   }
 
   logConsole("Unknown preference read attempt");
@@ -211,6 +213,9 @@ void HeadsUpControlMode::enablePreference (CommunicatorPreference pref) {
       logConsole("Lora enabled");
       // reset device
       restartDevice();
+      break;
+    case PreferenceMeshLearningEnabled:
+      chatter->getDeviceStore()->setMeshLearningEnabled(true);
       break;
     
     default:
@@ -268,6 +273,10 @@ void HeadsUpControlMode::disablePreference (CommunicatorPreference pref) {
       restartDevice();
 
       break;
+    case PreferenceMeshLearningEnabled:
+      chatter->getDeviceStore()->setMeshLearningEnabled(false);
+      break;
+
     default:
       logConsole("Unknown preference disable attempt");
   }

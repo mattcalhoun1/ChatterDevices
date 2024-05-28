@@ -30,6 +30,10 @@ StartupState GuiControlMode::init() {
       nearbyDeviceIterator = new NearbyDeviceIterator(chatter->getPingTable(), chatter->getTrustStore(), chatter);
       clusterIterator = new ClusterAliasIterator(chatter->getClusterStore());
 
+      // show all messages for this cluster, unless user filters down
+      memcpy(currentDeviceFilter, chatter->getDeviceId(), CHATTER_DEVICE_ID_SIZE);
+      currentDeviceFilter[CHATTER_DEVICE_ID_SIZE] = 0;
+
       memset(title, 0, 32);
       sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
       //showTitle(title);
@@ -95,11 +99,14 @@ void GuiControlMode::loop () {
       lastTick = tickFrequency;
 
       // lock screen if no recent user activity
-      if (!screenLocked && lastTouch + screenTimeout < millis()) {
+      if (!chatter->isOnboardMode() && !screenLocked && lastTouch + screenTimeout < millis()) {
         logConsole("no user activity, lock screen");
         lockScreen();
       }
     }
+
+    // if learning is enabled, it may be time to trigger a learn message
+    syncLearnActivity();
   }
   else {
     // still let touch events through
@@ -119,7 +126,7 @@ void GuiControlMode::showButtons () {
 void GuiControlMode::showMessageHistory(bool resetOffset) {
   if (resetOffset) {
     // reload from message store
-    messageIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+    ((MessageIterator*)messageIterator)->init(chatter->getClusterId(), chatter->getDeviceId(), currentDeviceFilter, true);
 
     // set the offset (if necessary) so that the newest messages are shown by default
     // and the user would have to scroll up to see older ones
@@ -765,7 +772,7 @@ MessageSendResult GuiControlMode::attemptDirectSend () {
   }
 
   if (sentViaMesh) {
-    display->showAlert("Sent (mesh)", AlertWarning);
+    display->showAlert("Queued (mesh)", AlertWarning);
     messageSendResult = MessageSentMesh;
   }
   else if (sentViaBridge) {
@@ -1365,4 +1372,141 @@ void GuiControlMode::showTime (bool forceRepaint) {
   if (forceRepaint || memcmp(lastTime, rtc->getViewableTime(), 16) != 0) {
     showTime();
   }
+}
+
+bool GuiControlMode::syncLearnActivity () {
+    // if we are learning and there is no scheduled learn message, schedule one now
+    if (!chatter->isOnboardMode() && isPreferenceEnabled(PreferenceMeshLearningEnabled)) {
+        showStatus("learn");
+        if (nextScheduledLearn == 0) {
+            // we are aiming to send messages at the given rate, across the entire cluster.
+            // so if we are aiming for 1 message per minute, each device should send once per (minute * num devices)
+            // to hit that average
+            deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+            nextScheduledLearn = millis() + random(5000, learnMessageFreq * deviceIterator->getNumItems());
+        }
+        else if (millis() >= nextScheduledLearn) {
+            nextScheduledLearn = 0; // clear out so it will be re-scheduled
+
+            // send a learning message. the content of the message
+            // is just a timestamp so the recipient can easily see how long
+            // delivery took
+            memset(messageBuffer, 0, GUI_MESSAGE_BUFFER_SIZE);
+            sprintf((char*)messageBuffer, "%s%d", "LRN:", rtc->getEpoch());
+            messageBufferLength = strlen((const char*)messageBuffer);
+
+            // choose a random recipient from our known recipients
+            // note: until mesh key exchange works, this can only work
+            // if device keys have been exchanged before hand
+            deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+            uint8_t selectedDevice = random(0, deviceIterator->getNumItems());
+            if (chatter->getTrustStore()->loadDeviceId(deviceIterator->getItemVal(selectedDevice), learningTargetDevice)) {
+                learningTargetDevice[CHATTER_DEVICE_ID_SIZE] = 0;
+                //Serial.print("want to send to: ");
+                //Serial.print(learningTargetDevice);
+                //Serial.print(" Msg: ");
+                //Serial.println((const char*)messageBuffer);
+                
+                memcpy(otherDeviceId, learningTargetDevice, CHATTER_DEVICE_ID_SIZE+1);
+                logConsole("learn target: ", (const char*)learningTargetDevice);
+                if (attemptDirectSend() != MessageNotSent) {
+                  logConsole("learn message sent");
+                }
+                else {
+                  logConsole("learn message not sent!");
+                }
+            }
+        }
+
+        // log the latest message status
+        // loop over each device, find all messages to/from it, calc status , print to serial
+        // need filter in message store
+        if (lastLearnLog + learnLogFreq < millis()) {
+          lastLearnLog = millis();
+          Serial.println("=== Learning Data ===");
+          Serial.print("{");
+          deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+          for (uint8_t devNum = 0; devNum < deviceIterator->getNumItems(); devNum++) {
+            if(deviceIterator->loadItemName(devNum, learnAliasBuffer)) {
+              chatter->getTrustStore()->loadDeviceId(deviceIterator->getItemVal(devNum), learningTargetDevice);
+              learningTargetDevice[CHATTER_DEVICE_ID_SIZE] = 0;
+
+              if (devNum > 0) {
+                Serial.print(",");
+              }
+              Serial.print("\"");Serial.print(learnAliasBuffer);Serial.print("\":{");
+
+              ((MessageIterator*)messageIterator)->init(chatter->getClusterId(), chatter->getDeviceId(), learningTargetDevice, true);
+
+              uint8_t totalSends = 0;
+              uint8_t totalAcks = 0;
+              uint8_t totalSendsInProgress = 0;
+              uint8_t totalReceives = 0;
+              uint8_t totalReceivesWithSeconds = 0;
+              unsigned long totalReceiveSeconds = 0;
+
+              for (uint8_t messageNum = 0; messageNum < messageIterator->getNumItems(); messageNum++) {
+                // if its from the other device and is a learning message, subtract the learning ts from the received ts to get delivery time
+                bool isLarge = chatter->getMessageStore()->loadMessageDetails (messageIterator->getItemVal(messageNum), learnSenderIdBuffer, learnRecipientIdBuffer, learnMessageIdBuffer, learnTimestampBuffer, learnStatusBuffer, learnSendMethodBuffer);
+                bool thisDeviceSent = memcmp(chatter->getDeviceId(), learnSenderIdBuffer, CHATTER_DEVICE_ID_SIZE) == 0;
+
+                if (thisDeviceSent) {
+                  // if the status is acknowledged, its success
+                  if ((char)learnStatusBuffer == 'A') {
+                    totalSends += 1;
+                    totalAcks += 1;
+                  }
+                  else {
+                    uint32_t timeSent = rtc->getEpoch (learnTimestampBuffer);
+                    // if 15 minutes has passed since the send, its a fail
+                    if (rtc->getEpoch() - timeSent > (60*15)) {
+                      totalSends += 1;
+                    }
+                    else {
+                      totalSendsInProgress += 1;
+                    }
+                  }
+
+                }
+                else {
+                  // this was a receive. if it's a learning message, it should have an epoch
+                  totalReceives += 1;
+                  uint32_t timeSent = 0;
+
+                  if (isLarge == false) {
+                    int msgLength = chatter->getMessageStore()->loadMessage (messageIterator->getItemVal(messageNum), messageBuffer, GUI_MESSAGE_BUFFER_SIZE);
+                    if (msgLength >= 10 && memcmp("LRN:", messageBuffer, 4) == 0) {
+                      uint8_t* msgPos = messageBuffer+4;
+                      for (uint8_t i = 0; i < (4 + msgLength); i++) {
+                        timeSent *= 10;
+                        timeSent += *msgPos++ - '0';
+                      }
+
+                      uint32_t timeToDeliver = rtc->getEpoch(learnTimestampBuffer) - timeSent;
+                      totalReceivesWithSeconds += 1;
+                      totalReceiveSeconds += timeToDeliver;
+                    }
+
+                  }
+                }
+              }
+
+              Serial.print("\"TotalSends\":");Serial.print(totalSends);
+              Serial.print(", \"TotalAcks\":");Serial.print(totalAcks);
+              Serial.print(", \"TotalReceives\":");Serial.print(totalReceives);
+              Serial.print(", \"TotalReceivesWithSeconds\":");Serial.print(totalReceivesWithSeconds);
+              Serial.print(", \"AverageTimeToReceive:\":");Serial.print(totalReceiveSeconds / totalReceivesWithSeconds);
+
+
+              Serial.print("}");
+            }
+          }
+          Serial.println("}");
+          Serial.println("=== End Learning Data ===");
+        }
+
+        return true;
+    }
+
+    return false;
 }

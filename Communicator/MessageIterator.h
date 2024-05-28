@@ -8,6 +8,7 @@ class MessageIterator : public ItemIterator {
     public:
         MessageIterator (MessageStore* _messageStore, TrustStore* _trustStore, Chatter* _chatter) {messageStore = _messageStore; trustStore = _trustStore; chatter = _chatter; }
         bool init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc);
+        bool init (const char* _clusterId, const char* _thisDeviceId, const char* _filterDeviceId, bool _sortAsc);
         uint8_t getNumItems ();
         bool loadItemName (uint8_t itemNum, char* nameBuffer);
         uint8_t getItemVal (uint8_t itemNum);
@@ -32,6 +33,7 @@ class MessageIterator : public ItemIterator {
         char timestampBuffer[STORAGE_TS_SIZE+1];
         char readableTimestampBuffer[12]; // mm/dd hh:mm
         char thisDeviceId[CHATTER_DEVICE_ID_SIZE + 1];
+        char filterDeviceId[CHATTER_DEVICE_ID_SIZE + 1];
 };
 
 #endif
