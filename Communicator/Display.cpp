@@ -155,14 +155,17 @@ uint8_t Display::getMessagePosition (int positionX, int positionY) {
 }
 
 DisplayColor Display::getColorForConnectionQuality(uint8_t connectionQuality) {
-  if (connectionQuality >= 3) {
+  if (connectionQuality >= 4) {
     return Green;
   }
-  else if (connectionQuality == 2) {
+  else if (connectionQuality == 3) {
     return LightBlue;
   }
-  else if (connectionQuality == 1) {
+  else if (connectionQuality == 2) {
     return Yellow;
+  }
+  else if (connectionQuality == 1) {
+    return Orange;
   }
   else {
     return DarkRed;
@@ -170,22 +173,28 @@ DisplayColor Display::getColorForConnectionQuality(uint8_t connectionQuality) {
 }
 
 void Display::getRgbwForConnectionQuality(uint8_t connectionQuality, uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& w) {
-  if (connectionQuality >= 3) {
+  if (connectionQuality >= 4) {
     r = 0;
     g = 254;
     b = 0;
     w = 0;
   }
-  else if (connectionQuality == 2) {
+  else if (connectionQuality == 3) {
     r = 0;
     g = 0;
     b = 254;
     w = 0;
   }
-  else if (connectionQuality == 1) {
+  else if (connectionQuality == 2) {
     r = 254;
     g = 254;
     b = 0;
+    w = 0;
+  }
+  else if (connectionQuality == 1) {
+    r = 255;
+    g = 69;
+    b = 8;
     w = 0;
   }
   else {

@@ -150,6 +150,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         unsigned long tickFrequency = 3000; // how often the ticker should blink
         unsigned long lastTick = 0;
+        unsigned long lastTouch = millis();
+        unsigned long screenTimeout = 60000; // maybe make configurable
 
         uint8_t meshPath[CHATTER_MESH_MAX_HOPS];
         uint8_t meshPathLength = 0;

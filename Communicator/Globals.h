@@ -387,6 +387,8 @@
 #define BRIGHTGREEN 0x43AD // rgb(67, 118, 108)
 #define DARKGRAY 0x7BEF    ///< 123, 125, 123
 #define BRIGHTYELLOW 0xfcc0 // rgb(255, 152, 0)
+#define BROWN 0xD343
+#define ORANGE 0xFA20
 
 // tvt colors
 #define ILI9341_BLACK 0x0000       ///<   0,   0,   0

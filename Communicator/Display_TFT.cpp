@@ -402,6 +402,10 @@ uint16_t Display_TFT::getTFTColor(DisplayColor color) {
       return BRIGHTGREEN;
     case BrightYellow:
       return BRIGHTYELLOW;
+    case Brown:
+      return BROWN;
+    case Orange:
+      return ORANGE;
     default:
       return ILI9341_WHITE;
   }

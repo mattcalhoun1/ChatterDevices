@@ -46,7 +46,9 @@ enum DisplayColor {
   DarkRed = 15,
   DarkGray = 16,
   BrightGreen = 17,
-  BrightYellow = 18
+  BrightYellow = 18,
+  Brown = 19,
+  Orange = 20
 };
 
 enum AlertType {

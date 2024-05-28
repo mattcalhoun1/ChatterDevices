@@ -81,11 +81,12 @@ void CommunicatorControlMode::loop () {
     showReady();
   }
 
+  // sync every loop, strategy decides how often
+  chatter->syncMesh();
+
   if (loopCount % 10 == 0) {
     //Serial.print("Free Memory: "); Serial.println(freeMemory());
     showTime();
-
-    chatter->syncMesh(3000);
   }
   else if (sendText) {
     showBusy();

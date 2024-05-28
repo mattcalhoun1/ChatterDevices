@@ -93,6 +93,12 @@ void GuiControlMode::loop () {
       uint8_t connectionQuality = chatter->getConnectionQuality();
       display->showTick(connectionQuality);
       lastTick = tickFrequency;
+
+      // lock screen if no recent user activity
+      if (!screenLocked && lastTouch + screenTimeout < millis()) {
+        logConsole("no user activity, lock screen");
+        lockScreen();
+      }
     }
   }
   else {
@@ -918,6 +924,8 @@ void GuiControlMode::unlockScreen () {
 }
 
 bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
+  lastTouch = millis();
+
   // if the screen is locked, intercept all touches
   DisplayedButton pressedButton;
   if (screenLocked) {
