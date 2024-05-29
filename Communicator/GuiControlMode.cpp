@@ -1383,7 +1383,7 @@ bool GuiControlMode::syncLearnActivity () {
             // so if we are aiming for 1 message per minute, each device should send once per (minute * num devices)
             // to hit that average
             deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
-            nextScheduledLearn = millis() + random(5000, learnMessageFreq * deviceIterator->getNumItems());
+            nextScheduledLearn = millis() + random(5000, 20000) + learnMessageFreq * deviceIterator->getNumItems();
         }
         else if (millis() >= nextScheduledLearn) {
             nextScheduledLearn = 0; // clear out so it will be re-scheduled
