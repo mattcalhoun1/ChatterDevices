@@ -298,7 +298,7 @@ void Display::showAlert (const char* alertText, AlertType alertType) {
 }
 
 void Display::clearMessageArea () {
-  clearArea(max(0, getMessageAreaX() - 5), getMessageAreaY() - getTextUpperVerticalOffset(TextSmall), getMessageAreaWidth(), getMessageAreaHeight() + 1);
+  clearArea(max(0, getMessageAreaX() - 5), getMessageAreaY() - getTextUpperVerticalOffset(TextSmall), getMessageAreaWidth()+6, getMessageAreaHeight() + 1);
 }
 
 void Display::showInterpolatedThermal (const uint8_t* image, bool isAlt, String subtitle) {

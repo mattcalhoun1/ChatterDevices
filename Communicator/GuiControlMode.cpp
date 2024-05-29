@@ -112,7 +112,7 @@ void GuiControlMode::loop () {
     // still let touch events through
     if (fullyInteractive) {
       ((FullyInteractiveDisplay*)display)->handleIfTouched();
-      ((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
+      //((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
     }
   }
 }
@@ -329,10 +329,10 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
 
         // pop up the keyboard
         if (eventType == UserRequestDirectMessage) {
-          messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput(newDeviceAlias, "Send to the selected device", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 0);
+          messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput(newDeviceAlias, "Send to the selected device", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 30000);
         }
         else {
-          messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Secure Broadcast", "Cast to all trusted devices", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 20000);
+          messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Secure Broadcast", "Cast to all trusted devices", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 30000);
         }
 
         // send it
@@ -864,7 +864,7 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
         display->clearAll();
 
         // pop up the keyboard
-        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput((const char*)eventBuffer.EventData, "Send to the selected device", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 0);
+        messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput((const char*)eventBuffer.EventData, "Send to the selected device", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 30000);
         if (messageBufferLength > 0) {
           // send it
           return attemptDirectSend() != MessageNotSent;
@@ -993,12 +993,14 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
       ScrollButton scroller = display->getScrollButtonAt(touchX, touchY);
       if (scroller != ScrollNone) {
         if (scroller == ScrollUp && display->isScrollUpEnabled() && previewOffset > 0) {
-          previewOffset--;
+          previewOffset-= display->getMaxDisplayableMessages() > previewOffset ? previewOffset : display->getMaxDisplayableMessages();
+          Serial.print("preview offset now: ");Serial.println(previewOffset);
           refreshDisplayContext(false);
           return true;
         }
         else if (scroller == ScrollDown && display->isScrollDownEnabled() && previewOffset + display->getMaxDisplayableMessages() < previewSize) {
-          previewOffset++;
+          previewOffset+= previewOffset + (display->getMaxDisplayableMessages()*2) < previewSize ? display->getMaxDisplayableMessages() : (previewSize - previewOffset) - display->getMaxDisplayableMessages();
+          Serial.print("preview offset now: ");Serial.println(previewOffset);
           refreshDisplayContext(false);
           return true;
         }
@@ -1073,11 +1075,11 @@ void GuiControlMode::refreshDisplayContext(bool fullRefresh) {
   switch (display->getDisplayContext()) {
     case DisplayFullHistory:
       logConsole("refresh full message history");
-      showMessageHistory(true);
+      showMessageHistory(fullRefresh);
       break;
     case DisplayNearbyDevices:
       logConsole("refresh display nearby devices");
-      showNearbyDevices(true);
+      showNearbyDevices(fullRefresh);
       break;
   }
 }
@@ -1113,6 +1115,7 @@ bool GuiControlMode::updatePreviewsIfNecessary () {
       }
     }
     selection = newRotaryPostion;
+    Serial.print("user moved to position: ");Serial.print(selection);
     return true;
   }
 
