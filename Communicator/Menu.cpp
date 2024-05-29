@@ -813,6 +813,8 @@ void Menu::resetMenu(bool repaint) {
     wasClosed = true;
   }
 
+  ((TouchEnabledDisplay*)display)->clearTouchInterrupts();
+
   // reset all menu variables / flags
     mode = MenuOff;
     oledMenu.selectedMenuItem = 0;

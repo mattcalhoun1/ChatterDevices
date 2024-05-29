@@ -59,6 +59,9 @@ void CommunicatorControlMode::loop () {
         memcpy(otherDeviceId, chatter->getLastSender(), CHATTER_DEVICE_ID_SIZE);
         otherDeviceId[CHATTER_DEVICE_ID_SIZE] = 0;
 
+        CommunicatorEvent evt;
+        memcpy(evt.EventTarget, chatter->getLastSender(), CHATTER_DEVICE_ID_SIZE);
+
         // send ack (later, queue this)
         if (!chatter->isAcknowledgement()) {
           if (memcmp(chatter->getLastRecipient(), chatter->getDeviceId(), CHATTER_DEVICE_ID_SIZE) == 0) {
@@ -68,14 +71,19 @@ void CommunicatorControlMode::loop () {
                 chatter->sendAckViaMesh(otherDeviceId, chatter->getMessageId());
               }
             }
+            evt.EventType = MessageReceived;
           }
-          handleEvent(MessageReceived);
+          else {
+            evt.EventType = BroadcastReceived;
+          }
+
         }
         else {
-          handleEvent(AckReceived);
+          evt.EventType = AckReceived;
         }
+        handleEvent(&evt);
 
-        showLastMessage ();
+        //showLastMessage ();
       }
     }
     showReady();
@@ -260,6 +268,7 @@ bool CommunicatorControlMode::sendPacketBatchBridge () {
 }
 
 bool CommunicatorControlMode::handleEvent (CommunicatorEvent* event) {
+  int size;
   switch (event->EventType) {
     //case UserRequestDirectMessage:
     //  return sendUserText(event);
@@ -268,6 +277,31 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEvent* event) {
       logConsole((char*)event->EventData);
       chatter->getRtc()->setNewDateTime((const char*)event->EventData);
       showTime();
+      break;
+    case MessageReceived:
+      if (BACKPACK_ENABLED) {
+        // if backpack enabled, notify the backpack
+        Serial1.print("MSG:");
+        Serial1.print(chatter->getLastSender());
+        size = chatter->getMessageSize();
+        Serial1.write((byte*)&size, 2);
+        for (int i = 0; i < size; i++) {
+          Serial1.print(chatter->getTextMessage()[i]);
+        }
+        Serial1.print('\n');
+      }
+      break;
+    case AckReceived:
+      if (BACKPACK_ENABLED) {
+        Serial1.print("ACK:");
+        Serial1.print(chatter->getLastSender());
+        size = chatter->getMessageSize();
+        Serial1.write((byte*)&size, 2);
+        for (int i = 0; i < size; i++) {
+          Serial1.print(chatter->getTextMessage()[i]);
+        }
+        Serial1.print('\n');
+      }
       break;
   }
 
@@ -304,7 +338,6 @@ bool CommunicatorControlMode::queueEvent(CommunicatorEventType eventType) {
 }
 
 bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
-  int size;
   switch(eventType) {
     case UserRequestQuickFactoryReset:
       logConsole("FACTORY RESET TRIGGERED");
@@ -350,32 +383,6 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
         showStatus("No cluster connection");
       }
       break;
-    case MessageReceived:
-      if (BACKPACK_ENABLED) {
-        // if backpack enabled, notify the backpack
-        Serial1.print("MSG:");
-        Serial1.print(chatter->getLastSender());
-        size = chatter->getMessageSize();
-        Serial1.write((byte*)&size, 2);
-        for (int i = 0; i < size; i++) {
-          Serial1.print(chatter->getTextMessage()[i]);
-        }
-        Serial1.print('\n');
-      }
-      break;
-    case AckReceived:
-      if (BACKPACK_ENABLED) {
-        Serial1.print("ACK:");
-        Serial1.print(chatter->getLastSender());
-        size = chatter->getMessageSize();
-        Serial1.write((byte*)&size, 2);
-        for (int i = 0; i < size; i++) {
-          Serial1.print(chatter->getTextMessage()[i]);
-        }
-        Serial1.print('\n');
-      }
-      break;
-
   }
 
   return false;

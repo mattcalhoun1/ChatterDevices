@@ -216,9 +216,9 @@ class Display_TFT : public FullyInteractiveDisplay {
     FontType currFontType = FontNormal;
 
     const char* btnDM = " DM";
-    const char* btnBroadcast = "Cast";
+    const char* btnFilter = "@ ?";
     const char* btnMenu = "Menu";
-    const char* buttonTexts[NUM_DISPLAYED_BUTTONS] = {btnDM, btnBroadcast, btnMenu};
+    const char* buttonTexts[NUM_DISPLAYED_BUTTONS] = {btnDM, btnFilter, btnMenu};
 
     bool touchListening = false;
     bool touchInitialized = false;

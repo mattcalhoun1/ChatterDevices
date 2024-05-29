@@ -31,8 +31,7 @@ StartupState GuiControlMode::init() {
       clusterIterator = new ClusterAliasIterator(chatter->getClusterStore());
 
       // show all messages for this cluster, unless user filters down
-      memcpy(currentDeviceFilter, chatter->getDeviceId(), CHATTER_DEVICE_ID_SIZE);
-      currentDeviceFilter[CHATTER_DEVICE_ID_SIZE] = 0;
+      setCurrentDeviceFilter(chatter->getDeviceId());
 
       memset(title, 0, 32);
       sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
@@ -297,7 +296,6 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
     case UserRequestScreenLock:
       lockScreen();
       return true;
-
     case UserRequestPowerOff:
       // are we doing locked or powerdown? need to ask user
       logConsole("Going to sleep");
@@ -338,6 +336,9 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         // send it
         if(messageBufferLength > 0) {
           if (eventType == UserRequestSecureBroadcast) {
+            // change filter to show all messages
+            setCurrentDeviceFilter(chatter->getDeviceId());
+
             display->showAlert("Broadcast", AlertActivity);
             display->resetProgress();
             result = chatter->broadcast(messageBuffer, messageBufferLength);
@@ -346,11 +347,17 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
             }
           }
           else if (eventType == UserRequestOpenBroadcast) {
+            // change filter to show all messages
+            setCurrentDeviceFilter(chatter->getDeviceId());
+
             display->showAlert("Open Broadcast", AlertActivity);
             display->resetProgress();
             result = chatter->broadcastUnencrypted(messageBuffer, messageBufferLength, nullptr);
           }
           else {
+            // change filter to show just messages to/from the selected user
+            setCurrentDeviceFilter(otherDeviceId);
+
             MessageSendResult rs = attemptDirectSend();
             result = rs != MessageNotSent;
             if (result) {
@@ -499,6 +506,15 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         }
       }
       return true;
+    case UserRequestFilterMessages:
+      if (!promptSelectDevice()) {
+        logConsole("Canceled");
+        return false;
+      }
+
+      // change filter to this device and do full repaint
+      setCurrentDeviceFilter(otherDeviceId);
+      return true;
 
     case UserRequestMeshShowPath:
       // user must choose a recipient
@@ -614,6 +630,14 @@ void GuiControlMode::promptUserNewTime () {
   rtc->setNewDateTime(fullDateTime);
 }
 
+void GuiControlMode::setCurrentDeviceFilter(const char* deviceFilter) {
+  if (memcmp(deviceFilter, currentDeviceFilter, CHATTER_DEVICE_ID_SIZE) != 0) {
+    memcpy(currentDeviceFilter, deviceFilter, CHATTER_DEVICE_ID_SIZE);
+    currentDeviceFilter[CHATTER_DEVICE_ID_SIZE] = 0;
+    fullRepaint = true;
+  }
+}
+
 bool GuiControlMode::validateDatePart(int partVal, uint8_t partNum) {
   switch (partNum)
   {
@@ -665,6 +689,7 @@ bool GuiControlMode::promptSelectDevice() {
       chatter->getTrustStore()->loadDeviceId(selectedSlot, otherDeviceId);
       logConsole("User chose device :");
       logConsole(otherDeviceId);
+
       return true;
     }
   }
@@ -772,7 +797,7 @@ MessageSendResult GuiControlMode::attemptDirectSend () {
   }
 
   if (sentViaMesh) {
-    display->showAlert("Queued (mesh)", AlertWarning);
+    display->showAlert("Q'd Mesh", AlertWarning);
     messageSendResult = MessageSentMesh;
   }
   else if (sentViaBridge) {
@@ -874,6 +899,36 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
         }
       }
       break;
+    case BroadcastReceived:
+      // if screen is locked, do nothing
+      if (screenLocked) {
+        return true;
+      }
+
+      // if it was broadcast, change filter to everyone
+      setCurrentDeviceFilter(chatter->getDeviceId());
+      showMessageHistory(true);
+      return true;
+    case MessageReceived:
+      // if screen is locked, do nothing
+      if (screenLocked) {
+        return true;
+      }
+      // change to the device in quesiton, if necessary
+      setCurrentDeviceFilter(event->EventTarget);
+      showMessageHistory(true);
+      return true;
+
+    case AckReceived:
+      // if screen is locked, do nothing
+      if (screenLocked) {
+        return true;
+      }
+      // change to the device in quesiton, if necessary
+      setCurrentDeviceFilter(event->EventTarget);
+      showMessageHistory(true);
+      return true;
+
   }
 
   // let base handle
@@ -982,6 +1037,8 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
           return handleEvent(UserRequestSecureBroadcast);
         case ButtonDM:
           return handleEvent(UserRequestDirectMessage);
+        case ButtonFilter:
+          return handleEvent(UserRequestFilterMessages);
         case ButtonMenu:
           ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
           menu->show();
@@ -994,13 +1051,11 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
       if (scroller != ScrollNone) {
         if (scroller == ScrollUp && display->isScrollUpEnabled() && previewOffset > 0) {
           previewOffset-= display->getMaxDisplayableMessages() > previewOffset ? previewOffset : display->getMaxDisplayableMessages();
-          Serial.print("preview offset now: ");Serial.println(previewOffset);
           refreshDisplayContext(false);
           return true;
         }
         else if (scroller == ScrollDown && display->isScrollDownEnabled() && previewOffset + display->getMaxDisplayableMessages() < previewSize) {
           previewOffset+= previewOffset + (display->getMaxDisplayableMessages()*2) < previewSize ? display->getMaxDisplayableMessages() : (previewSize - previewOffset) - display->getMaxDisplayableMessages();
-          Serial.print("preview offset now: ");Serial.println(previewOffset);
           refreshDisplayContext(false);
           return true;
         }
@@ -1074,11 +1129,11 @@ void GuiControlMode::showLastMessage () {
 void GuiControlMode::refreshDisplayContext(bool fullRefresh) {
   switch (display->getDisplayContext()) {
     case DisplayFullHistory:
-      logConsole("refresh full message history");
+      //logConsole("refresh full message history");
       showMessageHistory(fullRefresh);
       break;
     case DisplayNearbyDevices:
-      logConsole("refresh display nearby devices");
+      //logConsole("refresh display nearby devices");
       showNearbyDevices(fullRefresh);
       break;
   }
@@ -1115,7 +1170,6 @@ bool GuiControlMode::updatePreviewsIfNecessary () {
       }
     }
     selection = newRotaryPostion;
-    Serial.print("user moved to position: ");Serial.print(selection);
     return true;
   }
 

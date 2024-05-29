@@ -149,6 +149,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         char previewAliasBuffer[CHATTER_ALIAS_NAME_SIZE + 1];
 
         char currentDeviceFilter[CHATTER_DEVICE_ID_SIZE + 1];
+        void setCurrentDeviceFilter(const char* deviceFilter);
 
         CommunicatorEvent eventBuffer;
         char histSenderId[CHATTER_DEVICE_ID_SIZE+1];

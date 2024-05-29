@@ -9,11 +9,12 @@
 #define NUM_DISPLAYED_BUTTONS 3
 enum DisplayedButton {
     ButtonDM = 0,
-    ButtonBroadcast = 1,
+    ButtonFilter = 1,
     ButtonMenu = 2,
     ButtonNone = 3,
     ButtonLock = 4,
-    ButtonFlip = 5
+    ButtonFlip = 5,
+    ButtonBroadcast = 6 // not currently displayed
 };
 
 class FullyInteractiveDisplay : public TouchEnabledDisplay {
@@ -24,8 +25,8 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         virtual int getModalInput (const char* title, const char* subtitle, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue, int timeoutMillis) = 0;
         void setDefaultKeyboard (Keyboard* _defaultKeyboard) { defaultKeyboard = _defaultKeyboard; }
         virtual bool isKeyboardShowing () {return defaultKeyboard->isShowing();}
-        virtual void touchInterrupt() = 0;
-        virtual void clearTouchInterrupts () = 0;
+        //virtual void touchInterrupt() = 0;
+        //virtual void clearTouchInterrupts () = 0;
 
 
         virtual void showButtons () = 0;

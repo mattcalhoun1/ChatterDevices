@@ -26,6 +26,8 @@ class TouchEnabledDisplay : public MenuEnabledDisplay {
         virtual bool handleIfTouched () = 0;
 
         virtual void touchInterrupt () = 0;
+        virtual void clearTouchInterrupts () = 0;
+        
         bool isTouchEnabled () {return true;}
         virtual void setTouchListening(bool listening) = 0;
         virtual void setTouchSensitivity (TouchSensitivity sensitivity) = 0;
