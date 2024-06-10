@@ -11,7 +11,7 @@ StartupState GuiControlMode::init() {
     StartupState returnState = HeadsUpControlMode::init();
 
     // setup the menu
-    menu = new Menu((MenuEnabledDisplay*)display, rotary, this, chatter->isRootDevice(chatter->getDeviceId()), this);
+    menu = new Menu((MenuEnabledDisplay*)display, rotary, this, chatter->isRootDevice(chatter->getDeviceId()), chatter->isRootDevice(chatter->getDeviceId()), this);
     menu->init();
 
     // add self as a touch listener
@@ -102,6 +102,9 @@ void GuiControlMode::loop () {
         logConsole("no user activity, lock screen");
         lockScreen();
       }
+
+      // log battery level
+      //Serial.print("Battery: ");Serial.print(getBatteryLevel());Serial.println("%");
     }
 
     // if learning is enabled, it may be time to trigger a learn message
@@ -520,6 +523,38 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       // user must choose a recipient
       if (promptSelectDevice()) {
         showMeshPath(otherDeviceId);
+      }
+      return true;
+    case UserRequestRemoteBattery:
+      // send remote battery request
+      if (promptSelectDevice()) {
+        logConsole("Sending remote battery request to: ", otherDeviceId);
+        sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigBattery);
+        messageBufferLength = 5; // CFG:B
+        attemptDirectSend();
+
+      }
+      return true;
+    case UserRequestRemotePath:
+      char fromDevice[CHATTER_DEVICE_ID_SIZE+1];
+      char toDevice[CHATTER_DEVICE_ID_SIZE+1];
+      memset(fromDevice, 0, CHATTER_DEVICE_ID_SIZE+1);
+      memset(toDevice, 0, CHATTER_DEVICE_ID_SIZE+1);
+      if (promptSelectDevice()) {
+        memcpy(fromDevice, otherDeviceId, CHATTER_DEVICE_ID_SIZE);
+        if (promptSelectDevice()) {
+          memcpy(toDevice, otherDeviceId, CHATTER_DEVICE_ID_SIZE);
+
+          logConsole("Requesting path from: ", fromDevice);
+          logConsole("to: ", toDevice);
+
+          // send remote path request
+          sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigPath);
+          memcpy(messageBuffer, toDevice, CHATTER_DEVICE_ID_SIZE);
+          messageBufferLength = 5+CHATTER_DEVICE_ID_SIZE; // CFG:P[device id]
+          messageBuffer[messageBufferLength]=0;
+          attemptDirectSend();
+        }
       }
       return true;
     case DeviceBackup:

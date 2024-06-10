@@ -39,7 +39,7 @@ enum StartupState {
 /**
  * Base class for the different control modes available for this vehicle.
  */
-class ControlMode : public ChatStatusCallback, public BackupCallback {
+class ControlMode : public ChatStatusCallback, public BackupCallback, public LicenseCallback {
   public:
     ControlMode (DeviceType _deviceType) { deviceType = _deviceType; }
     virtual void loop();
@@ -70,6 +70,9 @@ class ControlMode : public ChatStatusCallback, public BackupCallback {
     void resetBackupProgress ();
     void updateBackupProgress (float pct);
     uint8_t promptBackupPassword (char* buffer);
+
+    uint8_t promptLicenseKey (char* buffer);
+    void licenseValidation (bool isValid);
 
   protected:
     // miscellaneous

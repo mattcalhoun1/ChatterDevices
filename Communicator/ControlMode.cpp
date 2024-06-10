@@ -18,9 +18,9 @@ StartupState ControlMode::init() {
     logConsole("RTC is OK");
 
     #if defined(STORAGE_FRAM_SPI)
-      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramSPI, this, this);
+      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramSPI, this, this, this);
     #elif defined(STORAGE_FRAM_I2C)
-      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramI2C, this, this);
+      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramI2C, this, this, this);
     #endif
 
     bool chatterReady = chatter->init();
@@ -270,6 +270,21 @@ void ControlMode::restartDevice() {
   logConsole("Restarting");
   NVIC_SystemReset();
 }
+
+uint8_t ControlMode::promptLicenseKey (char* buffer) {
+  logConsole("prompt for license key...");
+  return 16;
+}
+
+void ControlMode::licenseValidation (bool isValid) {
+  if (isValid) {
+    logConsole("License IS valid");
+  }
+  else {
+    logConsole("License is NOT valid");
+  }
+}
+
 
 #ifdef __arm__
 // should use uinstd.h to define sbrk but Due causes a conflict

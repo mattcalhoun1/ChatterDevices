@@ -45,6 +45,10 @@
 #define CHATTER_UART_ENABLED // uart enabled on all devices (if user turns on pref)
 #define BACKPACK_ENABLED false // backpacks not yet supported, would share same port as uart
 
+#if defined (ARDUINO_FEATHER_M4) || defined(ADAFRUIT_FEATHER_M4_EXPRESS) // adafruit
+#define VBATPIN A6
+#endif
+
 // Button Pins (need interrupts)
 // Nano
 #if defined (ARDUINO_SAMD_NANO_33_IOT)

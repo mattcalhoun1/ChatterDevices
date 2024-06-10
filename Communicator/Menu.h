@@ -17,6 +17,7 @@
 #define MENU_MAIN_MESH 3
 #define MENU_MAIN_CONNECTIONS 4
 #define MENU_MAIN_POWER 5
+#define MENU_MAIN_REMOTE 6
 
 #define MENU_CLUSTER_CHANGE_CLUSTER 1
 #define MENU_CLUSTER_JOIN_CLUSTER 2
@@ -29,6 +30,8 @@
 #define MENU_MESH_CLEAR_PACKETS 3
 #define MENU_MESH_CLEAR_GRAPH 4
 #define MENU_MESH_ENABLE_LEARNING 5
+#define MENU_MESH_ENABLE_REMOTE_CONFIG 6
+
 
 #define MENU_DEVICE_CLEAR_MESSAGES 1
 #define MENU_DEVICE_MESSAGE_HISTORY 2
@@ -42,6 +45,9 @@
 #define MENU_CONNECTIONS_WIFI_ENABLE 2
 #define MENU_CONNECTIONS_WIRED_ENABLE 3
 
+#define MENU_REMOTE_BATTERY 1
+#define MENU_REMOTE_PATH 2
+
 #define MENU_POWER_LOCK_SCREEN 1
 #define MENU_POWER_POWEROFF 2
 
@@ -51,7 +57,8 @@
 #define MENU_ID_MESH 3
 #define MENU_ID_CONNECTIONS 4
 #define MENU_ID_POWER 5
-#define MENU_ID_ITERATOR 6
+#define MENU_ID_REMOTE 6
+#define MENU_ID_ITERATOR 7
 
 #define MENU_HIGHLIGHT_CENTER false
 #define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
@@ -85,7 +92,7 @@ struct OledMenu {
 
 class Menu : public TouchListener {
     public:
-        Menu(MenuEnabledDisplay* _display, RotaryEncoder* _rotary, CommunicatorEventHandler* _handler, bool _onboardAllowed, CommunicatorPreferenceHandler* _prefHandler) { display = _display; rotary = _rotary; handler = _handler; onboardAllowed = _onboardAllowed; prefHandler = _prefHandler;}
+        Menu(MenuEnabledDisplay* _display, RotaryEncoder* _rotary, CommunicatorEventHandler* _handler, bool _onboardAllowed, bool _remoteAllowed, CommunicatorPreferenceHandler* _prefHandler) { display = _display; rotary = _rotary; handler = _handler; onboardAllowed = _onboardAllowed; remoteAllowed = _remoteAllowed; prefHandler = _prefHandler;}
 
         bool init ();
 
@@ -95,6 +102,7 @@ class Menu : public TouchListener {
         void clusterMenu ();
         void meshMenu ();
         void powerMenu();
+        void remoteMenu();
         void iteratorMenu (bool fullRepaint = false);
         void iteratorActions ();        
 
@@ -130,6 +138,7 @@ class Menu : public TouchListener {
         void clusterActions ();
         void meshActions ();
         void powerMenuActions ();
+        void remoteActions();
 
         void populateIteratorMenu ();
 
@@ -180,6 +189,7 @@ class Menu : public TouchListener {
         uint8_t scrollOffset = 0; // if not in iterator menu, this goes up and down as the user scrolls off the starting position
 
         bool onboardAllowed = false;
+        bool remoteAllowed = false; // whetehr this device is allowed to issue remote config
 };
 
 #endif

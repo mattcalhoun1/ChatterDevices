@@ -4,6 +4,7 @@
 #include "CommunicatorEventHandler.h"
 #include "FullyInteractiveDisplay.h"
 #include "TouchControl.h"
+#include "RemoteConfig.h"
 
 #if !defined(ADAFRUIT_FEATHER_M4_EXPRESS)
 #include <ArduinoLowPower.h>
@@ -46,6 +47,8 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         virtual bool onboardNewClient (unsigned long timeout);
         void deepSleep ();
 
+        uint8_t getBatteryLevel (); // 0 - 100
+
     protected:
         virtual void sleepOrBackground(unsigned long sleepTime);
         bool sendText = false;
@@ -76,7 +79,12 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
 
         void logPublicKey ();
         bool listeningForMessages = false;
+        bool remoteConfigEnabled = false;
         CommunicatorEventType queuedEventType = CommunicatorEventNone;
+
+        bool isRemoteConfig (const uint8_t* msg, int msgLength);
+        bool executeRemoteConfig (CommunicatorEvent* event);
+
 };
 
 #endif

@@ -19,6 +19,11 @@ StartupState CommunicatorControlMode::init() {
       //logPublicKey();
 
       enableMessaging();
+
+      remoteConfigEnabled = chatter->getDeviceStore()->getRemoteConfigEnabled();
+      if (remoteConfigEnabled) {
+        logConsole("Alert: Remote config is enabled!");
+      }
     }
 
     return returnState;
@@ -71,7 +76,20 @@ void CommunicatorControlMode::loop () {
                 chatter->sendAckViaMesh(otherDeviceId, chatter->getMessageId());
               }
             }
-            evt.EventType = MessageReceived;
+
+            if (isRemoteConfig(messageBuffer, messageBufferLength)) {
+              Serial.print("Received remote command: ");
+              for (uint8_t i = 0; i < messageBufferLength; i++) {
+                Serial.print((char)messageBuffer[i]);
+              }
+              Serial.println("");
+              evt.EventType = RemoteConfigReceived;
+              evt.EventDataLength = messageBufferLength;
+              memcpy(evt.EventData, messageBuffer, messageBufferLength);
+            }
+            else {
+              evt.EventType = MessageReceived;
+            }
           }
           else {
             evt.EventType = BroadcastReceived;
@@ -109,6 +127,43 @@ void CommunicatorControlMode::loop () {
 
   sleepOrBackground(50);
   loopCount++;
+}
+
+bool CommunicatorControlMode::isRemoteConfig (const uint8_t* msg, int msgLength) {
+  return msgLength >= 5 && memcmp("CFG:", msg, 4) == 0;
+}
+
+bool CommunicatorControlMode::executeRemoteConfig (CommunicatorEvent* event) {
+  switch (event->EventData[4]) {
+    case RemoteConfigBattery:
+      logConsole("Battery level requested");
+
+      // grab the battery level
+      sprintf((char*)messageBuffer, "%s %03d", "Battery:", getBatteryLevel());
+      Serial.print("Sending: ");Serial.println((const char*)messageBuffer);
+
+      // send to requestor
+      if(!chatter->send(messageBuffer, strlen((char*)messageBuffer), event->EventTarget)) {
+        logConsole("Send direct failed");
+        if (deviceMeshEnabled && chatter->clusterSupportsMesh()) {
+          ChatterMessageFlags flags;
+          chatter->sendViaMesh(messageBuffer, strlen((char*)messageBuffer), event->EventTarget, &flags);
+        }
+      }
+
+      return true;
+    case RemoteConfigPath:
+      logConsole("Path requested");
+
+      // LEFT HERE!!
+      // add method to populate mesh path in this class
+      // invoke it from gui 'showMeshPath' and also here
+
+      return true;
+  }
+
+  logConsole("unknown remote config");
+  return false;
 }
 
 void CommunicatorControlMode::showLastMessage () {
@@ -303,6 +358,18 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEvent* event) {
         Serial1.print('\n');
       }
       break;
+    case RemoteConfigReceived:
+      if (remoteConfigEnabled) {
+        if (chatter->isRootDevice(event->EventTarget)) {
+          return executeRemoteConfig(event);
+        }
+        else {
+          logConsole("Receoved remote cfg from nonroot, ignoring");
+        }
+      }
+      else {
+        logConsole("Received remote cfg, not enabled");
+      }
   }
 
   return false;
@@ -419,4 +486,34 @@ void CommunicatorControlMode::logPublicKey () {
       Serial.print(hexifiedPubKey[hexCount]);
   }
   Serial.println("");
+}
+
+uint8_t CommunicatorControlMode::getBatteryLevel () {
+  #if defined(VBATPIN)
+    float measuredvbat = analogRead(VBATPIN);
+    measuredvbat *= 2;    // we divided by 2, so multiply back
+    measuredvbat *= 3.3;  // Multiply by 3.3V, our reference voltage
+    measuredvbat /= 1024; // convert to voltage
+    Serial.print("VBat: " ); Serial.println(measuredvbat);
+    if (measuredvbat >= 4.1) {
+      return 100;
+    }
+    else if (measuredvbat >= 4.0) {
+      return 90;
+    }
+    else if (measuredvbat >= 3.8) {
+      return 70;
+    }
+    else if (measuredvbat >= 3.7) {
+      return 50;
+    }
+    else if (measuredvbat >= 3.5) {
+      return 30;
+    }
+    else {
+      return 15;
+    }
+  #else
+    return 99;
+  #endif
 }

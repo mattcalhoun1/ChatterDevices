@@ -8,7 +8,8 @@ enum CommunicatorPreference {
     PreferenceMeshEnabled = 3,
     PreferenceWiredEnabled = 4,
     PreferenceLoraEnabled = 5,
-    PreferenceMeshLearningEnabled = 6
+    PreferenceMeshLearningEnabled = 6,
+    PreferenceRemoteConfigEnabled = 7
 };
 
 class CommunicatorPreferenceHandler {

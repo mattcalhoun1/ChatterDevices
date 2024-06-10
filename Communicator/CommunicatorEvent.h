@@ -36,7 +36,10 @@ enum CommunicatorEventType {
     DeviceRestore = 26,
     UserRequestChangeCluster = 27,
     UserRequestFilterMessages = 28,
-    BroadcastReceived = 29
+    BroadcastReceived = 29,
+    RemoteConfigReceived = 30,
+    UserRequestRemoteBattery = 31,
+    UserRequestRemotePath = 32
 };
 
 struct CommunicatorEvent {

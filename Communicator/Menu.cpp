@@ -100,6 +100,11 @@ void Menu::mainMenu(bool fullRepaint) {
   oledMenu.menuItems[MENU_MAIN_CONNECTIONS] = "Connections";
   oledMenu.menuItems[MENU_MAIN_POWER] = "Power";
 
+  if (remoteAllowed) {
+    oledMenu.noOfmenuItems += 1;
+    oledMenu.menuItems[MENU_MAIN_REMOTE] = "Issue Command";
+  }
+
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
@@ -166,7 +171,7 @@ void Menu::clusterMenu() {
 void Menu::meshMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_MESH;
-  oledMenu.noOfmenuItems = 5;
+  oledMenu.noOfmenuItems = 6;
   oledMenu.menuTitle = "Mesh";
 
   oledMenu.menuItems[MENU_MESH_SHOW_PATH] = "Show Path";
@@ -174,6 +179,7 @@ void Menu::meshMenu() {
   oledMenu.menuItems[MENU_MESH_CLEAR_PACKETS] = "Clear Cache";
   oledMenu.menuItems[MENU_MESH_CLEAR_GRAPH] = "Mesh Reset";
   oledMenu.menuItems[MENU_MESH_ENABLE_LEARNING] = prefHandler->isPreferenceEnabled(PreferenceMeshLearningEnabled) ? "Disable Learning" : "Enable Learning";
+  oledMenu.menuItems[MENU_MESH_ENABLE_REMOTE_CONFIG] = prefHandler->isPreferenceEnabled(PreferenceRemoteConfigEnabled) ? "Disable Remote Cfg" : "Enable Remote Cfg";
 
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
@@ -191,6 +197,22 @@ void Menu::powerMenu() {
   oledMenu.noOfmenuItems = 2;
   oledMenu.menuItems[MENU_POWER_LOCK_SCREEN] = "Lock Screen";
   oledMenu.menuItems[MENU_POWER_POWEROFF] = "Deep Sleep";
+
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+
+  mode = MenuActive;
+  needsRepainted = true;
+}
+
+void Menu::remoteMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_REMOTE;
+  oledMenu.menuTitle = "Issue Command";
+
+  oledMenu.noOfmenuItems = 2;
+  oledMenu.menuItems[MENU_REMOTE_BATTERY] = "Battery Level";
+  oledMenu.menuItems[MENU_REMOTE_PATH] = "Show Path";
 
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
@@ -310,7 +332,15 @@ void Menu::meshActions() {
         }
         resetMenu();
         break;
-
+      case MENU_MESH_ENABLE_REMOTE_CONFIG:
+        if (prefHandler->isPreferenceEnabled(PreferenceRemoteConfigEnabled)) {
+          prefHandler->disablePreference(PreferenceRemoteConfigEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceRemoteConfigEnabled);
+        }
+        resetMenu();
+        break;
       case MENU_MESH_CLEAR_PACKETS:
         resetMenu();
         handler->handleEvent(UserRequestClearMeshCache);
@@ -365,6 +395,22 @@ void Menu::powerMenuActions() {
       case MENU_POWER_POWEROFF:
         resetMenu();
         handler->handleEvent(UserRequestPowerOff);
+        break;
+    }
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
+void Menu::remoteActions() {
+  if (oledMenu.menuId == MENU_ID_REMOTE) {  
+    switch (oledMenu.selectedMenuItem) {
+      case MENU_REMOTE_BATTERY:
+        resetMenu();
+        handler->handleEvent(UserRequestRemoteBattery);
+        break;
+      case MENU_REMOTE_PATH:
+        resetMenu();
+        handler->handleEvent(UserRequestRemotePath);
         break;
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
@@ -440,6 +486,9 @@ void Menu::menuActions () {
   else if (oledMenu.menuId == MENU_ID_MESH) {
     meshActions();
   }
+  else if (oledMenu.menuId == MENU_ID_REMOTE) {
+    remoteActions();
+  }
 }
 
 void Menu::mainActions() {
@@ -468,6 +517,11 @@ void Menu::mainActions() {
         break;
       case MENU_MAIN_CONNECTIONS:
         connectionsMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;
+      case MENU_MAIN_REMOTE:
+        remoteMenu();
         mode = MenuActive;
         needsRepainted = true;
         break;
