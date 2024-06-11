@@ -177,6 +177,34 @@ bool CommunicatorControlMode::executeRemoteConfig (CommunicatorEvent* event) {
       }
 
       return true;
+    case RemoteConfigMeshCacheClear:
+      logConsole("Remote mesh cache clear");
+      handleEvent(UserRequestClearMeshCache);
+
+      return true;
+    case RemoteConfigMeshGraphClear:
+      logConsole("Remote mesh graph clear");
+      handleEvent(UserRequestClearMeshGraphNoPrompt);
+      return true;
+    case RemoteConfigPingTableClear:
+      logConsole("Remote ping table clear");
+      handleEvent(UserRequestClearPingTable);
+      return true;
+    case RemoteConfigEnableLearn:
+      logConsole("Remote enable of learn mode");
+      if (!chatter->getDeviceStore()->getMeshLearningEnabled()) {
+        chatter->getDeviceStore()->setMeshLearningEnabled(true);
+      }
+      return true;
+    case RemoteConfigDisableLearn:
+      logConsole("Remote disable of learn mode");
+      if (chatter->getDeviceStore()->getMeshLearningEnabled()) {
+        chatter->getDeviceStore()->setMeshLearningEnabled(false);
+      }
+      return true;
+    case RemoteConfigMessagesClear:
+      logConsole("Remote clearing messages");
+      handleEvent(UserDeleteAllMessagesNoPrompt);
   }
 
   logConsole("unknown remote config");

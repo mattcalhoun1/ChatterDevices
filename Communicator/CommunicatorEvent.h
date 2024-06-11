@@ -39,7 +39,16 @@ enum CommunicatorEventType {
     BroadcastReceived = 29,
     RemoteConfigReceived = 30,
     UserRequestRemoteBattery = 31,
-    UserRequestRemotePath = 32
+    UserRequestRemotePath = 32,
+    UserRequestRemoteClearMeshGraph = 33,
+    UserRequestRemoteClearMeshCache = 34,
+    UserRequestRemoteClearPingTable = 35,
+    UserRequestRemoteEnableLearn = 36,
+    UserRequestRemoteDisableLearn = 37,
+    UserRequestRemoteMessagesClear = 38,
+    UserRequestClearMeshGraphNoPrompt = 40,
+    UserDeleteAllMessagesNoPrompt = 41,
+    UserRequestClearPingTable = 42
 };
 
 struct CommunicatorEvent {

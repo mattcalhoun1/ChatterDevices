@@ -210,9 +210,16 @@ void Menu::remoteMenu() {
   oledMenu.menuId = MENU_ID_REMOTE;
   oledMenu.menuTitle = "Issue Command";
 
-  oledMenu.noOfmenuItems = 2;
+  oledMenu.noOfmenuItems = 8;
   oledMenu.menuItems[MENU_REMOTE_BATTERY] = "Battery Level";
   oledMenu.menuItems[MENU_REMOTE_PATH] = "Show Path";
+  oledMenu.menuItems[MENU_REMOTE_CLEAR_MESH_CACHE] = "Clear Mesh";
+  oledMenu.menuItems[MENU_REMOTE_CLEAR_PING_TABLE] = "Clear Ping";
+  oledMenu.menuItems[MENU_REMOTE_ENABLE_LEARN] = "Enable Learning";
+  oledMenu.menuItems[MENU_REMOTE_DISABLE_LEARN] = "Disable Learning";
+  oledMenu.menuItems[MENU_REMOTE_CLEAR_MESH_GRAPH] = "! Clear Graph";
+  oledMenu.menuItems[MENU_REMOTE_CLEAR_MESSAGES] = "! Clear Messages";
+
 
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
@@ -411,6 +418,30 @@ void Menu::remoteActions() {
       case MENU_REMOTE_PATH:
         resetMenu();
         handler->handleEvent(UserRequestRemotePath);
+        break;
+      case MENU_REMOTE_ENABLE_LEARN:
+        resetMenu();
+        handler->handleEvent(UserRequestRemoteEnableLearn);
+        break;
+      case MENU_REMOTE_DISABLE_LEARN:
+        resetMenu();
+        handler->handleEvent(UserRequestRemoteDisableLearn);
+        break;
+      case MENU_REMOTE_CLEAR_MESH_CACHE:
+        resetMenu();
+        handler->handleEvent(UserRequestRemoteClearMeshCache);
+        break;
+      case MENU_REMOTE_CLEAR_MESH_GRAPH:
+        resetMenu();
+        handler->handleEvent(UserRequestRemoteClearMeshGraph);
+        break;
+      case MENU_REMOTE_CLEAR_PING_TABLE:
+        resetMenu();
+        handler->handleEvent(UserRequestRemoteClearPingTable);
+        break;
+      case MENU_REMOTE_CLEAR_MESSAGES:
+        resetMenu();
+        handler->handleEvent(UserRequestRemoteMessagesClear);
         break;
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned

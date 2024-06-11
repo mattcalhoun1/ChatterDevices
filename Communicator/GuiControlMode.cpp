@@ -454,8 +454,13 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         else {
           logConsole("delete all canceled.");
           fullRepaint = true;
+          return true;
         }
       }
+      return true;
+    case UserDeleteAllMessagesNoPrompt:
+      chatter->getMessageStore()->clearAllMessages();
+      fullRepaint = true;
       return true;
     case UserRequestClearMeshCache:
       chatter->getMeshPacketStore()->clearAllPackets();
@@ -476,6 +481,10 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
           fullRepaint = true;
         }
       }
+      return true;
+    case UserRequestClearMeshGraphNoPrompt:
+      chatter->resetMesh();
+      fullRepaint = true;
       return true;
     case UserRequestFilterMessages:
       if (!promptSelectDevice()) {
@@ -501,6 +510,64 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         messageBufferLength = 5; // CFG:B
         attemptDirectSend();
 
+      }
+      return true;
+    case UserRequestClearPingTable:
+      logConsole("Clearing ping table");
+      chatter->getPingTable()->reset();
+      return true;
+    case UserRequestRemoteMessagesClear:
+      // send remote battery request
+      if (promptSelectDevice()) {
+        logConsole("Sending messages clear req to: ", otherDeviceId);
+        sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigMessagesClear);
+        messageBufferLength = 5; // CFG:B
+        attemptDirectSend();
+      }
+      return true;
+    case UserRequestRemoteClearMeshGraph:
+      // send remote battery request
+      if (promptSelectDevice()) {
+        logConsole("Sending remote graph clear req to: ", otherDeviceId);
+        sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigMeshGraphClear);
+        messageBufferLength = 5; // CFG:B
+        attemptDirectSend();
+      }
+      return true;
+    case UserRequestRemoteClearMeshCache:
+      // send remote battery request
+      if (promptSelectDevice()) {
+        logConsole("Sending remote graph clear req to: ", otherDeviceId);
+        sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigMeshCacheClear);
+        messageBufferLength = 5; // CFG:B
+        attemptDirectSend();
+      }
+      return true;
+    case UserRequestRemoteClearPingTable:
+      // send remote battery request
+      if (promptSelectDevice()) {
+        logConsole("Sending remote graph clear req to: ", otherDeviceId);
+        sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigPingTableClear);
+        messageBufferLength = 5; // CFG:B
+        attemptDirectSend();
+      }
+      return true;
+    case UserRequestRemoteEnableLearn:
+      // send remote battery request
+      if (promptSelectDevice()) {
+        logConsole("Sending remote graph clear req to: ", otherDeviceId);
+        sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigEnableLearn);
+        messageBufferLength = 5; // CFG:B
+        attemptDirectSend();
+      }
+      return true;
+    case UserRequestRemoteDisableLearn:
+      // send remote battery request
+      if (promptSelectDevice()) {
+        logConsole("Sending remote graph clear req to: ", otherDeviceId);
+        sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigDisableLearn);
+        messageBufferLength = 5; // CFG:B
+        attemptDirectSend();
       }
       return true;
     case UserRequestRemotePath:
@@ -564,7 +631,12 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   }
 
   // let base class handle
-  return HeadsUpControlMode::handleEvent(eventType);
+  bool parentResult = HeadsUpControlMode::handleEvent(eventType);
+
+  // better repaint, we have no idea what happened
+  fullRepaint = true;
+
+  return parentResult;
 }
 
 void GuiControlMode::promptUserNewTime () {
@@ -938,7 +1010,12 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
   }
 
   // let base handle
-  return HeadsUpControlMode::handleEvent(event);
+  bool parentResult = HeadsUpControlMode::handleEvent(event);
+
+  // better repaint, we dont know what chagned
+  fullRepaint = true;
+
+  return parentResult;
 }
 
 

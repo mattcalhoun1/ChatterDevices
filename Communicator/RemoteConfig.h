@@ -3,7 +3,13 @@
 
 enum RemoteConfigType {
     RemoteConfigBattery = 'B',
-    RemoteConfigPath = 'P'
+    RemoteConfigPath = 'P',
+    RemoteConfigMeshCacheClear = 'M',
+    RemoteConfigMeshGraphClear = 'G',
+    RemoteConfigPingTableClear = 'T',
+    RemoteConfigEnableLearn = 'E',
+    RemoteConfigDisableLearn = 'D',
+    RemoteConfigMessagesClear = 'C'
 };
 
 #endif
