@@ -155,9 +155,26 @@ bool CommunicatorControlMode::executeRemoteConfig (CommunicatorEvent* event) {
     case RemoteConfigPath:
       logConsole("Path requested");
 
-      // LEFT HERE!!
-      // add method to populate mesh path in this class
-      // invoke it from gui 'showMeshPath' and also here
+      if (event->EventDataLength == 5+CHATTER_DEVICE_ID_SIZE) {
+        memset(otherDeviceId, 0, CHATTER_DEVICE_ID_SIZE+1);
+        memcpy(otherDeviceId, event->EventData+5, CHATTER_DEVICE_ID_SIZE);
+        logConsole("Finding path to: ", otherDeviceId);
+        populateMeshPath(otherDeviceId);
+
+        Serial.print("Sending: ");Serial.println((const char*)messageBuffer);
+
+        // send to requestor
+        if(!chatter->send(messageBuffer, strlen((char*)messageBuffer), event->EventTarget)) {
+          logConsole("Send direct failed");
+          if (deviceMeshEnabled && chatter->clusterSupportsMesh()) {
+            ChatterMessageFlags flags;
+            chatter->sendViaMesh(messageBuffer, strlen((char*)messageBuffer), event->EventTarget, &flags);
+          }
+        }
+      }
+      else {
+        logConsole("invalid path request");
+      }
 
       return true;
   }
@@ -486,6 +503,42 @@ void CommunicatorControlMode::logPublicKey () {
       Serial.print(hexifiedPubKey[hexCount]);
   }
   Serial.println("");
+}
+
+void CommunicatorControlMode::populateMeshPath (const char* recipientId) {
+  meshPathLength = chatter->findMeshPath (chatter->getDeviceId(), recipientId, meshPath);
+
+  // copy the path into the message buffer so we can display
+  memset(messageBuffer, 0, GUI_MAX_MESSAGE_LENGTH+1);
+  uint8_t* pos = messageBuffer;
+
+  if (meshPathLength > 0) {
+    for (uint8_t p = 0; p < meshPathLength; p++) {
+      memset(meshDevIdBuffer, 0, CHATTER_DEVICE_ID_SIZE + 1);
+      memset(meshAliasBuffer, 0, CHATTER_ALIAS_NAME_SIZE + 1);
+
+      // find cluster device with that address
+      chatter->loadDeviceId(meshPath[p], meshDevIdBuffer);
+
+      // laod from truststore
+      if (chatter->getTrustStore()->loadAlias(meshDevIdBuffer, meshAliasBuffer)) {
+        memcpy(pos, meshAliasBuffer, strlen(meshAliasBuffer));
+        pos += strlen(meshAliasBuffer);
+      }
+      else {
+        sprintf((char*)pos, "%c%s%c", '[', meshDevIdBuffer, ']');
+        pos += (2 + CHATTER_DEVICE_ID_SIZE);
+      }
+
+      if (p+1 < meshPathLength) {
+        memcpy(pos, " -> ", 4);
+        pos += 4;
+      }
+    }
+  }
+  else {
+    memcpy(pos, "no path!", 8);
+  }  
 }
 
 uint8_t CommunicatorControlMode::getBatteryLevel () {

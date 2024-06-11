@@ -48,6 +48,14 @@ void Display_TFT::changeFont (FontType fontType) {
         currFontType = FontPico;
         display.setFont(&Picopixel);
         break;
+      case FontMidSize:
+        currFontType = FontMidSize;
+        display.setFont(&RoboFlex8pt7b);
+        break;
+      case FontUpSize:
+        currFontType = FontUpSize;
+        display.setFont(&FreeSans10pt7b);
+        break;
       default:
         currFontType = FontNormal;
         display.setFont(&FreeSans9pt7b);
@@ -514,7 +522,9 @@ void Display_TFT::showButton(uint8_t buttonPosition, const char* buttonText){
 
   uint8_t charsPerButton = 6;
   int textX = buttonX + (max(0, ((charsPerButton - strlen(buttonText))/2) * (getButtonWidth()/charsPerButton)));
+  changeFont(FontMidSize);
   showText(buttonText, textX, getButtonAreaY() + getButtonHeight() - getTextLowerVerticalOffset(TextSmall), TextSmall, Beige);
+  changeFont(FontNormal);
 }
 
 void Display_TFT::showButtons() {

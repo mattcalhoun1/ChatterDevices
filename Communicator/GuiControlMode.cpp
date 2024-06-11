@@ -182,39 +182,7 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
 }
 
 void GuiControlMode::showMeshPath (const char* recipientId) {
-  meshPathLength = chatter->findMeshPath (chatter->getDeviceId(), recipientId, meshPath);
-
-  // copy the path into the message buffer so we can display
-  memset(messageBuffer, 0, GUI_MAX_MESSAGE_LENGTH+1);
-  uint8_t* pos = messageBuffer;
-
-  if (meshPathLength > 0) {
-    for (uint8_t p = 0; p < meshPathLength; p++) {
-      memset(previewDevIdBuffer, 0, CHATTER_DEVICE_ID_SIZE + 1);
-      memset(previewAliasBuffer, 0, CHATTER_ALIAS_NAME_SIZE + 1);
-
-      // find cluster device with that address
-      chatter->loadDeviceId(meshPath[p], previewDevIdBuffer);
-
-      // laod from truststore
-      if (chatter->getTrustStore()->loadAlias(previewDevIdBuffer, previewAliasBuffer)) {
-        memcpy(pos, previewAliasBuffer, strlen(previewAliasBuffer));
-        pos += strlen(previewAliasBuffer);
-      }
-      else {
-        sprintf((char*)pos, "%c%s%c", '[', previewDevIdBuffer, ']');
-        pos += (2 + CHATTER_DEVICE_ID_SIZE);
-      }
-
-      if (p+1 < meshPathLength) {
-        memcpy(pos, " -> ", 4);
-        pos += 4;
-      }
-    }
-  }
-  else {
-    memcpy(pos, "no path!", 8);
-  }
+  populateMeshPath(recipientId);
 
   display->clearAll();
 
@@ -548,9 +516,12 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
           logConsole("Requesting path from: ", fromDevice);
           logConsole("to: ", toDevice);
 
+          // put 'from' device back in other device id for the send
+          memcpy(otherDeviceId, fromDevice, CHATTER_DEVICE_ID_SIZE);
+
           // send remote path request
           sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigPath);
-          memcpy(messageBuffer, toDevice, CHATTER_DEVICE_ID_SIZE);
+          memcpy(messageBuffer+5, toDevice, CHATTER_DEVICE_ID_SIZE);
           messageBufferLength = 5+CHATTER_DEVICE_ID_SIZE; // CFG:P[device id]
           messageBuffer[messageBufferLength]=0;
           attemptDirectSend();

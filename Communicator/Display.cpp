@@ -121,14 +121,39 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
   }
   
 
+  changeFont(FontMidSize);
+
+  // max of 32 chars per line
+  int msgLen = strlen(text);
+  if (msgLen > 32) {
+    uint8_t charsShown = 0;
+    uint8_t lineNum = 0;
+    uint8_t thisLineSize = 0;
+    while (charsShown < msgLen) {
+      memset(textBuffer, 0, 64);
+      thisLineSize = min(32, msgLen - charsShown);
+      memcpy(textBuffer, text+charsShown, thisLineSize);
+      showText(
+        textBuffer,
+        getMessageAreaX(), 
+        getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())) + (12*lineNum), 
+        TextSmall, 
+        received ? messageColor : DarkGray);
+      charsShown += thisLineSize;
+      lineNum++;
+    }
+  }
+  else {
+    showText(
+      text,
+      getMessageAreaX(), 
+      getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), 
+      TextSmall, 
+      received ? messageColor : DarkGray);
+  }
   changeFont(FontNormal);
-  showText(
-    text,
-    getMessageAreaX(), 
-    getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), 
-    TextSmall, 
-    received ? messageColor : DarkGray);
 }
+
 
 uint8_t Display::getMessagePosition (int positionX, int positionY) {
   // the touch must be toward the title area (left)

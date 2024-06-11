@@ -15,7 +15,9 @@
 #include "TouchControlAdafruit.h"
 #include "TouchControlRak.h"
 #include "TouchControlNone.h"
+#include <Fonts/RoboFlex8pt7b.h> // slightly smaller font
 #include <Fonts/FreeSans9pt7b.h> // default font
+#include <Fonts/FreeSans10pt7b.h> // slightly larger font
 #include <Fonts/FreeSansOblique9pt7b.h> // italic sort of
 #include <Fonts/FreeSansBold9pt7b.h> // italic sort of
 #include <Fonts/Picopixel.h>
@@ -215,8 +217,8 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     FontType currFontType = FontNormal;
 
-    const char* btnDM = " DM";
-    const char* btnFilter = "@ ?";
+    const char* btnDM = "Send";
+    const char* btnFilter = " [@]";
     const char* btnMenu = "Menu";
     const char* buttonTexts[NUM_DISPLAYED_BUTTONS] = {btnDM, btnFilter, btnMenu};
 

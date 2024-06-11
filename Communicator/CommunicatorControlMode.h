@@ -60,6 +60,13 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         bool deviceMeshEnabled = true;
         bool initialized = false;
     
+        void populateMeshPath (const char* recipientId);
+    
+        uint8_t meshPath[CHATTER_MESH_MAX_HOPS];
+        uint8_t meshPathLength = 0;
+        char meshDevIdBuffer[CHATTER_DEVICE_ID_SIZE + 1];
+        char meshAliasBuffer[CHATTER_ALIAS_NAME_SIZE + 1];        
+
     private:
         void sendEchoText();
         //bool sendUserText (CommunicatorEvent* event);

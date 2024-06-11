@@ -18,7 +18,7 @@
 //                                status    channels            ts       :          alias               (           send/rcpient     )   sp  >>  term
 #define MESSAGE_TITLE_BUFFER_SIZE 3 +        2 + STORAGE_TS_SIZE + 1 +  CHATTER_ALIAS_NAME_SIZE + 1 + CHATTER_DEVICE_ID_SIZE + 1 + 1 + 2 + 2
 
-#define MESSAGE_PREVIEW_BUFFER_SIZE 32
+#define MESSAGE_PREVIEW_BUFFER_SIZE 64
 
 enum MessageSendResult {
     MessageSentDirect = 0,
@@ -159,9 +159,6 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         unsigned long lastTick = 0;
         unsigned long lastTouch = millis();
         unsigned long screenTimeout = 60000; // maybe make configurable
-
-        uint8_t meshPath[CHATTER_MESH_MAX_HOPS];
-        uint8_t meshPathLength = 0;
 
         /** learning mode stuff **/
 
