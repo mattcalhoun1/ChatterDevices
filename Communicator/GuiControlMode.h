@@ -12,6 +12,8 @@
 #include "ClusterAliasIterator.h"
 #include <SHA256.h>
 
+#include <qrcode.h>
+
 #ifndef GUICONTROLMODE_H
 #define GUICONTROLMODE_H
 
@@ -77,6 +79,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void resetBackupProgress ();
 
         void handleStartupError ();
+        void handleUnlicensedDevice ();
 
     protected:
         void refreshDisplayContext(bool fullRefresh);
@@ -104,8 +107,11 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void enableLearning (unsigned long learnDurationMillis);
         void disableLearning ();
 
-    private:
+        void showQrCode ();
+        bool promptLicense ();
 
+    private:
+        bool awaitingLicense = false;
         bool screenLocked = false;
         bool fullRepaint = false;
         uint8_t lastChannel = 0;

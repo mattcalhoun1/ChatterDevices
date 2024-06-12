@@ -1,9 +1,12 @@
+#include "Globals.h"
+
+#ifdef TOUCH_CONTROL_RAK
+
 #ifndef TOUCHCONTROLRAK_H
 #define TOUCHCONTROLRAK_H
 
 #include "RAK14014_FT6336U.h"
 #include "TouchControl.h"
-#include "Globals.h"
 #include "Display.h"
 
 class TouchControlRak : public TouchControl {
@@ -15,5 +18,7 @@ class TouchControlRak : public TouchControl {
     protected:
         FT6336U ft6336u;
 };
+
+#endif
 
 #endif

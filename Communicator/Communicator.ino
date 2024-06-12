@@ -82,7 +82,7 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN2), handleRotary, CHANGE);
   #endif
 
-  #if defined(TOUCH_CONTROL_RAK) || defined(TOUCH_CONTROL_ADAFRUIT)
+  #if defined(TOUCH_CONTROL_RAK) || defined(TOUCH_CONTROL_ADAFRUIT_28) || defined(TOUCH_CONTROL_ADAFRUIT_35)
     pinMode(PIN_TOUCH_INT, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(PIN_TOUCH_INT), handleTouch, FALLING);
   #endif
@@ -97,10 +97,13 @@ void setup() {
     logConsole("Startup returned error");
     controlMode->handleStartupError();
   }
+  else if (startupState == StartupUnlicensed) {
+    logConsole("Startup returned unlicensed");
+    controlMode->handleUnlicensedDevice();
+  }
   if(startupState != StartupComplete) {
     logConsole("Error initializing!");
   }
-
 }
 
 DeviceType selectDeviceType () {

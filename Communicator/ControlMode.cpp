@@ -24,7 +24,10 @@ StartupState ControlMode::init() {
     #endif
 
     bool chatterReady = chatter->init();
-    if (!chatter->isDeviceInitialized()) {
+    if (!chatter->isDeviceLicensed ()) {
+      return StartupUnlicensed;
+    }
+    else if (!chatter->isDeviceInitialized()) {
       return StartupInitializeDevice;
     }
     else if (factoryResetButtonHeld()) {
@@ -83,6 +86,13 @@ StartupState ControlMode::init() {
 
 void ControlMode::handleStartupError() {
   logConsole("Startup error, no handler code!");
+}
+
+void ControlMode::handleUnlicensedDevice () {
+  logConsole("No license!");
+  while(true) {
+    delay(50);
+  }
 }
 
 void ControlMode::updateChatDashboard () {

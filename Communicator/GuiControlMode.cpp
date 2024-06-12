@@ -47,6 +47,89 @@ StartupState GuiControlMode::init() {
 }
 
 
+void GuiControlMode::handleUnlicensedDevice() {
+    awaitingLicense = true;
+    showQrCode();
+    ((FullyInteractiveDisplay*)display)->setTouchListening(true);
+    ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
+
+    while(true) {
+      if (!((FullyInteractiveDisplay*)display)->isKeyboardShowing()) {
+        ((FullyInteractiveDisplay*)display)->handleIfTouched();        
+      }
+    }
+}
+
+void GuiControlMode::showQrCode () {
+  // Create the QR code
+    QRCode qrcode;
+    const char* prefix = "https://www.chatters.io/licensing?devid=";
+    char fullLink[64];
+    sprintf(fullLink, "%s%s", prefix, chatter->getUniqueHardwareId());
+
+    const uint8_t ecc = 0;  //lowest level of error correction
+     const uint8_t version = 4;
+
+    uint8_t qrcodeData[qrcode_getBufferSize(version)];
+     qrcode_initText(&qrcode, 
+                    qrcodeData, 
+                    version,   ecc, 
+                    fullLink);
+    const int xy_scale = 6;
+    int xmax   = display->getScreenWidth()/2;
+    int ymax = display->getScreenHeight()/2;
+    int offset = (xy_scale*qrcode.size);
+    int   x1 = xmax - (offset/2);
+    int y1 = ymax - (offset/2);
+
+    int px1 =   x1;
+    int py1 = x1;
+    int px2 = px1;
+    int py2 = py1;
+
+    display->fillRect(0, 0, 270, 320, Black);
+    
+//     // Top quiet zone
+    for (uint8_t y = 0; y < qrcode.size; y++) {
+        for   (uint8_t x = 0; x < qrcode.size; x++) {
+            bool mod = qrcode_getModule(&qrcode,   x, y);
+            px1 = x1 + x * xy_scale;
+            py1 = x1 + y * xy_scale;
+             px2 = px1 + xy_scale;
+            py2 = py1 + xy_scale;
+            if(mod){    
+              display->fillRect(px1, py1, px2-px1, py2-py1, White);
+            }
+        }
+    }
+
+    display->showText("Please obtain a license at:", 10, 260, TextSmall, Green);
+    display->showText("https://chatters.io", 55, 280, TextSmall, Green);
+
+    char idMessage[32];
+
+    char licPt1[5];
+    char licPt2[5];
+    char licPt3[5];
+    char licPt4[5];
+
+    memset(licPt1, 0, 5);
+    memset(licPt2, 0, 5);
+    memset(licPt3, 0, 5);
+    memset(licPt4, 0, 5);
+
+    const char* licBasePtr = chatter->getUniqueHardwareId();
+    memcpy(licPt1, licBasePtr, 4);
+    memcpy(licPt2, licBasePtr+4, 4);
+    memcpy(licPt3, licBasePtr+8, 4);
+    memcpy(licPt4, licBasePtr+12, 4);
+
+    sprintf(idMessage, "%s %s %s %s", licPt1, licPt2, licPt3, licPt4);
+
+    display->showText(idMessage, 25, 305, TextSmall, Beige);
+
+}
+
 void GuiControlMode::beginInteractiveIfPossible() {
     ((FullyInteractiveDisplay*)display)->showProgressBar(.75);
     showStatus("touch screen");
@@ -1071,6 +1154,14 @@ void GuiControlMode::unlockScreen () {
 bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
   lastTouch = millis();
 
+  if (awaitingLicense) {
+    if (((FullyInteractiveDisplay*)display)->isKeyboardShowing()) {
+      return true;
+    }
+    promptLicense();
+    return true;
+  }
+
   // if the screen is locked, intercept all touches
   DisplayedButton pressedButton;
   if (screenLocked) {
@@ -1364,13 +1455,57 @@ bool GuiControlMode::createNewCluster () {
   return true;
 }
 
+bool GuiControlMode::promptLicense () {
+  /*if (fullyInteractive) {
+    ((FullyInteractiveDisplay*)display)->setTouchListening(true);
+  }*/
+
+  // does the user want to password protect
+  int licenseLength = -1;
+  char userLicenseKey[20];
+  memset(userLicenseKey, 0, 20);
+  while (licenseLength < 16) {
+    licenseLength = ((FullyInteractiveDisplay*)display)->getModalInput("License Key", "Enter your license key", 19, CharacterFilterAlphaNumeric, userLicenseKey, "", 0);
+  }
+
+  Serial.print("done accepting license input, length: ");Serial.println(licenseLength);
+
+  if (licenseLength >= 16) {
+    // remove all spaces
+    char cleanedLicenseKey[17];
+    uint8_t cleanLength = 0;
+
+    memset(cleanedLicenseKey, 0, 17);
+
+    for (uint8_t i = 0; i < licenseLength; i++) {
+      if (userLicenseKey[i] != ' ') {
+        cleanedLicenseKey[cleanLength++] = userLicenseKey[i];
+      }
+    }
+
+    if (cleanLength == 16) {
+      // try this key
+      if (chatter->getLicenseManager()->attemptUnlock (cleanedLicenseKey)) {
+        display->showAlert("Unlocked!", AlertSuccess);
+      }
+      else {
+        display->showAlert("Invalid Key", AlertError);
+      }
+      delay(5000);
+    }
+
+    restartDevice();
+  }
+
+  return false;
+}
+
 bool GuiControlMode::initializeNewDevice () {
   bool result = false;  
   
   // wipe all data
   chatter->factoryReset(true);
 
-  // default to landscape keyboard
   if (fullyInteractive) {
     ((FullyInteractiveDisplay*)display)->setTouchListening(true);
   }

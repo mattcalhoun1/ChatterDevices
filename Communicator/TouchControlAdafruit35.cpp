@@ -1,14 +1,14 @@
-#include "TouchControlAdafruit.h"
+#include "TouchControlAdafruit35.h"
 #include "Keyboard.h"
 
-#ifdef TOUCH_CONTROL_ADAFRUIT_28
+#ifdef TOUCH_CONTROL_ADAFRUIT_35
 
-bool TouchControlAdafruit::init() {
+bool TouchControlAdafruit35::init() {
     touch.begin(); 
     return true;
 }
 
-bool TouchControlAdafruit::wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation) {
+bool TouchControlAdafruit35::wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation) {
     if (touchIrq > sensitivity || touch.touched()) {
         touchIrq = 0;
 

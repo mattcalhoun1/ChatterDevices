@@ -33,7 +33,8 @@ enum DeviceType {
 enum StartupState {
   StartupComplete = 1,
   StartupInitializeDevice = 2,
-  StartupError = 3
+  StartupError = 3,
+  StartupUnlicensed = 4
 };
 
 /**
@@ -66,6 +67,7 @@ class ControlMode : public ChatStatusCallback, public BackupCallback, public Lic
     virtual bool isFullyInteractive () { return false; }
     virtual bool initializeNewDevice ();
     virtual void handleStartupError ();
+    virtual void handleUnlicensedDevice ();
 
     void resetBackupProgress ();
     void updateBackupProgress (float pct);

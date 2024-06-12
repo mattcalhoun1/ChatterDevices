@@ -3,6 +3,13 @@
 Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
   encoder = _encoder;
 
+  // reset the display
+  /*pinMode(Display_TFT_RS, OUTPUT); 
+  digitalWrite(Display_TFT_RS, HIGH);
+  delay(50);
+  digitalWrite(Display_TFT_RS, LOW);*/
+  
+
   display.begin();
 
   display.setFont(&FreeSans9pt7b);
@@ -116,8 +123,10 @@ void Display_TFT::setTouchListening(bool _listening) {
     logConsole("finishing touch setup");
     #if defined(TOUCH_CONTROL_RAK)
     touch = new TouchControlRak();
-    #elif defined(TOUCH_CONTROL_ADAFRUIT)
+    #elif defined(TOUCH_CONTROL_ADAFRUIT_28)
     touch = new TouchControlAdafruit();
+    #elif defined(TOUCH_CONTROL_ADAFRUIT_35)
+    touch = new TouchControlAdafruit35();
     #else
     touch = new TouchControlNone();
     logConsole("No touch control defined");

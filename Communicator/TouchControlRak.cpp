@@ -1,5 +1,7 @@
 #include "TouchControlRak.h"
 
+#ifdef TOUCH_CONTROL_RAK
+
 bool TouchControlRak::init() {
     Serial.println("FT6336U touch initializing"); 
     // reset the touch
@@ -57,3 +59,5 @@ bool TouchControlRak::wasTouched(int& x, int& y, bool keyboardShowing, ScreenRot
     }
     return false;
 }
+
+#endif

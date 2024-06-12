@@ -8,13 +8,22 @@
 #include <Adafruit_GFX.h>    // Core graphics library
 #if defined(DISPLAY_TYPE_HOYSOND)
 #include <Adafruit_ST7796S_kbv.h>
-#elif defined(DISPLAY_TYPE_ADAFRUIT)
+#elif defined(DISPLAY_TYPE_ADAFRUIT_28)
 #include <Adafruit_ILI9341.h> // Hardware-specific library
+#elif defined(DISPLAY_TYPE_ADAFRUIT_35)
+#include <Adafruit_HX8357.h> // Hardware-specific library
 #endif
 #include "TouchControl.h"
-#include "TouchControlAdafruit.h"
+
+#if defined(TOUCH_CONTROL_RAK)
 #include "TouchControlRak.h"
+#elif defined(TOUCH_CONTROL_ADAFRUIT_28)
+#include "TouchControlAdafruit.h"
+#elif defined(TOUCH_CONTROL_ADAFRUIT_35)
+#include "TouchControlAdafruit35.h"
+#else
 #include "TouchControlNone.h"
+#endif
 #include <Fonts/RoboFlex8pt7b.h> // slightly smaller font
 #include <Fonts/FreeSans9pt7b.h> // default font
 #include <Fonts/FreeSans10pt7b.h> // slightly larger font
@@ -206,8 +215,10 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     #if defined(DISPLAY_TYPE_HOYSOND)
     Adafruit_ST7796S_kbv display = Adafruit_ST7796S_kbv(Display_TFT_CS, Display_TFT_DC, Display_TFT_RS);
-    #elif defined(DISPLAY_TYPE_ADAFRUIT)
+    #elif defined(DISPLAY_TYPE_ADAFRUIT_28)
     Adafruit_ILI9341 display = Adafruit_ILI9341(Display_TFT_CS, Display_TFT_DC, Display_TFT_RS);
+    #elif defined(DISPLAY_TYPE_ADAFRUIT_35)
+    Adafruit_HX8357 display = Adafruit_HX8357(Display_TFT_CS, Display_TFT_DC);
     #endif
     TouchControl* touch;
 
