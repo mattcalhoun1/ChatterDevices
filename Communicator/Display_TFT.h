@@ -1,3 +1,6 @@
+#ifndef DISPLAY_TFT_H
+#define DISPLAY_TFT_H
+
 #include "Display.h"
 #include "MenuEnabledDisplay.h"
 #include "TouchEnabledDisplay.h"
@@ -24,15 +27,26 @@
 #else
 #include "TouchControlNone.h"
 #endif
+
+// fonts
+#if defined(DISPLAY_TYPE_ADAFRUIT_35)
+#include <Fonts/RoboFlex7pt7b.h> // slightly smaller font
+#include <Fonts/RoboFlex8pt7b.h> // slightly smaller font
+#include <Fonts/RoboFlex9pt7b.h> // slightly smaller font
+#include <Fonts/FreeSans10pt7b.h> // default font
+#include <Fonts/FreeSans12pt7b.h> // slightly larger font
+#include <Fonts/FreeSans14pt7b.h> // slightly larger font
+#include <Fonts/FreeSansOblique10pt7b.h> // italic sort of
+#include <Fonts/FreeSansBold10pt7b.h> // italic sort of
+//#include <Fonts/Picopixel.h>
+#else
 #include <Fonts/RoboFlex8pt7b.h> // slightly smaller font
 #include <Fonts/FreeSans9pt7b.h> // default font
 #include <Fonts/FreeSans10pt7b.h> // slightly larger font
 #include <Fonts/FreeSansOblique9pt7b.h> // italic sort of
 #include <Fonts/FreeSansBold9pt7b.h> // italic sort of
 #include <Fonts/Picopixel.h>
-
-#ifndef DISPLAY_TFT_H
-#define DISPLAY_TFT_H
+#endif
 
 class Display_TFT : public FullyInteractiveDisplay {
   public:

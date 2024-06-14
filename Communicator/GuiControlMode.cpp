@@ -1184,6 +1184,8 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
 
     // if it's a button
     pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (touchX, touchY);
+    Serial.print("button pressed: ");Serial.println(pressedButton);
+
     if (pressedButton != ButtonNone) {
       switch (pressedButton) {
         case ButtonLock:

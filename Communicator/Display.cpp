@@ -420,7 +420,13 @@ void Display::showDashboardItems (const char* item, DisplayColor itemColor[], ui
 
   changeFont(FontTiny);
   for (int itemNum = 0; itemNum < numItems; itemNum++) {
+    
+    #if defined(DISPLAY_TYPE_ADAFRUIT_35)
+    showText(item + (itemNum * CHANNEL_DISPLAY_SIZE), getDashboardAreaX() + nextX, getDashboardAreaY() + 12, TextSmall, itemColor[itemNum]);
+    #else
     showText(item + (itemNum * CHANNEL_DISPLAY_SIZE), getDashboardAreaX() + nextX, getDashboardAreaY() - (getTextUpperVerticalOffset(TextSmall) - 1), TextSmall, itemColor[itemNum]);
+    #endif
+    
     nextX += pixelsPerItem;
   }
   changeFont(FontNormal);

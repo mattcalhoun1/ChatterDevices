@@ -1,14 +1,23 @@
 #include "MenuEnabledDisplay.h"
 
 void MenuEnabledDisplay::clearMenuTitle () {
+    #if defined(DISPLAY_TYPE_ADAFRUIT_35)
+    clearArea(getMenuAreaX(), getMenuAreaY() - (36 +2), getMenuAreaWidth(), getMenuLineHeight() + getTextLowerVerticalOffset(TextMedium), DarkGreen);
+    #else
     clearArea(getMenuAreaX(), getMenuAreaY() - (getTextUpperVerticalOffset(TextMedium) +2), getMenuAreaWidth(), getMenuLineHeight() + getTextLowerVerticalOffset(TextMedium), DarkGreen);
+    #endif
 
     // horizontal line under title
     //clearArea(getMenuAreaX(), getMenuAreaY() - getTextUpperVerticalOffset(TextMedium) + getMenuLineHeight() + 8, getMenuAreaWidth(), 1);     
 }
 
 void MenuEnabledDisplay::clearMenu () {
+    #if defined(DISPLAY_TYPE_ADAFRUIT_35)
+    clearArea(getMenuAreaX(), getMenuAreaY() + getMenuLineHeight() - 16, getMenuAreaWidth(), getMenuAreaHeight() - getMenuLineHeight(), DarkGreen);
+    #else
     clearArea(getMenuAreaX(), getMenuAreaY() + getMenuLineHeight() - getTextUpperVerticalOffset(TextSmall), getMenuAreaWidth(), getMenuAreaHeight() - getMenuLineHeight(), DarkGreen);
+    #endif
+
 }
 
 void MenuEnabledDisplay::showMenuTitle (String& title) {
@@ -21,9 +30,9 @@ void MenuEnabledDisplay::showMenuTitle (String& title) {
 
 void MenuEnabledDisplay::showMenuItem (uint8_t itemNumber, String& text, DisplayColor textColor, DisplayColor backgroundColor) {
     int itemX = getMenuAreaX();
-    int itemY = 5 + getMenuAreaY() + ((itemNumber-1) * getMenuLineHeight()) + getMenuLineHeight();
+    int itemY = DISPLAY_TFT_MENU_VERTICAL_ITEM_OFFSET + getMenuAreaY() + ((itemNumber-1) * getMenuLineHeight()) + getMenuLineHeight();
     fillRect(itemX, itemY - (getMenuLineHeight()/numDisplayableItems) - getTextUpperVerticalOffset(TextSmall), getMenuAreaWidth(), getMenuLineHeight() + getTextLowerVerticalOffset(TextSmall), backgroundColor);
-    showText(text, itemX + getMenuItemIndent(), itemY + 3, TextSmall, textColor);
+    showText(text, itemX + getMenuItemIndent(), itemY + DISPLAY_TFT_MENU_VERTICAL_TEXT_OFFSET, TextSmall, textColor);
 
     // if this isn't the last item, draw a line below it
     if (itemNumber < numDisplayableItems) {
@@ -32,7 +41,7 @@ void MenuEnabledDisplay::showMenuItem (uint8_t itemNumber, String& text, Display
 }
 
 uint8_t MenuEnabledDisplay::getMenuItemAt (int x, int y) {
-    int relativeY = y - (getMenuAreaY() + 5);
+    int relativeY = y - (getMenuAreaY() + DISPLAY_TFT_MENU_VERTICAL_ITEM_OFFSET);
     if (x >= getMenuAreaX() && x <= getMenuAreaX() + getMenuAreaWidth()) {
         if (relativeY >= 0 && relativeY - getTextUpperVerticalOffset(TextSmall) < numDisplayableItems * getMenuLineHeight()) {
             // we want center of the entry
@@ -46,7 +55,11 @@ uint8_t MenuEnabledDisplay::getMenuItemAt (int x, int y) {
 }
 
 void MenuEnabledDisplay::drawMenuBorder () {
+    #if defined(DISPLAY_TYPE_ADAFRUIT_35)
+    fillRect(getMenuAreaX() - getMenuBorderSize(), getMenuAreaY() - (36 + getMenuBorderSize() * 2), getMenuAreaWidth() + getMenuBorderSize() * 2, getMenuAreaHeight() + getMenuBorderSize() * 11, Beige);
+    #else
     fillRect(getMenuAreaX() - getMenuBorderSize(), getMenuAreaY() - (getTextUpperVerticalOffset(TextMedium) + getMenuBorderSize() * 2), getMenuAreaWidth() + getMenuBorderSize() * 2, getMenuAreaHeight() + getMenuBorderSize() * 11, Beige);
+    #endif
 }
 
 void MenuEnabledDisplay::blurMenuBackground () {

@@ -146,8 +146,8 @@ class Display {
 
     void showDashboardItems (const char* item, DisplayColor itemColor[], uint8_t numItems);
 
-    virtual int getTextUpperVerticalOffset (TextSize textSize) { return 14 * (uint8_t)textSize; }
-    virtual int getTextLowerVerticalOffset (TextSize textSize) { return 4 * (uint8_t)textSize; }
+    virtual int getTextUpperVerticalOffset (TextSize textSize) { return TEXT_UPPER_VERTICAL_OFFSET_MULT * (uint8_t)textSize; }
+    virtual int getTextLowerVerticalOffset (TextSize textSize) { return TEXT_LOWER_VERTICAL_OFFSET_MULT * (uint8_t)textSize; }
 
     virtual int getScreenWidth () = 0;
     virtual int getScreenHeight () = 0;

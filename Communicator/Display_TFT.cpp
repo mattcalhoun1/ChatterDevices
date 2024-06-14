@@ -12,7 +12,8 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
 
   display.begin();
 
-  display.setFont(&FreeSans9pt7b);
+  changeFont(FontNormal);
+
   setBrightness(100);
 
   clear();
@@ -22,9 +23,9 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
 
   // show splash screen
   changeFont(FontBold);
-  showText(APP_TITLE, 65, 100, TextSmall, DarkBlue);
+  showText(APP_TITLE, DISPLAY_TFT_SPLASH_TITLE_X, DISPLAY_TFT_SPLASH_TITLE_Y, TextSmall, DarkBlue);
   changeFont(FontTiny);
-  showText(APP_SUBTITLE, 35, 150, TextSmall, DarkBlue);
+  showText(APP_SUBTITLE, DISPLAY_TFT_SPLASH_SUBTITLE_X, DISPLAY_TFT_SPLASH_SUBTITLE_Y, TextSmall, DarkBlue);
   changeFont(FontNormal);
   showProgressBar(.25);
 
@@ -36,6 +37,43 @@ void Display_TFT::touchInterrupt() {
   }
 }
 
+#if defined(DISPLAY_TYPE_ADAFRUIT_35)
+void Display_TFT::changeFont (FontType fontType) {
+  if (fontType != currFontType) {
+    switch (fontType) {
+      case FontItalic:
+        currFontType = FontItalic;
+        display.setFont(&FreeSansOblique10pt7b);
+        break;
+      case FontBold:
+        currFontType = FontBold;
+        display.setFont(&FreeSansBold10pt7b);
+        break;
+      case FontTiny:
+        currFontType = FontTiny;
+        display.setFont(&RoboFlex8pt7b);
+        //display.setFont(); // default fixed size
+        break;
+      case FontPico:
+        currFontType = FontPico;
+        display.setFont(&RoboFlex7pt7b);
+        break;
+      case FontMidSize:
+        currFontType = FontMidSize;
+        display.setFont(&RoboFlex9pt7b);
+        break;
+      case FontUpSize:
+        currFontType = FontUpSize;
+        display.setFont(&FreeSans14pt7b);
+        break;
+      default:
+        currFontType = FontNormal;
+        display.setFont(&FreeSans12pt7b);
+    }
+  }
+}
+
+#else
 void Display_TFT::changeFont (FontType fontType) {
   if (fontType != currFontType) {
     switch (fontType) {
@@ -69,6 +107,7 @@ void Display_TFT::changeFont (FontType fontType) {
     }
   }
 }
+#endif
 
 void Display_TFT::clear () {
   display.fillScreen(ILI9341_BLACK);
