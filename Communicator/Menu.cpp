@@ -624,7 +624,6 @@ void Menu::menuUpdate() {
       case MenuActive:
         serviceMenu();
         menuActions();
-        //menuActions();
         break;
 
       // if there is an active none blocking 'enter value'

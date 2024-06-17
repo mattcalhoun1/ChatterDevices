@@ -14,6 +14,7 @@ class TouchControl {
     public:
         virtual bool init() = 0;
         virtual bool wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation) = 0;
+        virtual bool wasTouched() = 0;
         virtual void touchInterrupt () {touchIrq++;}
         virtual void clearTouchInterrupt () {touchIrq = 0;}
         virtual void setTouchSenstivity(TouchSensitivity _sensitivity) { sensitivity = _sensitivity; }

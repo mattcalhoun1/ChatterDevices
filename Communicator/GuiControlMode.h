@@ -71,6 +71,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void updateChatProgress (float progress);
         void resetChatProgress ();
         void hideChatProgress ();
+        bool userInterrupted();
         void updateMeshCacheUsed (float percent);
         void pingReceived (uint8_t deviceAddress);
 
@@ -112,7 +113,6 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
     private:
         bool awaitingLicense = false;
-        bool screenLocked = false;
         bool fullRepaint = false;
         uint8_t lastChannel = 0;
         RotaryEncoder *rotary = nullptr;
@@ -164,7 +164,6 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         unsigned long tickFrequency = 3000; // how often the ticker should blink
         unsigned long lastTick = 0;
         unsigned long lastTouch = millis();
-        unsigned long screenTimeout = 60000; // maybe make configurable
 
         /** learning mode stuff **/
 

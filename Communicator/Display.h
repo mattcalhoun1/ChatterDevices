@@ -26,7 +26,8 @@ enum FontType {
   FontTiny = 4,
   FontPico = 5,
   FontMidSize = 6,
-  FontUpSize = 7
+  FontUpSize = 7,
+  FontSystem = 8
 };
 
 enum DisplayColor {
@@ -195,6 +196,12 @@ class Display {
     virtual int getMessageAreaHeight () = 0;
     virtual int getMessageHeight () = 0;
     virtual int getMessageTitleHeight () = 0;
+    virtual int getMessageTitleTsXOffset() = 0;
+    virtual int getMessageTitleYOffset() = 0;
+    virtual int getMessageTitleXOffset() = 0;
+    virtual int getMessageStatusXOffset() = 0;
+    virtual int getMessageStatusRadius() = 0;
+    virtual int getMessageTitleIconOffset() = 0;
 
     virtual int getTitleAreaX () = 0;
     virtual int getTitleAreaY () = 0;

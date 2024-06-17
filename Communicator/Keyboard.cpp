@@ -75,7 +75,7 @@ void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength, const char*
           display->showSymbol(
             keys[rowCount][colCount], 
             x + (colCount * keyWidth) + .3 * keyWidth + getHorizontalPadding(keys[rowCount][colCount]), 
-            y + (rowCount * keyHeight) + .2 * keyHeight + getVerticalPadding(keys[rowCount][colCount]) + display->getTextUpperVerticalOffset(TextSmall), White);//, fontSize, White);
+            y + (rowCount * keyHeight) + .2 * keyHeight + getVerticalPadding(keys[rowCount][colCount]) + display->getTextUpperVerticalOffset(TextSmall) + DISPLAY_TFT_KEYBOARD_TEXT_VERT_OFFSET, White);//, fontSize, White);
         }
       }
     }
@@ -88,19 +88,19 @@ void Keyboard::showKeyboard (CharacterFilter _filter, int maxLength, const char*
       // draw the ctrl key
       switch (keys[lastRow][ctrlKey*2]) {
         case KEY_BACKSPACE:
-          display->showText("Bksp", (int)(x + (colPosition * keyWidth) + .3 * keyWidth), (int)(y + (lastRow * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall)), TextSmall, White);
+          display->showText("Bksp", (int)(x + (colPosition * keyWidth) + .3 * keyWidth), (int)(y + (lastRow * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall) + DISPLAY_TFT_KEYBOARD_TEXT_VERT_OFFSET), TextSmall, White);
           break;
         case KEY_CLEAR:
-          display->showText(" Clr", (int)(x + (colPosition * keyWidth) + .3 * keyWidth), (int)(y + (lastRow * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall)), TextSmall, White);
+          display->showText(" Clr", (int)(x + (colPosition * keyWidth) + .3 * keyWidth), (int)(y + (lastRow * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall) + DISPLAY_TFT_KEYBOARD_TEXT_VERT_OFFSET), TextSmall, White);
           break;
         case KEY_CANCEL:
-          display->showText("Esc", (int)(x + (colPosition * keyWidth) + .3 * keyWidth), (int)(y + (lastRow * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall)), TextSmall, White);
+          display->showText("Esc", (int)(x + (colPosition * keyWidth) + .3 * keyWidth), (int)(y + (lastRow * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall) + DISPLAY_TFT_KEYBOARD_TEXT_VERT_OFFSET), TextSmall, White);
           break;
         case ' ':
-          display->showText(" ", (int)(x + (colPosition * keyWidth) + .3 * keyWidth), (int)(y + (lastRow * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall)), TextSmall, White);
+          display->showText(" ", (int)(x + (colPosition * keyWidth) + .3 * keyWidth), (int)(y + (lastRow * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall) + DISPLAY_TFT_KEYBOARD_TEXT_VERT_OFFSET), TextSmall, White);
           break;
         case KEY_SEND:
-          display->showText(" Go", (int)(x + (colPosition * keyWidth) + .3 * keyWidth), (int)(y + (lastRow * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall)), TextSmall, White);
+          display->showText(" Go", (int)(x + (colPosition * keyWidth) + .3 * keyWidth), (int)(y + (lastRow * keyHeight) + .2 * keyHeight + display->getTextUpperVerticalOffset(TextSmall)+ DISPLAY_TFT_KEYBOARD_TEXT_VERT_OFFSET), TextSmall, White);
           break;
       }
     }
@@ -135,6 +135,11 @@ void Keyboard::hideKeyboard () {
 }
 
 bool Keyboard::handleScreenTouched (int touchX, int touchY) {
+  // ignore, if not showing
+  if (!showing) {
+    return false;
+  }
+
   /*if (touchX == 0 || touchX <= x || touchX >= x + width) {
     // ignore, it's at an edge and likely misreading
     Serial.print("ignoring x ("); Serial.print(touchX); Serial.print(",");Serial.print(touchY); Serial.println(")");
@@ -217,11 +222,12 @@ void Keyboard::addTermCharacter () {
 
 char Keyboard::getLetterAt (int touchX, int touchY) {
   // the touch should be toward the center of the key. otherwise we dont count it
-  float frow = ((touchY - (keyCenterYFactor*keyHeight) - y) / (float)keyHeight);
+  float frow = ((touchY + DISPLAY_TFT_KEYBOARD_TEXT_VERT_OFFSET - (keyCenterYFactor*keyHeight) - y) / (float)keyHeight);
   float fcol = ((touchX - (keyCenterXFactor*keyWidth) - x) / (float)keyWidth);// - (display->getRotation() == Portrait ? 1 : 0);
 
   fcol = max(.1, fcol);
   fcol = min(KEYBOARD_COLS + .1, fcol);
+
   frow = max(0, frow); // can't be < 0
 
   // get the row

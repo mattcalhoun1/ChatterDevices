@@ -13,6 +13,8 @@ class TouchControlAdafruit : public TouchControl {
     public:
         bool init ();
         bool wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation);
+        bool wasTouched();
+
         void resetToDefaultTouchSensitivity () { sensitivity = TouchSensitivityHigh; }
 
     protected:

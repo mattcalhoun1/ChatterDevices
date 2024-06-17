@@ -36,6 +36,8 @@ class HeadsUpControlMode : public CommunicatorControlMode, public CommunicatorPr
         void disablePreference (CommunicatorPreference pref);                
     protected:
         bool fullyInteractive = false;
+        bool screenLocked = false;
+
         ThermalEncoder* encoder;
         Display* display = nullptr;
         DisplayColor getDisplayColorForStatus (ChatStatus chatStatus);

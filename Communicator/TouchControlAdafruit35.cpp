@@ -8,6 +8,19 @@ bool TouchControlAdafruit35::init() {
     return true;
 }
 
+bool TouchControlAdafruit35::wasTouched () {
+    if(touchIrq > sensitivity || touch.touched()) {
+        TS_Point p = touch.getPoint();
+
+        // ignore edges
+        if (p.y > 0 && p.y < DISPLAY_TFT_HEIGHT && p.x > 0 && p.x < DISPLAY_TFT_WIDTH) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool TouchControlAdafruit35::wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation) {
     if (touchIrq > sensitivity || touch.touched()) {
         touchIrq = 0;
@@ -18,8 +31,6 @@ bool TouchControlAdafruit35::wasTouched(int& x, int& y, bool keyboardShowing, Sc
         if (p.y <= 0 || p.y >= DISPLAY_TFT_HEIGHT || p.x <= 0 || p.x >= DISPLAY_TFT_WIDTH) {
             return false;
         }
-
-        Serial.print("touch x: ");Serial.print(p.x);Serial.print(", y: ");Serial.println(p.y);
 
         // 3.5 driver doesn't seem to flip x/y like the 2.8 did
         //x = DISPLAY_TFT_WIDTH - p.x;

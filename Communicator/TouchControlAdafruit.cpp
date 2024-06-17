@@ -8,6 +8,10 @@ bool TouchControlAdafruit::init() {
     return true;
 }
 
+bool TouchControlAdafruit::wasTouched () {
+    return touchIrq > sensitivity || touch.touched();
+}
+
 bool TouchControlAdafruit::wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation) {
     if (touchIrq > sensitivity || touch.touched()) {
         touchIrq = 0;

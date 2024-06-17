@@ -2,20 +2,23 @@
 
 StartupState ControlMode::init() {
 
+logConsole("Initializing clock");
 #if defined(ARDUINO_UNOR4_WIFI)
+  logConsole("Uno R4 clock selected");
   rtc = new R4RtClock();
 #elif defined(ARDUINO_SAM_DUE)
+  logConsole("Due clock selected");
   rtc = new DueRtClock();
 #elif defined (ADAFRUIT_FEATHER_M4_EXPRESS)
-  rtc = new Samd51RtClock();
   logConsole("Samd51RtClock selected");
+  rtc = new Samd51RtClock();
 #elif defined(ARDUINO_SAMD_MKRZERO) || defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_ZERO) || defined(ARDUINO_FEATHER_M4)
   logConsole("ZeroRtClock selected");
   rtc = new ZeroRtClock();
 #endif
 
   if(rtc->isFunctioning()) {
-    logConsole("RTC is OK");
+    logConsole("RTC Time: ", rtc->getViewableTime());
 
     #if defined(STORAGE_FRAM_SPI)
       chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramSPI, this, this, this);
@@ -163,6 +166,11 @@ void ControlMode::pingReceived (uint8_t deviceAddress) {
 void ControlMode::ackReceived(const char* sender, const char* messageId) {
   logConsole("ack received");
 }
+
+bool ControlMode::userInterrupted () {
+  return false;
+}
+
 
 void ControlMode::resetBackupProgress() {
   logConsole("reset backup progress");

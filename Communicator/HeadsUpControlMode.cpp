@@ -54,7 +54,7 @@ void HeadsUpControlMode::updateChatDashboard (bool forceRepaint) {
     }
   }
 
-  if (statusChanged) {
+  if (statusChanged && !screenLocked) {
     display->clearDashboard();
     display->showDashboardItems((const char*)dashboardChannels, dashboardColors, chatter->getNumChannels());
   }
@@ -97,7 +97,7 @@ DisplayColor HeadsUpControlMode::getDisplayColorForStatus (ChatStatus chatStatus
 
 
 void HeadsUpControlMode::showStatus(const char* status) {
-  if (strcmp(status, lastStatus) != 0) {
+  if (strcmp(status, lastStatus) != 0 && !screenLocked) {
     strncpy(lastStatus, status, 23); // up to 23
     lastStatus[23] = 0;// make sure last char is always a term
     display->showStatus(lastStatus, BrightGreen);
@@ -114,7 +114,7 @@ void HeadsUpControlMode::showTitle(const char* title) {
 
 void HeadsUpControlMode::showTime() {
     // only update time every second at most
-    if (millis() - lastTimeUpdate > 1000) {
+    if (millis() - lastTimeUpdate > 1000 && !screenLocked) {
         const char* latestTime = rtc->getViewableTime();
         display->showSubtitle(latestTime);
         lastTimeUpdate = millis();

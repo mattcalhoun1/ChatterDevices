@@ -38,6 +38,7 @@
 #include <Fonts/FreeSans14pt7b.h> // slightly larger font
 #include <Fonts/FreeSansOblique10pt7b.h> // italic sort of
 #include <Fonts/FreeSansBold10pt7b.h> // italic sort of
+#include <Fonts/MaterialIconsRegular10pt7b.h>
 //#include <Fonts/Picopixel.h>
 #else
 #include <Fonts/RoboFlex8pt7b.h> // slightly smaller font
@@ -46,6 +47,7 @@
 #include <Fonts/FreeSansOblique9pt7b.h> // italic sort of
 #include <Fonts/FreeSansBold9pt7b.h> // italic sort of
 #include <Fonts/Picopixel.h>
+#include <Fonts/MaterialIconsRegular10pt7b.h>
 #endif
 
 class Display_TFT : public FullyInteractiveDisplay {
@@ -74,10 +76,10 @@ class Display_TFT : public FullyInteractiveDisplay {
     void setBrightness(uint8_t brightness);
 
     bool handleIfTouched ();
+    bool wasTouched ();
     void clearTouchInterrupts ();
     void setTouchSensitivity (TouchSensitivity sensitivity);
     void resetToDefaultTouchSensitivity ();
-
 
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer);
     int getModalInput (const char* title, int maxLength, CharacterFilter charFilter, char* buffer, const char* defaultValue);
@@ -122,6 +124,12 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getMessageHeight () {return DISPLAY_TFT_MSG_HEIGHT; }
     int getMessageTitleHeight () {return DISPLAY_TFT_MSG_TITLE_HEIGHT; }
     uint8_t getMaxDisplayableMessages() { return DISPLAY_TFT_MSG_MAX_DISPLAY; }
+    int getMessageTitleTsXOffset() {return DISPLAY_TFT_MSG_TS_X_OFFSET; }
+    int getMessageTitleYOffset() {return DISPLAY_TFT_MSG_TITLE_Y_OFFSET; }
+    int getMessageTitleXOffset() {return DISPLAY_TFT_MSG_TITLE_X_OFFSET; }
+    int getMessageStatusXOffset() {return DISPLAY_TFT_MSG_STATUS_X_OFFSET; }
+    int getMessageStatusRadius() {return DISPLAY_STATUS_RADIUS;}
+    int getMessageTitleIconOffset() {return DISPLAY_TFT_MSG_TITLE_ICON_Y_OFFSET;}
 
     int getMenuAreaX () { return DISPLAY_TFT_MENU_X; }
     int getMenuAreaY () { return DISPLAY_TFT_MENU_Y; }
@@ -242,10 +250,7 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     FontType currFontType = FontNormal;
 
-    const char* btnDM = "Send";
-    const char* btnFilter = " [@]";
-    const char* btnMenu = "Menu";
-    const char* buttonTexts[NUM_DISPLAYED_BUTTONS] = {btnDM, btnFilter, btnMenu};
+    const char* buttonTexts[NUM_DISPLAYED_BUTTONS] = {DISPLAY_BUTTON_TEXT_SEND, DISPLAY_BUTTON_TEXT_FILTER, DISPLAY_BUTTON_TEXT_MENU};
 
     bool touchListening = false;
     bool touchInitialized = false;

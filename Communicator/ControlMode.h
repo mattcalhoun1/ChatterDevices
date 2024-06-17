@@ -62,6 +62,7 @@ class ControlMode : public ChatStatusCallback, public BackupCallback, public Lic
     void hideChatProgress ();
     void pingReceived (uint8_t deviceAddress);
     void ackReceived(const char* sender, const char* messageId);
+    bool userInterrupted ();
 
     // touch screen, etc
     virtual bool isFullyInteractive () { return false; }

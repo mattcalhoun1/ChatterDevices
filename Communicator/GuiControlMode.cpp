@@ -181,7 +181,7 @@ void GuiControlMode::loop () {
       lastTick = tickFrequency;
 
       // lock screen if no recent user activity
-      if (!chatter->isOnboardMode() && !screenLocked && lastTouch + screenTimeout < millis()) {
+      if (!chatter->isOnboardMode() && !screenLocked && lastTouch + DISPLAY_TFT_SCREEN_LOCK_TIMEOUT < millis()) {
         logConsole("no user activity, lock screen");
         lockScreen();
       }
@@ -910,6 +910,15 @@ void GuiControlMode::hideChatProgress () {
   fullRepaint = true;
 }
 
+bool GuiControlMode::userInterrupted() {
+  if(((FullyInteractiveDisplay*)display)->wasTouched()) {
+    logConsole("user interrupted!");
+    return true;
+  }
+  return false;
+
+}
+
 void GuiControlMode::updateMeshCacheUsed (float percent) {
   display->showCacheUsed(percent);
 }
@@ -1152,6 +1161,7 @@ void GuiControlMode::unlockScreen () {
 }
 
 bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
+    logConsole("gui handle screen touched");
   lastTouch = millis();
 
   if (awaitingLicense) {
@@ -1173,7 +1183,9 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
   }
   else {
     // if the keyboard is showing, it gets the event
+    logConsole("checking if menu showing");
     if (menu->isShowing()){
+      logConsole("menu is showing");
       return true;
     }
     else if (fullyInteractive) {

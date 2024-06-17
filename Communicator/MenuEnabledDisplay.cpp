@@ -13,7 +13,7 @@ void MenuEnabledDisplay::clearMenuTitle () {
 
 void MenuEnabledDisplay::clearMenu () {
     #if defined(DISPLAY_TYPE_ADAFRUIT_35)
-    clearArea(getMenuAreaX(), getMenuAreaY() + getMenuLineHeight() - 16, getMenuAreaWidth(), getMenuAreaHeight() - getMenuLineHeight(), DarkGreen);
+    clearArea(getMenuAreaX(), getMenuAreaY() + getMenuLineHeight() - 16, getMenuAreaWidth(), getMenuAreaHeight() - (getMenuLineHeight() + 14), DarkGreen);
     #else
     clearArea(getMenuAreaX(), getMenuAreaY() + getMenuLineHeight() - getTextUpperVerticalOffset(TextSmall), getMenuAreaWidth(), getMenuAreaHeight() - getMenuLineHeight(), DarkGreen);
     #endif
@@ -31,7 +31,11 @@ void MenuEnabledDisplay::showMenuTitle (String& title) {
 void MenuEnabledDisplay::showMenuItem (uint8_t itemNumber, String& text, DisplayColor textColor, DisplayColor backgroundColor) {
     int itemX = getMenuAreaX();
     int itemY = DISPLAY_TFT_MENU_VERTICAL_ITEM_OFFSET + getMenuAreaY() + ((itemNumber-1) * getMenuLineHeight()) + getMenuLineHeight();
+    #if defined(DISPLAY_TYPE_ADAFRUIT_35)
+    fillRect(itemX, itemY - (getMenuLineHeight()/numDisplayableItems) - getTextUpperVerticalOffset(TextSmall), getMenuAreaWidth(), getMenuLineHeight() - 16, backgroundColor);
+    #else
     fillRect(itemX, itemY - (getMenuLineHeight()/numDisplayableItems) - getTextUpperVerticalOffset(TextSmall), getMenuAreaWidth(), getMenuLineHeight() + getTextLowerVerticalOffset(TextSmall), backgroundColor);
+    #endif
     showText(text, itemX + getMenuItemIndent(), itemY + DISPLAY_TFT_MENU_VERTICAL_TEXT_OFFSET, TextSmall, textColor);
 
     // if this isn't the last item, draw a line below it
@@ -42,11 +46,20 @@ void MenuEnabledDisplay::showMenuItem (uint8_t itemNumber, String& text, Display
 
 uint8_t MenuEnabledDisplay::getMenuItemAt (int x, int y) {
     int relativeY = y - (getMenuAreaY() + DISPLAY_TFT_MENU_VERTICAL_ITEM_OFFSET);
+    uint8_t offsetFactor = 0;
+
+    #ifdef DISPLAY_TYPE_ADAFRUIT_35
+        relativeY += 20;
+        offsetFactor = 20;
+    #endif
+
     if (x >= getMenuAreaX() && x <= getMenuAreaX() + getMenuAreaWidth()) {
-        if (relativeY >= 0 && relativeY - getTextUpperVerticalOffset(TextSmall) < numDisplayableItems * getMenuLineHeight()) {
+        if (relativeY >= 0 && relativeY - getTextUpperVerticalOffset(TextSmall) < numDisplayableItems * getMenuLineHeight() + offsetFactor) {
             // we want center of the entry
             relativeY += getTextUpperVerticalOffset(TextSmall);
-            return (relativeY / getMenuLineHeight()) - 1;
+            uint8_t selectedItem = (relativeY / getMenuLineHeight()) - 1;
+
+            return selectedItem;
         }
     }
 

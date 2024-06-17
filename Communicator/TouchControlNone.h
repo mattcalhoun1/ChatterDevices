@@ -10,6 +10,7 @@ class TouchControlNone : public TouchControl {
     public:
         bool init () { return true; }
         bool wasTouched(int& x, int& y, bool keyboardShowing, ScreenRotation keyboardOrientation) { return false; }
+        bool wasTouched() {return false;}
         void resetToDefaultTouchSensitivity () {}
 };
 

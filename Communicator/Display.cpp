@@ -32,23 +32,32 @@ void Display::showMessage (const char* message, DisplayColor color, uint8_t posi
 void Display::showMessageAndTitle (const char* title, const char* text, const char* readableTS, bool received, char status, char sendMethod, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
   // show a line above the message for separation
   if (position != 0) {
-    int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2);
+    int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2) - getMessageTitleYOffset()*2;
     drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, Beige);
   }
 
-  changeFont(FontTiny);
+  /*changeFont(FontTiny);
   showText(
     received ? "<<" : ">>", 
     getMessageAreaX(), 
     getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall)*2,
     TextSmall,
     received ? titleColor : LightGray);
+  */
 
-  changeFont(received ? FontBold : FontNormal);
+  changeFont(FontSystem);
+  showSymbol(
+    received ? 0x19 : 0x18, 
+    getMessageAreaX() + 5, 
+    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextLowerVerticalOffset(TextSmall)+getMessageTitleIconOffset()),
+    received ? titleColor : LightGray);
+
+
+  changeFont(FontBold);
   showText(
     title, 
-    getMessageAreaX() + 15, 
-    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), 
+    getMessageAreaX() + getMessageTitleXOffset(), 
+    getMessageAreaY() - getMessageTitleYOffset() + (position * (getMessageHeight() + getMessageTitleHeight())), 
     TextSmall, 
     received ? titleColor : LightGray
   );
@@ -57,8 +66,8 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
   changeFont(FontTiny);
   showText(
     readableTS, 
-    getMessageAreaX() + getMessageAreaWidth() - 65, 
-    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
+    getMessageAreaX() + getMessageAreaWidth() - getMessageTitleTsXOffset(), 
+    getMessageAreaY() - getMessageTitleYOffset() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
     TextSmall, 
     received ? titleColor : LightGray);
   
@@ -67,18 +76,18 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
     if (status == 'A') {
       // checkmark
       drawLine(
-        getMessageAreaX() + getMessageAreaWidth() - 72,
-        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 6,
-        getMessageAreaX() + getMessageAreaWidth() - 71,
-        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 8,
+        getMessageAreaX() + getMessageAreaWidth() - (getMessageTitleTsXOffset()+getMessageStatusXOffset()+4),
+        getMessageAreaY() - getMessageTitleIconOffset()*1.5 + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + getMessageStatusRadius()+1,
+        getMessageAreaX() + getMessageAreaWidth() - (getMessageTitleTsXOffset() + getMessageStatusXOffset()+2),
+        getMessageAreaY() - getMessageTitleIconOffset()*1.5 + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + getMessageStatusRadius()+3,
         received ? titleColor : LightGray
       );
 
       drawLine(
-        getMessageAreaX() + getMessageAreaWidth() - 71,
-        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 8,
-        getMessageAreaX() + getMessageAreaWidth() - 68,
-        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 3,
+        getMessageAreaX() + getMessageAreaWidth() - (getMessageTitleTsXOffset()+getMessageStatusXOffset()+2),
+        getMessageAreaY() - getMessageTitleIconOffset()*1.5 + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + getMessageStatusRadius()+3,
+        getMessageAreaX() + getMessageAreaWidth() - (getMessageTitleTsXOffset()+ getMessageStatusXOffset()),
+        getMessageAreaY() - getMessageTitleIconOffset()*1.5 + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + getMessageStatusRadius()-2,
         received ? titleColor : LightGray
       );
     }
@@ -87,32 +96,32 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
     // if it was accepted, draw a circle
     if (status == 'M') {
       drawCircle(
-        getMessageAreaX() + getMessageAreaWidth() - 71,
-        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,
-        3,
+        getMessageAreaX() + getMessageAreaWidth() - (getMessageTitleTsXOffset()+getMessageStatusXOffset()),
+        getMessageAreaY() - getMessageTitleIconOffset()*1.5 + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + getMessageStatusRadius(),
+        getMessageStatusRadius()-2,
         received ? LightGray : BrightGreen
       );
     }
     else if (status == 'N') {
       // not yet accepted, just a dot      
       fillCircle(
-        getMessageAreaX() + getMessageAreaWidth() - 71,
-        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,
-        1,
+        getMessageAreaX() + getMessageAreaWidth() - (getMessageTitleTsXOffset()+getMessageStatusXOffset()),
+        getMessageAreaY() - getMessageTitleIconOffset()*1.5 + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + getMessageStatusRadius(),
+        getMessageStatusRadius()-4,
         received ? LightGray : BrightGreen
       );
     }
     else if (status == 'A') { // it was acknowledged, cricle with dot
       drawCircle(
-        getMessageAreaX() + getMessageAreaWidth() - 71,
-        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,
-        3,
+        getMessageAreaX() + getMessageAreaWidth() - (getMessageTitleTsXOffset()+getMessageStatusXOffset()),
+        getMessageAreaY() - getMessageTitleIconOffset()*1.5 + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + getMessageStatusRadius(),
+        getMessageStatusRadius() - 2,
         received ? LightGray : BrightGreen
       );
       fillCircle(
-        getMessageAreaX() + getMessageAreaWidth() - 71,
-        getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + 5,
-        2,
+        getMessageAreaX() + getMessageAreaWidth() - (getMessageTitleTsXOffset()+getMessageStatusXOffset()),
+        getMessageAreaY() - getMessageTitleIconOffset()*1.5 + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextUpperVerticalOffset(TextSmall) + getMessageStatusRadius(),
+        getMessageStatusRadius() - 3,
         received ? LightGray : BrightGreen
       );
     }
@@ -136,7 +145,7 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
       showText(
         textBuffer,
         getMessageAreaX(), 
-        getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())) + (12*lineNum), 
+        getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())) + (12*lineNum) - getMessageTitleYOffset(), 
         TextSmall, 
         received ? messageColor : DarkGray);
       charsShown += thisLineSize;
@@ -147,7 +156,7 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
     showText(
       text,
       getMessageAreaX(), 
-      getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), 
+      getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())) - getMessageTitleYOffset(), 
       TextSmall, 
       received ? messageColor : DarkGray);
   }
@@ -161,7 +170,11 @@ uint8_t Display::getMessagePosition (int positionX, int positionY) {
     // look mainly at y position, as that's what identifies one position versus another
 
     // subtract message start
-    int shiftedY = positionY - (getMessageAreaY() - getTextUpperVerticalOffset(TextSmall));
+    //int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2) - getMessageTitleYOffset()*2;
+    int shiftedY = positionY - getMessageAreaY();//(getMessageAreaY() - getTextUpperVerticalOffset(TextSmall) + 2);// - getMessageTitleYOffset()*2;
+
+    Serial.print("Shifted y: ");Serial.print(shiftedY);
+    Serial.print(", message area y: ");Serial.println(getMessageAreaY());
 
     if (shiftedY > 0) {
       // divide by message height to get the position
@@ -248,14 +261,14 @@ void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, u
     int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2);
     drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, Beige);
   }
-  int dotYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall);
+  int dotYPos = getMessageAreaY() - getMessageTitleYOffset() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall);
   fillCircle(getMessageAreaX(), dotYPos, getTickerSize(), getColorForConnectionQuality(connectionQuality));
 
   changeFont(isTrusted ? FontBold : FontNormal);
   showText(
     deviceAlias, 
     getMessageAreaX() + 15, 
-    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())), 
+    getMessageAreaY() - getMessageTitleYOffset() + (position * (getMessageHeight() + getMessageTitleHeight())), 
     TextSmall, 
     isTrusted ? titleColor : LightGray
   );
@@ -264,16 +277,16 @@ void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, u
   changeFont(FontPico);
   showText(
     getChannelName(channel), 
-    getMessageAreaX() + getMessageAreaWidth() - 85, 
-    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 5), 
+    getMessageAreaX() - getMessageStatusXOffset()*2.5 + getMessageAreaWidth() - getMessageTitleTsXOffset(), 
+    getMessageAreaY() - (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 5) - getMessageTitleYOffset()*1.5, 
     TextSmall, 
     isTrusted ? titleColor : LightGray);
 
   if (secondaryChannel != channel) {
     showText(
       getChannelName(secondaryChannel), 
-      getMessageAreaX() + getMessageAreaWidth() - 85, 
-      getMessageAreaY() + 7 + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 5), 
+      getMessageAreaX() - getMessageStatusXOffset()*2.5 + getMessageAreaWidth() - getMessageTitleTsXOffset(), 
+      getMessageAreaY() - 7 + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 5) - getMessageTitleYOffset()*1.5, 
       TextSmall, 
       isTrusted ? titleColor : LightGray);
   }
@@ -284,18 +297,20 @@ void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, u
   showText(
     readableTS, 
     getMessageAreaX() + getMessageAreaWidth() - 65, 
-    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
+    getMessageAreaY() - getMessageTitleYOffset() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
     TextSmall, 
     isTrusted ? titleColor : LightGray);
 
   memset(textBuffer, 0, 64);
   sprintf(textBuffer, "%s %s:%02d, %s:%02d", deviceId, "RSSI", rssi, "Mesh Rating", meshDirectRating);
 
+  
   changeFont(FontTiny);
   showText(
     textBuffer,
     getMessageAreaX(), 
-    getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), 
+    getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())) - getMessageTitleYOffset(), 
+    //getMessageAreaY() - getMessageTitleYOffset() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())), 
     TextSmall, 
     isTrusted ? messageColor : DarkGray);
   changeFont(FontNormal);
@@ -323,7 +338,7 @@ void Display::showAlert (const char* alertText, AlertType alertType) {
 }
 
 void Display::clearMessageArea () {
-  clearArea(max(0, getMessageAreaX() - 5), getMessageAreaY() - getTextUpperVerticalOffset(TextSmall), getMessageAreaWidth()+6, getMessageAreaHeight() + 1);
+  clearArea(max(0, getMessageAreaX() - 5), getMessageAreaY() - (getTextUpperVerticalOffset(TextSmall) + getMessageTitleYOffset()*2), getScreenWidth(), getMessageAreaHeight() + 1);
 }
 
 void Display::showInterpolatedThermal (const uint8_t* image, bool isAlt, String subtitle) {
@@ -363,8 +378,15 @@ void Display::showTitle (const char* text) {
 }
 
 void Display::showSubtitle (const char* text) {
-  // change to smaller font
+
+  #if defined(DISPLAY_TYPE_ADAFRUIT_35)
+  //clearArea(getMenuAreaX(), getMenuAreaY() + getMenuLineHeight() - 16, getMenuAreaWidth(), getMenuAreaHeight() - getMenuLineHeight(), DarkGreen);
+  clearArea(getSubtitleAreaX(), getSubtitleAreaY() - 16, getSubtitleAreaWidth(), getSubtitleAreaHeight() - (getTextLowerVerticalOffset(TextSmall)+1));
+  #else
   clearArea(getSubtitleAreaX(), getSubtitleAreaY() - getTextUpperVerticalOffset(TextSmall), getSubtitleAreaWidth(), getSubtitleAreaHeight() - (getTextLowerVerticalOffset(TextSmall)+1));
+  #endif
+
+  // change to smaller font
   changeFont(FontTiny);
   showText(text, calculateSubtitleX(text), getSubtitleAreaY() - getTextUpperVerticalOffset(TextSmall), getSubtitleTextSize(), getSubtitleColor());
   changeFont(FontNormal);

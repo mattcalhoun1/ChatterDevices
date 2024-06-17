@@ -52,7 +52,9 @@ void Display_TFT::changeFont (FontType fontType) {
       case FontTiny:
         currFontType = FontTiny;
         display.setFont(&RoboFlex8pt7b);
-        //display.setFont(); // default fixed size
+        break;
+      case FontSystem:
+        display.setFont();//default font
         break;
       case FontPico:
         currFontType = FontPico;
@@ -68,7 +70,7 @@ void Display_TFT::changeFont (FontType fontType) {
         break;
       default:
         currFontType = FontNormal;
-        display.setFont(&FreeSans12pt7b);
+        display.setFont(&FreeSans10pt7b);
     }
   }
 }
@@ -88,6 +90,9 @@ void Display_TFT::changeFont (FontType fontType) {
       case FontTiny:
         currFontType = FontTiny;
         display.setFont(); // default fixed size
+        break;
+      case FontSystem:
+        display.setFont();//default font
         break;
       case FontPico:
         currFontType = FontPico;
@@ -195,6 +200,10 @@ bool Display_TFT::handleIfTouched () {
   } 
 
   return success;
+}
+
+bool Display_TFT::wasTouched () {
+  return touch->wasTouched();
 }
 
 void Display_TFT::clearTouchInterrupts () {
@@ -568,10 +577,10 @@ void Display_TFT::showButton(uint8_t buttonPosition, const char* buttonText){
   display.drawRoundRect(buttonX, getButtonAreaY(), getButtonWidth(), getButtonHeight(), 1, getTFTColor(LightGreen));
   display.fillRoundRect(buttonX + 1, getButtonAreaY() + 1, getButtonWidth() - 2, getButtonHeight() - 2, 1, getTFTColor(DarkGreen));
 
-  uint8_t charsPerButton = 6;
-  int textX = buttonX + (max(0, ((charsPerButton - strlen(buttonText))/2) * (getButtonWidth()/charsPerButton)));
+  uint8_t charsPerButton = 14;
+  int textX = buttonX + (max(0, ((charsPerButton - strlen(buttonText))/2) * DISPLAY_BUTTON_PIXELS_PER_CHAR));
   changeFont(FontMidSize);
-  showText(buttonText, textX, getButtonAreaY() + getButtonHeight() - getTextLowerVerticalOffset(TextSmall), TextSmall, Beige);
+  showText(buttonText, textX, getButtonAreaY() + DISPLAY_BUTTON_TEXT_VERT_ADJ + getButtonHeight() - getTextLowerVerticalOffset(TextSmall), TextSmall, Beige);
   changeFont(FontNormal);
 }
 
@@ -585,6 +594,7 @@ void Display_TFT::showButtons() {
   display.fillRoundRect(getLockButtonX() + 1,getLockButtonY() + 1, getLockButtonX() + getLockButtonSize() - 2, getLockButtonY() + getLockButtonSize() - 2, 1, getTFTColor(DarkGreen));
   fillCircle(getLockButtonX() + (.5*getLockButtonSize()), getLockButtonY() + (.5*getLockButtonSize()) + 1, .23*getLockButtonSize(), Beige);
   drawCircle(getLockButtonX() + (.5*getLockButtonSize()), getLockButtonY() + (.27*getLockButtonSize()), .14*getLockButtonSize(), Beige);
+  fillCircle(getLockButtonX() + (.5*getLockButtonSize()), getLockButtonY() + (.5*getLockButtonSize()) + 1, .05*getLockButtonSize(), Black);
 
   // show the flip button
   display.drawRoundRect(getFlipButtonX(),getFlipButtonY(), getFlipButtonSize(), getFlipButtonY() + getFlipButtonSize(), 1, getTFTColor(LightGreen));
@@ -593,16 +603,28 @@ void Display_TFT::showButtons() {
   // icon depends on which display context we are in.
   // this button will reflect the opposite
   if (displayContext == DisplayFullHistory) {
-    display.drawRoundRect(getFlipButtonX() + 5,getFlipButtonY() + 4, getFlipButtonSize() - 10, getFlipButtonSize()  - 8, 1, getTFTColor(Beige));
-    display.fillRoundRect(getFlipButtonX() + 7,getFlipButtonY() + 6, getFlipButtonSize() - 14, getFlipButtonSize()  - 15, 1, getTFTColor(Beige));
+    drawLine(getFlipButtonX() + getFlipButtonSize() * .1, getFlipButtonY() + getFlipButtonSize() * .1, getFlipButtonX() + getFlipButtonSize() *.9, getFlipButtonY() + getFlipButtonSize()*.9, LightBlue);
+    //drawLine(getFlipButtonX() + getFlipButtonSize() * .1, getFlipButtonY() + getFlipButtonSize() * .5, getFlipButtonX() + getFlipButtonSize() *.9, getFlipButtonY() + getFlipButtonSize()*.5, LightBlue);
+    drawLine(getFlipButtonX() + getFlipButtonSize() * .1, getFlipButtonY() + getFlipButtonSize() * .9, getFlipButtonX() + getFlipButtonSize() *.9, getFlipButtonY() + getFlipButtonSize()*.1, LightBlue);
 
-    drawLine(getFlipButtonX() + getFlipButtonSize() - 6, getFlipButtonY() + 4, getFlipButtonX() + getFlipButtonSize() - 6, getFlipButtonY() + 2, Beige);
+    fillCircle(getFlipButtonX() + (.5*getFlipButtonSize()), getFlipButtonY() + (.5*getFlipButtonSize()), .184*getFlipButtonSize(), Beige);
+
+    fillCircle(getFlipButtonX() + (.15*getFlipButtonSize()), getLockButtonY() + getFlipButtonSize() * .15, .07*getFlipButtonSize(), LightBlue);
+    fillCircle(getFlipButtonX() + (.15*getFlipButtonSize()), getLockButtonY() + getFlipButtonSize() * .85, .07*getFlipButtonSize(), LightBlue);
+    fillCircle(getFlipButtonX() + (.85*getFlipButtonSize()), getLockButtonY() + getFlipButtonSize() * .15, .07*getFlipButtonSize(), LightBlue);
+    fillCircle(getFlipButtonX() + (.85*getFlipButtonSize()), getLockButtonY() + getFlipButtonSize() * .85, .07*getFlipButtonSize(), LightBlue);
+
+
+    //display.drawRoundRect(getFlipButtonX() + 5,getFlipButtonY() + 4, getFlipButtonSize() - 10, getFlipButtonSize()  - 8, 1, getTFTColor(Beige));
+    //display.fillRoundRect(getFlipButtonX() + 7,getFlipButtonY() + 6, getFlipButtonSize() - 14, getFlipButtonSize()  - 15, 1, getTFTColor(Beige));
+
+    //drawLine(getFlipButtonX() + getFlipButtonSize() - 6, getFlipButtonY() + 4, getFlipButtonX() + getFlipButtonSize() - 6, getFlipButtonY() + 2, Beige);
   }
   else {
     display.drawRoundRect(getFlipButtonX() + 3,getFlipButtonY() + 3, getFlipButtonSize() - 6, getFlipButtonSize()  - 6, 1, getTFTColor(Beige));
 
     for (uint8_t i = 0; i < 4; i++) {
-      drawLine(getFlipButtonX() + 5, getFlipButtonY() + 5 + (i*3), getFlipButtonX() + getFlipButtonSize() - 8, getFlipButtonY() + 5 + (i * 3), Beige);
+      drawLine(getFlipButtonX() + 5, getFlipButtonY() + 5 + (i*(getFlipButtonSize() / 6)), getFlipButtonX() + getFlipButtonSize() - 8, getFlipButtonY() + 5 + (i * (getFlipButtonSize() / 6)), i % 2 == 0 ? Beige : Beige);
     }
   }
 }
