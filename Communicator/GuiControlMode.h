@@ -90,6 +90,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void showButtons ();
         void sleepOrBackground (unsigned long sleepTime);
 
+        void notifyMessageReceived();
+
         MessageSendResult attemptDirectSend ();
         void lockScreen ();
         void unlockScreen ();
@@ -114,6 +116,8 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
     private:
         bool awaitingLicense = false;
         bool fullRepaint = false;
+        bool unreadMessage = false;
+
         uint8_t lastChannel = 0;
         RotaryEncoder *rotary = nullptr;
         Menu* menu;

@@ -159,7 +159,7 @@ void GuiControlMode::loop () {
     updatePreviewsIfNecessary();
 
     //display->showProgress(((float)(millis() % 100)) / 100.0);
-    if (fullRepaint) {
+    if (fullRepaint == true && screenLocked == false) {
       fullRepaint = false;
       display->clearAll();
       showTitle(title);
@@ -169,13 +169,24 @@ void GuiControlMode::loop () {
       lastStatus[0] = 0; // force status to repaint
       updateChatDashboard(true); // force repaint of chat dashboard
       showReady();
-      display->showCacheUsed(chatter->getMeshPacketStore()->getCachePercentActive(), true);;
+      display->showCacheUsed(chatter->getMeshPacketStore()->getCachePercentActive(), true);
+      display->showBatteryLevel(getBatteryLevel(), true);
     }
 
     // execute main loop
     HeadsUpControlMode::loop();
 
     if (millis() - lastTick > tickFrequency) {
+      if (unreadMessage) {
+        // flash white breifly
+        display->alertUnreadMessage(2);
+
+        // if the screen isn't locked, clear the flag
+        if (!screenLocked) {
+          unreadMessage = false;
+        }
+      }
+
       uint8_t connectionQuality = chatter->getConnectionQuality();
       display->showTick(connectionQuality);
       lastTick = tickFrequency;
@@ -187,6 +198,10 @@ void GuiControlMode::loop () {
       }
 
       // log battery level
+      if (!screenLocked) {
+        display->showBatteryLevel(getBatteryLevel(), false);
+      }
+
       //Serial.print("Battery: ");Serial.print(getBatteryLevel());Serial.println("%");
     }
 
@@ -200,6 +215,12 @@ void GuiControlMode::loop () {
       //((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
     }
   }
+}
+
+void GuiControlMode::notifyMessageReceived() {
+  unreadMessage = true;
+
+  // trigger vibrate/etc
 }
 
 void GuiControlMode::showButtons () {
@@ -224,6 +245,20 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
 
   // clear the message area
   display->clearMessageArea();
+
+  if (previewSize == 0) {
+    if (memcmp(currentDeviceFilter, chatter->getDeviceId(), CHATTER_DEVICE_ID_SIZE) != 0) {
+      memset(previewTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE + 1);
+      chatter->getTrustStore()->loadAlias(currentDeviceFilter, previewTitleBuffer);
+      sprintf(previewTextBuffer, "%s%s", "No messages from ", previewTitleBuffer);
+    }
+    else {
+      sprintf(previewTextBuffer, "%s", "No messages from anyone");
+    }
+
+    display->showMainMessage ("No Messages", previewTextBuffer, AlertActivity);
+    return;
+  }
 
   for (int msg = previewOffset; msg < messageIterator->getNumItems() && (msg - previewOffset) < display->getMaxDisplayableMessages(); msg++) {
     memset(previewTitleBuffer, 0, MESSAGE_TITLE_BUFFER_SIZE + 1);
@@ -283,10 +318,16 @@ void GuiControlMode::showNearbyDevices(bool resetOffset) {
     nearbyDeviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
     //Serial.println("nearby dev iterator initialized");
     previewOffset = 0; // 0 will have closest device
+    previewSize = nearbyDeviceIterator->getNumItems();
   }
 
   // clear the message area
   display->clearMessageArea();
+
+  if (previewSize == 0) {
+    display->showMainMessage ("No Neighbors", "No devices are nearby", AlertActivity);
+    return;
+  }
 
   uint8_t nearAddr;
   int16_t nearRssi;
@@ -518,7 +559,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
     case UserRequestNewCluster:
       return createNewCluster();
     case UserRequestFlipScreen:
-      logConsole("Flipping screen");
+      //logConsole("Flipping screen");
       if (display->getDisplayContext() == DisplayFullHistory) {
         display->setDisplayContext(DisplayNearbyDevices);
       }
@@ -1070,22 +1111,28 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
       }
       break;
     case BroadcastReceived:
-      // if screen is locked, do nothing
+      notifyMessageReceived();
+      
+      // if it was broadcast, change filter to everyone
+      setCurrentDeviceFilter(chatter->getDeviceId());
+
+      // if screen is locked, no repainting
       if (screenLocked) {
         return true;
       }
 
-      // if it was broadcast, change filter to everyone
-      setCurrentDeviceFilter(chatter->getDeviceId());
       showMessageHistory(true);
       return true;
     case MessageReceived:
+      notifyMessageReceived();
+
+      // change to the device in quesiton, if necessary
+      setCurrentDeviceFilter(event->EventTarget);
+
       // if screen is locked, do nothing
       if (screenLocked) {
         return true;
       }
-      // change to the device in quesiton, if necessary
-      setCurrentDeviceFilter(event->EventTarget);
       showMessageHistory(true);
       return true;
 
@@ -1119,6 +1166,9 @@ void GuiControlMode::lockScreen () {
 
 void GuiControlMode::unlockScreen () {
   logConsole("Unlocking screen");
+
+  // clear unread message flag
+  unreadMessage = false;
 
   // clear screen so no message data is flashed
   display->clearAll();
@@ -1196,7 +1246,6 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
 
     // if it's a button
     pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (touchX, touchY);
-    Serial.print("button pressed: ");Serial.println(pressedButton);
 
     if (pressedButton != ButtonNone) {
       switch (pressedButton) {
@@ -1440,7 +1489,7 @@ bool GuiControlMode::promptClusterInfo (bool forceInput) {
     }
     newDeviceWifiCred[ssidLength] = 0;
 
-    Serial.print("Newly entered creds: ");Serial.println(newDeviceWifiCred);
+    //Serial.print("Newly entered creds: ");Serial.println(newDeviceWifiCred);
 
     ssidLength = 0;
     while (ssidLength == 0) {

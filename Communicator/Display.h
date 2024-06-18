@@ -139,11 +139,13 @@ class Display {
     void resetProgress () {currentProgress = 0;}
     void showProgress (float percent);
     void showAlert (const char* alertText, AlertType alertType);
+    void showMainMessage (const char* messageText, const char* mainSubMessage, AlertType alertType);
     void showProgressBar (float percent);
     void showCacheUsed (float percent, bool forceRepaint = false);
+    void showBatteryLevel (uint8_t percent, bool forceRepaint = false);
 
     void showLatestCacheUsed ();
-
+    void showLatestBatteryLevel ();
 
     void showDashboardItems (const char* item, DisplayColor itemColor[], uint8_t numItems);
 
@@ -159,6 +161,7 @@ class Display {
     // call it regularly so there is some indication on the screen
     // that the device isn't frozen
     virtual void showTick (uint8_t connectionQuality);
+    virtual void alertUnreadMessage (uint8_t numFlashes);
 
     void showMainScrolls (bool _scrollUpEnabled, bool _scrollDownEnabled);
     bool isScrollUpEnabled () { return scrollUpEnabled; }
@@ -171,6 +174,7 @@ class Display {
   protected:
     float currentProgress = 0; // placeholder for progress spinner
     float currentCacheUsed = 0; // placeholder for cache pct
+    uint8_t currentBatteryLevel = 0;
     void logConsole (String msg);
 
     virtual int getStatusX() = 0;
@@ -182,6 +186,11 @@ class Display {
     virtual int getCacheStatusY() = 0;
     virtual int getCacheStatusWidth() = 0;
     virtual int getCacheStatusHeight() = 0;
+
+    virtual int getBatteryStatusX() = 0;
+    virtual int getBatteryStatusY() = 0;
+    virtual int getBatteryStatusWidth() = 0;
+    virtual int getBatteryStatusHeight() = 0;
 
     virtual int getImageAreaX (bool isAlt) = 0;
     virtual int getImageAreaY (bool isAlt) = 0;
@@ -216,6 +225,14 @@ class Display {
     virtual int getSubtitleAreaY () = 0;
     virtual int getSubtitleAreaHeight () = 0;
     virtual int getSubtitleAreaWidth () = 0;
+
+    virtual int getMainAreaX () = 0;
+    virtual int getMainAreaY () = 0;
+    virtual int getMainAreaHeight () = 0;
+
+    virtual int getMainSubAreaX () = 0;
+    virtual int getMainSubAreaY () = 0;
+    virtual int getMainSubAreaHeight () = 0;
 
     virtual int getDashboardAreaX() = 0;
     virtual int getDashboardAreaY() = 0;

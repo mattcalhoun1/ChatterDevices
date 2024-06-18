@@ -109,6 +109,11 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getCacheStatusWidth() { return DISPLAY_TFT_CACHE_STATUS_WIDTH; }
     int getCacheStatusHeight() { return DISPLAY_TFT_CACHE_STATUS_HEIGHT; }
 
+    int getBatteryStatusX() { return DISPLAY_TFT_BATTERY_STATUS_X; }
+    int getBatteryStatusY() { return DISPLAY_TFT_BATTERY_STATUS_Y; }
+    int getBatteryStatusWidth() { return DISPLAY_TFT_BATTERY_STATUS_WIDTH; }
+    int getBatteryStatusHeight() { return DISPLAY_TFT_BATTERY_STATUS_HEIGHT; }
+
     int getImageAreaX (bool isAlt);
     int getImageAreaY (bool isAlt);
     int getImageAreaWidth (bool isAlt);
@@ -230,6 +235,15 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     void showButton(uint8_t buttonPosition, const char* buttonText);
     const char* getButtonText (DisplayedButton btn){return buttonTexts[btn];}
+
+    int getMainAreaX () {return DISPLAY_TFT_MAIN_AREA_X;}
+    int getMainAreaY () {return DISPLAY_TFT_MAIN_AREA_Y;}
+    int getMainAreaHeight () {return DISPLAY_TFT_MAIN_AREA_HEIGHT;}
+
+    int getMainSubAreaX () {return DISPLAY_TFT_MAIN_SUB_AREA_X;}
+    int getMainSubAreaY () {return DISPLAY_TFT_MAIN_SUB_AREA_Y;}
+    int getMainSubAreaHeight () {return DISPLAY_TFT_MAIN_SUB_AREA_HEIGHT;}
+
 
   private:
     int calculateModalTitleX (const char* titleText, FontType fontType);

@@ -569,13 +569,17 @@ void CommunicatorControlMode::populateMeshPath (const char* recipientId) {
   }  
 }
 
+void CommunicatorControlMode::notifyMessageReceived() {
+  logConsole("Message received");
+}
+
 uint8_t CommunicatorControlMode::getBatteryLevel () {
   #if defined(VBATPIN)
     float measuredvbat = analogRead(VBATPIN);
     measuredvbat *= 2;    // we divided by 2, so multiply back
     measuredvbat *= 3.3;  // Multiply by 3.3V, our reference voltage
     measuredvbat /= 1024; // convert to voltage
-    Serial.print("VBat: " ); Serial.println(measuredvbat);
+    //Serial.print("VBat: " ); Serial.println(measuredvbat);
     if (measuredvbat >= 4.1) {
       return 100;
     }

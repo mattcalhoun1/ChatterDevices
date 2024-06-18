@@ -334,7 +334,29 @@ void Display::showAlert (const char* alertText, AlertType alertType) {
     }
     clearAll();
     //clearArea(0, getAlertAreaY() - getTextUpperVerticalOffset(TextMedium), getScreenWidth(), getAlertAreaHeight());
-    showText(alertText, getAlertAreaX(), getAlertAreaY(), TextMedium, color);
+    changeFont(FontMidSize);
+    showText(alertText, getAlertAreaX(), getAlertAreaY(), TextSmall, color);
+}
+
+void Display::showMainMessage (const char* messageText, const char* mainSubMessage, AlertType alertType) {
+    DisplayColor color = BrightGreen;
+    if (alertType == AlertWarning) {
+        color = Beige;
+    }
+    else if (alertType == AlertError) {
+        color = DarkRed;
+    }
+    else if (alertType == AlertActivity) {
+      color = LightBlue;
+    }
+    
+    clearArea(0, getMainAreaY() - getTextUpperVerticalOffset(TextSmall), getScreenWidth(), getMainAreaHeight());
+    changeFont(FontUpSize);
+    showText(messageText, getMainAreaX(), getMainAreaY(), TextSmall, color);
+
+    clearArea(0, getMainSubAreaY() - getTextUpperVerticalOffset(TextSmall), getScreenWidth(), getMainSubAreaHeight());
+    changeFont(FontItalic);
+    showText(mainSubMessage, getMainSubAreaX(), getMainSubAreaY(), TextSmall, color);
 }
 
 void Display::clearMessageArea () {
@@ -398,6 +420,32 @@ void Display::clearAll () {
 
 void Display::clearDashboard () {
   clearArea(getDashboardAreaX(), getDashboardAreaY() - getTextUpperVerticalOffset(TextSmall), getDashboardAreaWidth(), getDashboardAreaHeight(), DarkGray);
+}
+
+void Display::alertUnreadMessage (uint8_t numFlashes) {
+  #if defined(ADAFRUIT_FEATHER_M4_EXPRESS)
+  if (!statusPixelReady) {
+    statusPixel.begin();
+    statusPixel.setBrightness(32);
+    statusPixel.show(); // Initialize all pixels to 'off'
+    statusPixelReady = true;
+  }
+
+  for (uint8_t flashCount = 0; flashCount < numFlashes; flashCount++) {
+    statusPixel.setPixelColor(0, 254, 254, 254, 0);
+    statusPixel.show();
+    delay(100);
+
+    statusPixel.setPixelColor(0, 0, 0, 0, 0);
+    statusPixel.show();
+
+    if (flashCount+1 < numFlashes) {
+      delay(100);
+    }
+  }
+
+  #endif
+
 }
 
 void Display::showTick (uint8_t connectionQuality) {
@@ -472,7 +520,7 @@ void Display::showCacheUsed (float percent, bool forceRepaint) {
     if (currentCacheUsed < 20 || percent < currentCacheUsed) {
       if (percent < 20) {
         changeFont(FontPico);
-        showText("Mesh Cache", getCacheStatusX() + 20, getCacheStatusY() + getTextLowerVerticalOffset(TextSmall) + 1, TextSmall, Beige);
+        showText("Mesh Cache", getCacheStatusX() + 13, getCacheStatusY() + getTextLowerVerticalOffset(TextSmall) + 1, TextSmall, Beige);
         changeFont(FontNormal);
       }
     }
@@ -485,6 +533,34 @@ void Display::showCacheUsed (float percent, bool forceRepaint) {
     }
   }
 }
+
+void Display::showLatestBatteryLevel () {
+  showBatteryLevel(currentBatteryLevel, true);
+}
+
+void Display::showBatteryLevel (uint8_t percent, bool forceRepaint) {
+  if (percent != currentBatteryLevel || forceRepaint) {
+    // draw outer rectangles
+    drawRect(getBatteryStatusX()+3, getBatteryStatusY(), getBatteryStatusWidth()-3, getBatteryStatusHeight(), DarkBlue);
+    drawRect(getBatteryStatusX(), getBatteryStatusY() + getBatteryStatusHeight() * .3, 3, getBatteryStatusHeight() * .4, DarkBlue);
+
+    DisplayColor batteryColor = Red;
+    if (percent >= 80) {
+      batteryColor = Green;
+    }
+    else if (percent >= 50) {
+      batteryColor = Yellow;
+    }
+    fillRect(getBatteryStatusX() + 4, getBatteryStatusY() + 1, getBatteryStatusWidth() - 5, getBatteryStatusHeight() - 2, batteryColor);
+
+    //changeFont(FontPico);
+    //showText("Batt", getBatteryStatusX() + 7, getBatteryStatusY() + getTextLowerVerticalOffset(TextSmall) + 1, TextSmall, Yellow);
+    //changeFont(FontNormal);
+
+    currentBatteryLevel = percent;
+  }
+}
+
 
 void Display::showProgress(float percent) {
   if (percent != currentProgress) {

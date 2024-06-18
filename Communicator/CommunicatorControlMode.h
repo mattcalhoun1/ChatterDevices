@@ -46,6 +46,7 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         void enableMessaging () { listeningForMessages = true; }
         virtual bool onboardNewClient (unsigned long timeout);
         void deepSleep ();
+        virtual void notifyMessageReceived();
 
         uint8_t getBatteryLevel (); // 0 - 100
 

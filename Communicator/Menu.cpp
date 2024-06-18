@@ -147,6 +147,7 @@ void Menu::clusterMenu() {
   oledMenu.menuId = MENU_ID_CLUSTER;
   oledMenu.menuTitle = "Cluster";
 
+    oledMenu.menuItems[MENU_CLUSTER_SECURE_CAST] = "Secure Cast";
     oledMenu.menuItems[MENU_CLUSTER_CHANGE_CLUSTER] = "Change Cluster";
     oledMenu.menuItems[MENU_CLUSTER_JOIN_CLUSTER]   = "Join Cluster";
     oledMenu.menuItems[MENU_CLUSTER_CREATE_CLUSTER] = "Create Cluster";
@@ -154,10 +155,10 @@ void Menu::clusterMenu() {
     oledMenu.menuItems[MENU_CLUSTER_ONBOARD_DEVICE] = "Onboard Device";
 
   if (onboardAllowed) {
-    oledMenu.noOfmenuItems = 5;
+    oledMenu.noOfmenuItems = 6;
   }
   else {
-    oledMenu.noOfmenuItems = 4;
+    oledMenu.noOfmenuItems = 5;
   }
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
@@ -376,6 +377,10 @@ void Menu::clusterActions() {
       case MENU_CLUSTER_ONBOARD_DEVICE:
         resetMenu();
         handler->handleEvent(UserRequestOnboard);
+        break;
+      case MENU_CLUSTER_SECURE_CAST:
+        resetMenu();
+        handler->handleEvent(UserRequestSecureBroadcast);
         break;
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
