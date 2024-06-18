@@ -355,7 +355,7 @@ void Display::showMainMessage (const char* messageText, const char* mainSubMessa
     showText(messageText, getMainAreaX(), getMainAreaY(), TextSmall, color);
 
     clearArea(0, getMainSubAreaY() - getTextUpperVerticalOffset(TextSmall), getScreenWidth(), getMainSubAreaHeight());
-    changeFont(FontItalic);
+    changeFont(FontMidSize);
     showText(mainSubMessage, getMainSubAreaX(), getMainSubAreaY(), TextSmall, color);
 }
 
