@@ -1,11 +1,11 @@
-#include "MenuEnabledDisplay.h"
-#include "TouchEnabledDisplay.h"
+#include "../display/MenuEnabledDisplay.h"
+#include "../display/TouchEnabledDisplay.h"
 #include <RotaryEncoder.h>
-#include "CommunicatorEventHandler.h"
-#include "CommunicatorEvent.h"
-#include "CommunicatorPreferenceHandler.h"
+#include "../events/CommunicatorEventHandler.h"
+#include "../events/CommunicatorEvent.h"
+#include "../prefs/CommunicatorPreferenceHandler.h"
 #include "Arduino.h"
-#include "ItemIterator.h"
+#include "../iterator/ItemIterator.h"
 
 #ifndef MENU_H
 #define MENU_H

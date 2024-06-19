@@ -1,7 +1,7 @@
 
 #include <Arduino.h>
 #include <stdint.h>
-#include "Globals.h"
+#include "src/globals/Globals.h"
 #include "ChatterAll.h"
 
 #ifndef CONTROL_MODE_H

@@ -1,15 +1,15 @@
 #include "ControlMode.h"
 #include "HeadsUpControlMode.h"
-#include "Display.h"
-#include "TouchEnabledDisplay.h"
+#include "src/display/Display.h"
+#include "src/display/TouchEnabledDisplay.h"
 #include <RotaryEncoder.h>
-#include "Menu.h"
-#include "DeviceAliasIterator.h"
-#include "MessageIterator.h"
-#include "TestIterator.h"
-#include "ItemIterator.h"
-#include "NearbyDeviceIterator.h"
-#include "ClusterAliasIterator.h"
+#include "src/menu/Menu.h"
+#include "src/iterator/DeviceAliasIterator.h"
+#include "src/iterator/MessageIterator.h"
+#include "src/iterator/TestIterator.h"
+#include "src/iterator/ItemIterator.h"
+#include "src/iterator/NearbyDeviceIterator.h"
+#include "src/iterator/ClusterAliasIterator.h"
 #include <SHA256.h>
 
 #include <qrcode.h>

@@ -1,9 +1,9 @@
 #include "CommunicatorControlMode.h"
-#include "Display.h"
-#include "Display_TFT.h"
-#include "Menu.h"
-#include "Keyboard.h"
-#include "CommunicatorPreferenceHandler.h"
+#include "src/display/Display.h"
+#include "src/display/Display_TFT.h"
+#include "src/menu/Menu.h"
+#include "src/keyboard/Keyboard.h"
+#include "src/prefs/CommunicatorPreferenceHandler.h"
 
 #ifndef HEADSUPCONTROLMODE_H
 #define HEADSUPCONTROLMODE_H

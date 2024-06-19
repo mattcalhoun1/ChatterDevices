@@ -1,4 +1,4 @@
-#include "Globals.h"
+#include "../globals/Globals.h"
 
 #ifdef TOUCH_CONTROL_RAK
 
@@ -7,7 +7,7 @@
 
 #include "RAK14014_FT6336U.h"
 #include "TouchControl.h"
-#include "Display.h"
+#include "../display/Display.h"
 
 class TouchControlRak : public TouchControl {
     public:

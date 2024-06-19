@@ -1,4 +1,4 @@
-#include "Globals.h"
+#include "../globals/Globals.h"
 
 #ifdef TOUCH_CONTROL_ADAFRUIT_35
 
@@ -6,7 +6,7 @@
 #define TOUCHCONTROLADAFRUIT35_H
 #include "TouchControl.h"
 #include <Adafruit_FT5336.h> // capacative touch
-#include "Display.h"
+#include "../display/Display.h"
 
 class TouchControlAdafruit35 : public TouchControl {
     public:

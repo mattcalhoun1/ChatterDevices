@@ -5,8 +5,8 @@
 #include "MenuEnabledDisplay.h"
 #include "TouchEnabledDisplay.h"
 #include "FullyInteractiveDisplay.h"
-#include "Globals.h"
-#include "Keyboard.h"
+#include "../globals/Globals.h"
+#include "../keyboard/Keyboard.h"
 
 #include <Adafruit_GFX.h>    // Core graphics library
 #if defined(DISPLAY_TYPE_HOYSOND)
@@ -16,16 +16,16 @@
 #elif defined(DISPLAY_TYPE_ADAFRUIT_35)
 #include <Adafruit_HX8357.h> // Hardware-specific library
 #endif
-#include "TouchControl.h"
+#include "../touch/TouchControl.h"
 
 #if defined(TOUCH_CONTROL_RAK)
-#include "TouchControlRak.h"
+#include "../touch/TouchControlRak.h"
 #elif defined(TOUCH_CONTROL_ADAFRUIT_28)
-#include "TouchControlAdafruit.h"
+#include "../touch/TouchControlAdafruit.h"
 #elif defined(TOUCH_CONTROL_ADAFRUIT_35)
-#include "TouchControlAdafruit35.h"
+#include "../touch/TouchControlAdafruit35.h"
 #else
-#include "TouchControlNone.h"
+#include "../touch/TouchControlNone.h"
 #endif
 
 // fonts

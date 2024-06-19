@@ -2,8 +2,8 @@
 #define TOUCHCONTROLNONE_H
 
 #include "TouchControl.h"
-#include "Globals.h"
-#include "Display.h"
+#include "../globals/Globals.h"
+#include "../display/Display.h"
 
 // just a placeholder for when touch is not available or is otherwise disabled
 class TouchControlNone : public TouchControl {

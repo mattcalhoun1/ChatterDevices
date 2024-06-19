@@ -24,6 +24,13 @@ StartupState CommunicatorControlMode::init() {
       if (remoteConfigEnabled) {
         logConsole("Alert: Remote config is enabled!");
       }
+
+      // check if backpack needs initialized
+      if (BACKPACK_THERMAL_ENABLED) {
+        encoder = new ThermalEncoder(THERMAL_HEIGHT, THERMAL_WIDTH, false);      
+        camera = new Camera();
+        logConsole("Thermal ready");
+      }
     }
 
     return returnState;

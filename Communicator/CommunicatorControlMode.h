@@ -1,10 +1,14 @@
 #include "ControlMode.h"
 #include "ChatterAll.h"
-#include "CommunicatorEvent.h"
-#include "CommunicatorEventHandler.h"
-#include "FullyInteractiveDisplay.h"
-#include "TouchControl.h"
+#include "src/events/CommunicatorEvent.h"
+#include "src/events/CommunicatorEventHandler.h"
+#include "src/display/FullyInteractiveDisplay.h"
+#include "src/touch/TouchControl.h"
 #include "RemoteConfig.h"
+
+// temp: thermal
+#include "src/backpacks/thermal/Camera.h"
+#include "src/backpacks/thermal/ThermalEncoder.h"
 
 #if !defined(ADAFRUIT_FEATHER_M4_EXPRESS)
 #include <ArduinoLowPower.h>
@@ -67,6 +71,9 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         uint8_t meshPathLength = 0;
         char meshDevIdBuffer[CHATTER_DEVICE_ID_SIZE + 1];
         char meshAliasBuffer[CHATTER_ALIAS_NAME_SIZE + 1];        
+
+        ThermalEncoder* encoder;
+        Camera* camera;
 
     private:
         void sendEchoText();

@@ -1,4 +1,4 @@
-#include "TouchEnabledDisplay.h"
+#include "../display/TouchEnabledDisplay.h"
 
 #ifndef KEYBOARD_H
 #define KEYBOARD_H

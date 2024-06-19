@@ -1,7 +1,7 @@
 #include "Display.h"
 #include <Arduino.h>
 #include "TouchEnabledDisplay.h"
-#include "Keyboard.h"
+#include "../keyboard/Keyboard.h"
 
 #ifndef FULLYINTERACTIVEDISPLAY_H
 #define FULLYINTERACTIVEDISPLAY_H

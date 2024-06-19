@@ -388,6 +388,12 @@ void GuiControlMode::showNearbyDevices(bool resetOffset) {
 bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   bool result = false;
   switch(eventType) {
+    case ThermalReceived:
+      // show thermal on screen
+      camera->captureImage();
+      display->showInterpolatedThermal(camera->getImageData(), false, "Live");
+      delay(2000);
+      return true;
     case UserRequestScreenLock:
       lockScreen();
       return true;

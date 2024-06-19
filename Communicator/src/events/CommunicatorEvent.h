@@ -1,4 +1,4 @@
-#include "Globals.h"
+#include "../globals/Globals.h"
 
 #ifndef COMMUNICATOR_EVENTS_H
 #define COMMUNICATOR_EVENTS_H
@@ -48,7 +48,8 @@ enum CommunicatorEventType {
     UserRequestRemoteMessagesClear = 38,
     UserRequestClearMeshGraphNoPrompt = 40,
     UserDeleteAllMessagesNoPrompt = 41,
-    UserRequestClearPingTable = 42
+    UserRequestClearPingTable = 42,
+    ThermalReceived = 43
 };
 
 struct CommunicatorEvent {

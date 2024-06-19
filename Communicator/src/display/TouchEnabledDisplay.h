@@ -1,7 +1,7 @@
 #include "Display.h"
 #include <Arduino.h>
 #include "MenuEnabledDisplay.h"
-#include "TouchControl.h"
+#include "../touch/TouchControl.h"
 
 #ifndef TOUCHENABLEDDISPLAY_H
 #define TOUCHENABLEDDISPLAY_H

@@ -3,6 +3,7 @@
 #define COMMUNICATORGLOBALS_H
 
 #define LOG_ENABLED true
+#define BACKPACK_THERMAL_ENABLED false
 
 //#define RH_PLATFORM 1
 #define APP_TITLE "ChatterBox"

@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include "Globals.h"
-#include "ThermalEncoder.h"
+#include "../globals/Globals.h"
+#include "../backpacks/thermal/ThermalEncoder.h"
 
 #if defined(ADAFRUIT_FEATHER_M4_EXPRESS)
 #include "Adafruit_NeoPixel.h"

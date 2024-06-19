@@ -1,7 +1,7 @@
 #ifndef TOUCHCONTROL_H
 #define TOUCHCONTROL_H
 
-#include "Display.h"
+#include "../display/Display.h"
 
 enum TouchSensitivity {
   TouchSensitivityHigh = 1,

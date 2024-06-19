@@ -1,4 +1,4 @@
-#include "Globals.h" // load first, to make sure settings propegate into chatter library
+#include "src/globals/Globals.h" // load first, to make sure settings propegate into chatter library
 #include <Arduino.h>
 #include <stdint.h>
 #include "ControlMode.h"
