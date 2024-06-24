@@ -277,7 +277,11 @@ int Display_TFT::getModalInput (const char* title, const char* subtitle, int max
 
     if (keyboard->wasBufferEdited()) {
       keyboard->resetBufferEditFlag();
+      #if defined(TOUCH_CONTROL_ADAFRUIT_35)
+      clearArea(getModalInputX(),getModalInputY() - (getTextUpperVerticalOffset(TextSmall)+16), getModalInputWidth(), getModalInputHeight());
+      #else
       clearArea(getModalInputX(),getModalInputY() - getTextUpperVerticalOffset(TextSmall), getModalInputWidth(), getModalInputHeight());
+      #endif
     }
 
     if (keyboard->getUserInputLength() > 0) {
@@ -644,7 +648,7 @@ DisplayedButton Display_TFT::getButtonAt (int x, int y) {
   }
 
   // is the button in the button area vertically
-  if (y >= getButtonAreaY() && y <= getButtonAreaY() + getButtonHeight()) {
+  if (y >= getButtonAreaY() - powerLeeway && y <= getButtonAreaY() + getButtonHeight() + powerLeeway)  {
     // it's in the button row somewhere, is it on a button
     for (uint8_t btnCount = 0; btnCount < NUM_DISPLAYED_BUTTONS; btnCount++) {
       int buttonX = getButtonAreaX() + (btnCount * getButtonHorizontalOffset());

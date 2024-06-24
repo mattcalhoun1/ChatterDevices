@@ -63,9 +63,8 @@ void GuiControlMode::handleUnlicensedDevice() {
 void GuiControlMode::showQrCode () {
   // Create the QR code
     QRCode qrcode;
-    const char* prefix = "https://www.chatters.io/licensing?devid=";
-    char fullLink[64];
-    sprintf(fullLink, "%s%s", prefix, chatter->getUniqueHardwareId());
+    char fullLink[128];
+    sprintf(fullLink, "%s%s", CHATTER_LICENSING_SITE_PREFIX, chatter->getUniqueHardwareId());
 
     const uint8_t ecc = 0;  //lowest level of error correction
      const uint8_t version = 4;
@@ -1217,7 +1216,6 @@ void GuiControlMode::unlockScreen () {
 }
 
 bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
-    logConsole("gui handle screen touched");
   lastTouch = millis();
 
   if (awaitingLicense) {
@@ -1239,9 +1237,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
   }
   else {
     // if the keyboard is showing, it gets the event
-    logConsole("checking if menu showing");
     if (menu->isShowing()){
-      logConsole("menu is showing");
       return true;
     }
     else if (fullyInteractive) {
@@ -1473,6 +1469,11 @@ bool GuiControlMode::promptClusterInfo (bool forceInput) {
   newWifiEnabled = false;
   newWifiPreferred = false;
 
+  // wifi not enabled for v1.0
+  sprintf(newDeviceWifiSsid, "none", 4);
+  sprintf(newDeviceWifiCred, "none", 4);
+
+  /*
   while (ssidLength == 0) {
     ssidLength = ((FullyInteractiveDisplay*)display)->getModalInput("Enable WiFi?", "Common WiFi network (for UDP/etc)", 1, CharacterFilterYesNo, newDeviceWifiSsid, "", 0);
 
@@ -1506,7 +1507,7 @@ bool GuiControlMode::promptClusterInfo (bool forceInput) {
   else {
     sprintf(newDeviceWifiSsid, "none", 4);
     sprintf(newDeviceWifiCred, "none", 4);
-  }
+  }*/
 
   return true;
 }

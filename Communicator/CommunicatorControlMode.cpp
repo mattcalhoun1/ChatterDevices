@@ -77,6 +77,7 @@ void CommunicatorControlMode::loop () {
         // send ack (later, queue this)
         if (!chatter->isAcknowledgement()) {
           if (memcmp(chatter->getLastRecipient(), chatter->getDeviceId(), CHATTER_DEVICE_ID_SIZE) == 0) {
+            logConsole("sending ack..");
             if(!chatter->sendAck(otherDeviceId, chatter->getMessageId())) {
               logConsole("Ack direct failed");
               if (deviceMeshEnabled && chatter->clusterSupportsMesh()) {

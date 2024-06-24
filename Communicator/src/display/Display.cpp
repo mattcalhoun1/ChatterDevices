@@ -166,15 +166,19 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
 
 uint8_t Display::getMessagePosition (int positionX, int positionY) {
   // the touch must be toward the title area (left)
-  if (positionX < getScreenWidth() / 3) {
+  if (positionX < getScreenWidth() / 2) {
     // look mainly at y position, as that's what identifies one position versus another
 
     // subtract message start
     //int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2) - getMessageTitleYOffset()*2;
     int shiftedY = positionY - getMessageAreaY();//(getMessageAreaY() - getTextUpperVerticalOffset(TextSmall) + 2);// - getMessageTitleYOffset()*2;
 
-    Serial.print("Shifted y: ");Serial.print(shiftedY);
-    Serial.print(", message area y: ");Serial.println(getMessageAreaY());
+    #if defined(DISPLAY_TYPE_ADAFRUIT_35)
+      shiftedY += 12;
+    #endif
+
+    //Serial.print("Shifted y: ");Serial.print(shiftedY);
+    //Serial.print(", message area y: ");Serial.println(getMessageAreaY());
 
     if (shiftedY > 0) {
       // divide by message height to get the position
@@ -357,6 +361,7 @@ void Display::showMainMessage (const char* messageText, const char* mainSubMessa
     clearArea(0, getMainSubAreaY() - getTextUpperVerticalOffset(TextSmall), getScreenWidth(), getMainSubAreaHeight());
     changeFont(FontMidSize);
     showText(mainSubMessage, getMainSubAreaX(), getMainSubAreaY(), TextSmall, color);
+    changeFont(FontNormal);
 }
 
 void Display::clearMessageArea () {
@@ -392,6 +397,7 @@ void Display::showInterpolatedThermal (const float* image, bool isAlt, String su
 void Display::showTitle (const char* text) {
   clearArea(getTitleAreaX(), getTitleAreaY() - getTextUpperVerticalOffset(getTitleTextSize()), getTitleAreaWidth(), getTitleAreaHeight() - getTextLowerVerticalOffset(getTitleTextSize()));
   //changeFont(FontBold);
+  changeFont(FontBold);
   fillRect(1, 1, getScreenWidth() - 2, getTitleAreaHeight(), DarkGray);
   showText(text, calculateTitleX(text), getTitleAreaY(), getTitleTextSize(), getTitleColor());
 

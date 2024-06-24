@@ -11,6 +11,8 @@
 
 #define DEFAULT_DEVICE_ALIAS "Com"
 
+#define CHATTER_LICENSING_SITE_PREFIX "https://api.chatters.io/ChatterLicenseGenerator?devid="
+
 #define BRIDGE_LORA_ALIAS "Bridge_LoRa"
 #define BRIDGE_WIFI_ALIAS "Bridge_Wifi"
 #define BRIDGE_CLOUD_ALIAS "Bridge_Cloud"
@@ -105,7 +107,7 @@
 //#define STORAGE_FRAM_I2C true
 
 // channel level logs
-#define LORA_CHANNEL_LOG_ENABLED false
+#define LORA_CHANNEL_LOG_ENABLED true
 #define UDP_CHANNEL_LOG_ENABLED true
 #define CAN_CHANNEL_LOG_ENABLED false
 #define UART_CHANNEL_LOG_ENABLED false
