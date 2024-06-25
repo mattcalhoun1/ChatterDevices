@@ -49,7 +49,12 @@ enum CommunicatorEventType {
     UserRequestClearMeshGraphNoPrompt = 40,
     UserDeleteAllMessagesNoPrompt = 41,
     UserRequestClearPingTable = 42,
-    ThermalReceived = 43
+    ThermalReceived = 43,
+    UserRequestShowId = 44,
+    UserRequestScreenTimeout1Min = 45,
+    UserRequestScreenTimeout2Min = 46,
+    UserRequestScreenTimeout5Min = 47,
+    UserRequestScreenTimeoutNever = 48
 };
 
 struct CommunicatorEvent {

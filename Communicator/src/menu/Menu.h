@@ -36,11 +36,15 @@
 
 #define MENU_DEVICE_CLEAR_MESSAGES 1
 #define MENU_DEVICE_MESSAGE_HISTORY 2
-#define MENU_DEVICE_KEYBOARD_ORIENTATION 3
-#define MENU_DEVICE_SET_TIME 4
-//#define MENU_DEVICE_BACKUP 5
-//#define MENU_DEVICE_RESTORE 6
-#define MENU_DEVICE_SECURE_FACTORY_RESET 5
+#define MENU_DEVICE_SCREEN_TIMEOUT 3
+#define MENU_DEVICE_SHOW_ID 4
+#define MENU_DEVICE_SET_TIME 5
+#define MENU_DEVICE_SECURE_FACTORY_RESET 6
+
+#define MENU_SCREEN_TIMEOUT_1 1
+#define MENU_SCREEN_TIMEOUT_2 2
+#define MENU_SCREEN_TIMEOUT_5 3
+#define MENU_SCREEN_TIMEOUT_NEVER 4
 
 #define MENU_CONNECTIONS_LORA_ENABLE 1
 #define MENU_CONNECTIONS_WIFI_ENABLE 2
@@ -65,7 +69,8 @@
 #define MENU_ID_CONNECTIONS 4
 #define MENU_ID_POWER 5
 #define MENU_ID_REMOTE 6
-#define MENU_ID_ITERATOR 7
+#define MENU_ID_SCREEN_TIMEOUT 7
+#define MENU_ID_ITERATOR 8
 
 #define MENU_HIGHLIGHT_CENTER false
 #define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
@@ -105,6 +110,7 @@ class Menu : public TouchListener {
 
         void mainMenu (bool fullRepaint = false);
         void deviceMenu();
+        void screenTimeoutMenu();
         void connectionsMenu();
         void clusterMenu ();
         void meshMenu ();
@@ -140,6 +146,7 @@ class Menu : public TouchListener {
 
     protected:
         void deviceActions ();
+        void screenTimeoutActions();
         void connectionsActions ();
         void mainActions ();
         void clusterActions ();

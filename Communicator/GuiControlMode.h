@@ -110,7 +110,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void enableLearning (unsigned long learnDurationMillis);
         void disableLearning ();
 
-        void showQrCode ();
+        void showQrCode (bool isLicensed = false);
         bool promptLicense ();
 
     private:
@@ -151,6 +151,9 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         ItemIterator* clusterIterator;
         uint8_t previewOffset = 0;
         uint8_t previewSize = 0;
+
+        uint32_t screenLockTimeout = 0;
+        void loadScreenLockTimeout ();
 
         char previewTitleBuffer[MESSAGE_TITLE_BUFFER_SIZE + 1];
         char previewTextBuffer[MESSAGE_PREVIEW_BUFFER_SIZE + 1];

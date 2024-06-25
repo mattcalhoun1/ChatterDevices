@@ -144,6 +144,9 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getMenuMaxItemLength () { return DISPLAY_TFT_MENU_MAX_ITEM_LENGTH; }
     int getMenuItemIndent () { return DISPLAY_TFT_MENU_INDENT; }
 
+    int getMenuTitleX () { return DISPLAY_TFT_MENU_TITLE_X; }
+    int getMenuTitleY () { return DISPLAY_TFT_MENU_TITLE_Y; }
+
     int getMenuScrollUpX() { return DISPLAY_TFT_MENU_SCROLL_UP_X; }
     int getMenuScrollUpY() { return DISPLAY_TFT_MENU_SCROLL_UP_Y; }
     int getMenuScrollDownX() { return DISPLAY_TFT_MENU_SCROLL_DOWN_X; }

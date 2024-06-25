@@ -239,8 +239,12 @@ char Keyboard::getLetterAt (int touchX, int touchY) {
   //Serial.print("Col: ");Serial.print(col); Serial.print(", Row: ");Serial.println(row);
 
   // get touch center distance from expected center of key
-  int xDistFromCenter = abs((int)(round(fcol*10)) - (col*10));
+  int xOffCenter = (int)(round(fcol*10)) - (col*10);
+  int xDistFromCenter = abs(xOffCenter);
   int yDistFromCenter = abs((int)(round(frow*10)) - (row*10));
+
+  // if the key next to this one on the left is the same, and the xdist was negative, make xdist zero
+  
 
   //Serial.print("x dist: ");Serial.print(xDistFromCenter); Serial.print(", y dist: ");Serial.println(yDistFromCenter);
 

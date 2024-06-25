@@ -20,6 +20,9 @@ class MenuEnabledDisplay : public Display {
         virtual int getMenuAreaWidth () = 0;
         virtual int getMenuAreaHeight () = 0;
 
+        virtual int getMenuTitleX () = 0;
+        virtual int getMenuTitleY () = 0;
+
         virtual int getMenuLineHeight () = 0;
         virtual int getMenuMaxItemLength () = 0;
         virtual int getMenuItemIndent() = 0;

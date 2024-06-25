@@ -33,6 +33,9 @@ StartupState GuiControlMode::init() {
       // show all messages for this cluster, unless user filters down
       setCurrentDeviceFilter(chatter->getDeviceId());
 
+      // set the screen lock timeout accordingn to user pref
+      loadScreenLockTimeout();
+
       memset(title, 0, 32);
       sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
       //showTitle(title);
@@ -60,50 +63,56 @@ void GuiControlMode::handleUnlicensedDevice() {
     }
 }
 
-void GuiControlMode::showQrCode () {
+void GuiControlMode::showQrCode (bool isLicensed) {
   // Create the QR code
     QRCode qrcode;
     char fullLink[128];
     sprintf(fullLink, "%s%s", CHATTER_LICENSING_SITE_PREFIX, chatter->getUniqueHardwareId());
 
     const uint8_t ecc = 0;  //lowest level of error correction
-     const uint8_t version = 4;
+    //const uint8_t version = 4;
 
-    uint8_t qrcodeData[qrcode_getBufferSize(version)];
+    uint8_t qrcodeData[qrcode_getBufferSize(DISPLAY_QR_VERSION)];
      qrcode_initText(&qrcode, 
                     qrcodeData, 
-                    version,   ecc, 
+                    DISPLAY_QR_VERSION,
+                    ecc, 
                     fullLink);
-    const int xy_scale = 6;
     int xmax   = display->getScreenWidth()/2;
     int ymax = display->getScreenHeight()/2;
-    int offset = (xy_scale*qrcode.size);
-    int   x1 = xmax - (offset/2);
+    int offset = (DISPLAY_QR_SCALE*qrcode.size);
+    int x1 = xmax - (offset/2);
     int y1 = ymax - (offset/2);
 
-    int px1 =   x1;
-    int py1 = x1;
+    int px1 = x1;
+    int py1 = y1;
     int px2 = px1;
     int py2 = py1;
 
-    display->fillRect(0, 0, 270, 320, Black);
+    display->fillRect(0, 0, display->getScreenWidth(), display->getScreenHeight(), Black);
     
 //     // Top quiet zone
     for (uint8_t y = 0; y < qrcode.size; y++) {
         for   (uint8_t x = 0; x < qrcode.size; x++) {
             bool mod = qrcode_getModule(&qrcode,   x, y);
-            px1 = x1 + x * xy_scale;
-            py1 = x1 + y * xy_scale;
-             px2 = px1 + xy_scale;
-            py2 = py1 + xy_scale;
+            px1 = x1 + x * DISPLAY_QR_SCALE;
+            py1 = y1 + y * DISPLAY_QR_SCALE;
+            px2 = px1 + DISPLAY_QR_SCALE;
+            py2 = py1 + DISPLAY_QR_SCALE;
             if(mod){    
               display->fillRect(px1, py1, px2-px1, py2-py1, White);
             }
         }
     }
 
-    display->showText("Please obtain a license at:", 10, 260, TextSmall, Green);
-    display->showText("https://chatters.io", 55, 280, TextSmall, Green);
+    if (isLicensed) {
+      display->showText("This device is licensed.", DISPLAY_TFT_LICENSE_INSTRUCTIONS_X, DISPLAY_TFT_LICENSE_INSTRUCTIONS_Y, TextSmall, Green);
+      //display->showText("https://chatters.io", 55, 280, TextSmall, Green);
+    }
+    else {
+      display->showText("Please obtain a license at:", DISPLAY_TFT_LICENSE_INSTRUCTIONS_X, DISPLAY_TFT_LICENSE_INSTRUCTIONS_Y, TextSmall, Green);
+      display->showText("https://chatters.io", DISPLAY_TFT_LICENSE_LINK_X, DISPLAY_TFT_LICENSE_LINK_Y, TextSmall, Green);
+    }
 
     char idMessage[32];
 
@@ -125,7 +134,7 @@ void GuiControlMode::showQrCode () {
 
     sprintf(idMessage, "%s %s %s %s", licPt1, licPt2, licPt3, licPt4);
 
-    display->showText(idMessage, 25, 305, TextSmall, Beige);
+    display->showText(idMessage, DISPLAY_TFT_LICENSE_DEVICE_X, DISPLAY_TFT_LICENSE_DEVICE_Y, TextSmall, Beige);
 
 }
 
@@ -191,7 +200,7 @@ void GuiControlMode::loop () {
       lastTick = tickFrequency;
 
       // lock screen if no recent user activity
-      if (!chatter->isOnboardMode() && !screenLocked && lastTouch + DISPLAY_TFT_SCREEN_LOCK_TIMEOUT < millis()) {
+      if (screenLockTimeout != 0 && !chatter->isOnboardMode() && !screenLocked && lastTouch + screenLockTimeout < millis()) {
         logConsole("no user activity, lock screen");
         lockScreen();
       }
@@ -213,6 +222,28 @@ void GuiControlMode::loop () {
       ((FullyInteractiveDisplay*)display)->handleIfTouched();
       //((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
     }
+  }
+}
+
+void GuiControlMode::loadScreenLockTimeout () {
+  // load the timeout from device settings
+  ScreenTimeoutValue screenTimeoutPref = chatter->getDeviceStore()->getScreenTimeout();
+  switch (screenTimeoutPref) {
+    case ScreenTimeout1Min:
+      screenLockTimeout = 60000;
+      break;
+    case ScreenTimeout2Min:
+      screenLockTimeout = 120000;
+      break;
+    case ScreenTimeout5Min:
+      screenLockTimeout = 60000*5;
+      break;
+    case ScreenTimeoutNever:
+      screenLockTimeout = 0;
+      break;
+    default:
+      screenLockTimeout = 60000;
+      break;
   }
 }
 
@@ -395,6 +426,14 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       return true;
     case UserRequestScreenLock:
       lockScreen();
+      return true;
+    case UserRequestShowId:
+      display->clearAll();
+      showQrCode(true);
+
+      // pause for 10 seconds
+      delay(10000);
+
       return true;
     case UserRequestPowerOff:
       // are we doing locked or powerdown? need to ask user
@@ -741,6 +780,22 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
     case UserRequestChangeTime:
       promptUserNewTime ();
       return true;
+    case UserRequestScreenTimeout1Min:
+      chatter->getDeviceStore()->setScreenTimeout(ScreenTimeout1Min);
+      loadScreenLockTimeout();
+      return true;
+    case UserRequestScreenTimeout2Min:
+      chatter->getDeviceStore()->setScreenTimeout(ScreenTimeout2Min);
+      loadScreenLockTimeout();
+      return true;
+    case UserRequestScreenTimeout5Min:
+      chatter->getDeviceStore()->setScreenTimeout(ScreenTimeout5Min);
+      loadScreenLockTimeout();
+      return true;
+    case UserRequestScreenTimeoutNever:
+      chatter->getDeviceStore()->setScreenTimeout(ScreenTimeoutNever);
+      loadScreenLockTimeout();
+      return true;
 
     case UserRequestQuickFactoryReset:
     case UserRequestSecureFactoryReset:
@@ -757,6 +812,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
           return true;
         }
       }
+      return true;
   }
 
   // let base class handle

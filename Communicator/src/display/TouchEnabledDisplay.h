@@ -37,7 +37,7 @@ class TouchEnabledDisplay : public MenuEnabledDisplay {
     protected:
       uint8_t numListeners = 0;
       TouchListener* listeners[MAX_TOUCH_LISTENERS];
-      ScreenRotation keyboardOrientation = Landscape; // default set here
+      ScreenRotation keyboardOrientation = Portrait; // default set here
 };
 
 #endif

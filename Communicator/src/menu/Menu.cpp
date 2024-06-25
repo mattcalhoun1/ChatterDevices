@@ -113,14 +113,32 @@ void Menu::mainMenu(bool fullRepaint) {
 void Menu::deviceMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_DEVICE;
-  oledMenu.noOfmenuItems = 5;
+  oledMenu.noOfmenuItems = 6;
   oledMenu.menuTitle = "Device";
 
   oledMenu.menuItems[MENU_DEVICE_CLEAR_MESSAGES] = "Clear Messages";
   oledMenu.menuItems[MENU_DEVICE_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
-  oledMenu.menuItems[MENU_DEVICE_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
+  //oledMenu.menuItems[MENU_DEVICE_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
+  oledMenu.menuItems[MENU_DEVICE_SCREEN_TIMEOUT] = "Screen Timeout";
+  oledMenu.menuItems[MENU_DEVICE_SHOW_ID] = "Show ID";
   oledMenu.menuItems[MENU_DEVICE_SET_TIME] = "Set Time";
   oledMenu.menuItems[MENU_DEVICE_SECURE_FACTORY_RESET] = "Factory Reset";
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+}
+
+void Menu::screenTimeoutMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_SCREEN_TIMEOUT;
+  oledMenu.noOfmenuItems = 4;
+  oledMenu.menuTitle = "Screen Timeout";
+
+  oledMenu.menuItems[MENU_SCREEN_TIMEOUT_1] = "1 Minute";
+  oledMenu.menuItems[MENU_SCREEN_TIMEOUT_2] = "2 Minutes";
+  oledMenu.menuItems[MENU_SCREEN_TIMEOUT_5] = "5 Minutes";
+  oledMenu.menuItems[MENU_SCREEN_TIMEOUT_NEVER] = "Never";
 
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
@@ -231,7 +249,7 @@ void Menu::deviceActions() {
   if (oledMenu.menuId == MENU_ID_DEVICE) {  
     switch (oledMenu.selectedMenuItem) {
       // preference toggles
-      case MENU_DEVICE_KEYBOARD_ORIENTATION:
+      /*case MENU_DEVICE_KEYBOARD_ORIENTATION:
         if (prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape)) {
           prefHandler->disablePreference(PreferenceKeyboardLandscape);
         }
@@ -239,7 +257,7 @@ void Menu::deviceActions() {
           prefHandler->enablePreference(PreferenceKeyboardLandscape);
         }
         resetMenu();
-        break;
+        break;*/
       case MENU_DEVICE_CLEAR_MESSAGES:
         handler->handleEvent(UserDeleteAllMessages);
         resetMenu();
@@ -261,6 +279,15 @@ void Menu::deviceActions() {
       case MENU_DEVICE_SET_TIME:
         resetMenu();
         handler->handleEvent(UserRequestChangeTime);
+        break;
+      case MENU_DEVICE_SHOW_ID:
+        resetMenu();
+        handler->handleEvent(UserRequestShowId);
+        break;
+      case MENU_DEVICE_SCREEN_TIMEOUT:
+        screenTimeoutMenu();
+        mode = MenuActive;
+        needsRepainted = true;
         break;
     }
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
@@ -403,6 +430,30 @@ void Menu::powerMenuActions() {
   }
 }
 
+void Menu::screenTimeoutActions () {
+  if (oledMenu.menuId == MENU_ID_SCREEN_TIMEOUT) {  
+    switch (oledMenu.selectedMenuItem) {
+      case MENU_SCREEN_TIMEOUT_1:
+        resetMenu();
+        handler->handleEvent(UserRequestScreenTimeout1Min);
+        break;
+      case MENU_SCREEN_TIMEOUT_2:
+        resetMenu();
+        handler->handleEvent(UserRequestScreenTimeout2Min);
+        break;
+      case MENU_SCREEN_TIMEOUT_5:
+        resetMenu();
+        handler->handleEvent(UserRequestScreenTimeout5Min);
+        break;
+      case MENU_SCREEN_TIMEOUT_NEVER:
+        resetMenu();
+        handler->handleEvent(UserRequestScreenTimeoutNever);
+        break;
+    }
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
 void Menu::remoteActions() {
   if (oledMenu.menuId == MENU_ID_REMOTE) {  
     switch (oledMenu.selectedMenuItem) {
@@ -514,6 +565,9 @@ void Menu::menuActions () {
   }
   else if (oledMenu.menuId == MENU_ID_REMOTE) {
     remoteActions();
+  }
+  else if (oledMenu.menuId == MENU_ID_SCREEN_TIMEOUT) {
+    screenTimeoutActions();
   }
 }
 
