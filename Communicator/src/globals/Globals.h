@@ -2,6 +2,9 @@
 
 #define COMMUNICATORGLOBALS_H
 
+// radiolib vs rf 95w wrapper for radiohead
+//#define RH_USE_RADIOLIB true
+
 #define LOG_ENABLED true
 #define BACKPACK_THERMAL_ENABLED false
 
