@@ -38,6 +38,10 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         virtual void showTitle (const char* title) = 0;
         virtual void updateChatDashboard () = 0;
 
+        // these ack questions shoudl not bubble up to this layer at this point
+        bool shouldAcknowledge (uint8_t address, uint8_t* message, uint8_t length) { return false; }
+
+
         virtual void showLastMessage ();
 
         virtual void showBusy () = 0; // shows indicator that activity is happening

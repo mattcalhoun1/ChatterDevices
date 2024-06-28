@@ -72,6 +72,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void resetChatProgress ();
         void hideChatProgress ();
         bool userInterrupted();
+
         void updateMeshCacheUsed (float percent);
         void pingReceived (uint8_t deviceAddress);
 
