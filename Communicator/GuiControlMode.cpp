@@ -1262,6 +1262,7 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
 void GuiControlMode::lockScreen () {
   logConsole("Locking screen");
   screenLocked = true;
+  display->clearAll();
   display->setBrightness(0);
 }
 
@@ -1273,12 +1274,14 @@ void GuiControlMode::unlockScreen () {
 
   // clear screen so no message data is flashed
   display->clearAll();
-  
+
   display->setBrightness(100);
+
   if (chatter->deviceHasPassword()) {
 
     // clear password buffer and prompt for a password (not updating hash that was stored during original login)
     memset(newDevicePassword, 0, CHATTER_PASSWORD_MAX_LENGTH + 1);
+
     int pwLength = promptForPassword(newDevicePassword, CHATTER_PASSWORD_MAX_LENGTH, false);
     hasher.clear();
 
@@ -1300,12 +1303,10 @@ void GuiControlMode::unlockScreen () {
     }
     else {
       logConsole("Password didn't match");
-
-      // turn the screen back off
-      display->setBrightness(0);
     }
   }
   else {
+    display->setBrightness(100);
     fullRepaint = true;
     screenLocked = false;
   }
