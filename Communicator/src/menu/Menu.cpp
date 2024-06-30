@@ -267,7 +267,7 @@ void Menu::deviceActions() {
         resetMenu();
         break;
       case MENU_DEVICE_ENABLE_DST:
-        // a change to message history will trigger a reboot
+        // a change to dst will trigger a reboot
         if (prefHandler->isPreferenceEnabled(PreferenceDstEnabled)) {
           prefHandler->disablePreference(PreferenceDstEnabled);
         } 

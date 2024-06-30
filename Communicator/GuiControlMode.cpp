@@ -866,9 +866,13 @@ void GuiControlMode::changeUserPassword() {
 
 void GuiControlMode::promptUserNewTime () {
   uint8_t timePositions[6] = {0, 2, 4, 6, 8, 10}; // buffer positions of 2 digit pieces
+  bool dst = false;
   char userEnteredPart[3];
   char fullDateTime[13];
   memset(fullDateTime, 0, 13);
+  if (promptYesNo("Currently observing daylight savings time?")) {
+    dst = true;
+  }
 
   char partTitle[7];
   char partSubtitle[32];
@@ -930,7 +934,29 @@ void GuiControlMode::promptUserNewTime () {
 
   // if we get this far, we've got a valid date
   Serial.print("user wants new time of: ");Serial.println(fullDateTime);
+  Serial.print("dst now: ");Serial.println(dst);
+
+  // if dst, subtract an hour from what the user wants
+  if (dst) {
+    char userAdjustedDateTime[13];
+    memcpy(userAdjustedDateTime, fullDateTime, 12);
+    userAdjustedDateTime[12] = 0;
+    memcpy(fullDateTime, rtc->getSortableTimePlusSeconds (userAdjustedDateTime, -1*(60*60)), 12);
+    fullDateTime[12] = 0;
+
+    Serial.print("Adjusted user entered time: ");Serial.print(userAdjustedDateTime); Serial.print(" to: ");Serial.println(fullDateTime);
+  }
+
+  // set the date time
   rtc->setNewDateTime(fullDateTime);
+
+  Serial.print("Setting DST preference: ");Serial.println(dst);
+  if (dst) {
+    enablePreference(PreferenceDstEnabled);
+  }
+  else {
+    disablePreference(PreferenceDstEnabled);
+  }
 }
 
 void GuiControlMode::setCurrentDeviceFilter(const char* deviceFilter) {
