@@ -163,6 +163,10 @@ bool HeadsUpControlMode::isPreferenceEnabled (CommunicatorPreference pref) {
       return chatter->getDeviceStore()->getMeshLearningEnabled();
     case PreferenceRemoteConfigEnabled:
       return chatter->getDeviceStore()->getRemoteConfigEnabled();
+    case PreferenceDstEnabled:
+      return chatter->getDeviceStore()->getDstEnabled();
+    case PreferenceIgnoreExpiryEnabled:
+      return chatter->getDeviceStore()->getAllowExpiredMessages();
   }
 
   logConsole("Unknown preference read attempt");
@@ -224,9 +228,17 @@ void HeadsUpControlMode::enablePreference (CommunicatorPreference pref) {
 
       // reset device
       restartDevice();
-
       break;
-    
+    case PreferenceDstEnabled:
+      chatter->getDeviceStore()->setDstEnabled(true);
+
+      restartDevice();
+      break;
+    case PreferenceIgnoreExpiryEnabled:
+      chatter->getDeviceStore()->setAllowExpiredMessages(true);
+      break;
+
+
     default:
       logConsole("Unknown preference enable attempt");
   }
@@ -292,6 +304,14 @@ void HeadsUpControlMode::disablePreference (CommunicatorPreference pref) {
       // reset device
       restartDevice();
 
+      break;
+    case PreferenceDstEnabled:
+      chatter->getDeviceStore()->setDstEnabled(false);
+
+      restartDevice();
+      break;
+    case PreferenceIgnoreExpiryEnabled:
+      chatter->getDeviceStore()->setAllowExpiredMessages(false);
       break;
 
     default:

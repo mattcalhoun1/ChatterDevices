@@ -124,6 +124,9 @@ void Menu::deviceMenu() {
   oledMenu.menuItems[MENU_DEVICE_SET_TIME] = "Set Time";
   oledMenu.menuItems[MENU_DEVICE_SECURE_FACTORY_RESET] = "Factory Reset";
 
+  oledMenu.menuItems[MENU_DEVICE_ENABLE_DST] = prefHandler->isPreferenceEnabled(PreferenceDstEnabled) ? "Disable DST" : "Enable DST";
+  oledMenu.menuItems[MENU_DEVICE_ALLOW_EXPIRED_MESSAGES] = prefHandler->isPreferenceEnabled(PreferenceIgnoreExpiryEnabled) ? "Check Expiry" : "Ignore Expiry";
+
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
@@ -260,6 +263,26 @@ void Menu::deviceActions() {
         break;*/
       case MENU_DEVICE_CLEAR_MESSAGES:
         handler->handleEvent(UserDeleteAllMessages);
+        resetMenu();
+        break;
+      case MENU_DEVICE_ENABLE_DST:
+        // a change to message history will trigger a reboot
+        if (prefHandler->isPreferenceEnabled(PreferenceDstEnabled)) {
+          prefHandler->disablePreference(PreferenceDstEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceDstEnabled);
+        }
+        resetMenu();
+        break;
+      case MENU_DEVICE_ALLOW_EXPIRED_MESSAGES:
+        // a change to message history will trigger a reboot
+        if (prefHandler->isPreferenceEnabled(PreferenceIgnoreExpiryEnabled)) {
+          prefHandler->disablePreference(PreferenceIgnoreExpiryEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceIgnoreExpiryEnabled);
+        }
         resetMenu();
         break;
       case MENU_DEVICE_MESSAGE_HISTORY:

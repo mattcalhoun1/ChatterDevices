@@ -9,7 +9,9 @@ enum CommunicatorPreference {
     PreferenceWiredEnabled = 4,
     PreferenceLoraEnabled = 5,
     PreferenceMeshLearningEnabled = 6,
-    PreferenceRemoteConfigEnabled = 7
+    PreferenceRemoteConfigEnabled = 7,
+    PreferenceDstEnabled = 8,
+    PreferenceIgnoreExpiryEnabled = 9
 };
 
 class CommunicatorPreferenceHandler {
