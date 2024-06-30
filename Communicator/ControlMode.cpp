@@ -155,6 +155,10 @@ void ControlMode::hideChatProgress () {
   logConsole("hide chat progress");  
 }
 
+void ControlMode::showStartupScreen (float progress) {
+  logConsole("starting up...");
+}
+
 void ControlMode::showStatus (const char* status) {
   logConsole(status);
 }

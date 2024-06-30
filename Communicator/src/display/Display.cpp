@@ -472,6 +472,24 @@ void Display::alertUnreadMessage (uint8_t numFlashes) {
 
 }
 
+void Display::showStartupScreen (float progress) {
+  changeFont(FontNormal);
+
+  clear();
+
+  resetProgress();
+
+  showProgressBar(progress);
+
+  // show splash screen
+  changeFont(FontBold);
+  showText(APP_TITLE, DISPLAY_TFT_SPLASH_TITLE_X, DISPLAY_TFT_SPLASH_TITLE_Y, TextSmall, DarkBlue);
+  changeFont(FontTiny);
+  showText(APP_SUBTITLE, DISPLAY_TFT_SPLASH_SUBTITLE_X, DISPLAY_TFT_SPLASH_SUBTITLE_Y, TextSmall, DarkBlue);
+  changeFont(FontNormal);
+}
+
+
 void Display::showTick (uint8_t connectionQuality) {
   // if the ticker is showing hide it
   if (tickerShowing) {

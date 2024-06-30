@@ -60,6 +60,10 @@ void HeadsUpControlMode::updateChatDashboard (bool forceRepaint) {
   }
 }
 
+void HeadsUpControlMode::showStartupScreen (float progress) {
+  display->showStartupScreen(progress);
+}
+
 int HeadsUpControlMode::getSymboForDevice(const char* deviceName) {
     if (strcmp(deviceName, "LoRa") == 0) {
         return 0xF3;

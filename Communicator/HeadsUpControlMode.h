@@ -18,6 +18,7 @@ class HeadsUpControlMode : public CommunicatorControlMode, public CommunicatorPr
         void showTitle (const char* title);
         void updateChatDashboard ();
         void updateChatDashboard (bool forceRepaint);
+        void showStartupScreen (float progress);
 
         void showBusy ();
         void showReady ();

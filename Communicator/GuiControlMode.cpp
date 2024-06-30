@@ -1678,7 +1678,8 @@ bool GuiControlMode::initializeNewDevice () {
   }
 
   // does the user want to password protect
-  int passwordLength = 0;
+  uint8_t passwordLength = 0;
+  uint8_t passwordRetypeLength = 0;
   memset(newDevicePassword, 0, CHATTER_PASSWORD_MAX_LENGTH + 1);
   while (passwordLength == 0) {
     passwordLength = ((FullyInteractiveDisplay*)display)->getModalInput("Set Password?", "Permanently set device password", 1, CharacterFilterYesNo, newDevicePassword, "", 0);
@@ -1687,6 +1688,28 @@ bool GuiControlMode::initializeNewDevice () {
     passwordLength = 0;
     while (passwordLength == 0) {
       passwordLength = ((FullyInteractiveDisplay*)display)->getModalInput("Password", "Never forget this password!", CHATTER_PASSWORD_MAX_LENGTH, CharacterFilterNone, newDevicePassword, "", 0);
+      if (passwordLength > 0) {
+        memset(newDevicePasswordRetyped, 0, CHATTER_PASSWORD_MAX_LENGTH+1);
+        passwordRetypeLength = ((FullyInteractiveDisplay*)display)->getModalInput("Retype Password", "Never forget this password!", CHATTER_PASSWORD_MAX_LENGTH, CharacterFilterNone, newDevicePasswordRetyped, "", 0);
+        if (passwordRetypeLength != 0) {
+          // check that passwords match
+          if (passwordLength == passwordRetypeLength && memcmp(newDevicePassword, newDevicePasswordRetyped, passwordLength) == 0) {
+            logConsole("passwords match, proceeding");
+          }
+          else {
+            memset(newDevicePassword, 0, CHATTER_PASSWORD_MAX_LENGTH + 1);
+            memset(newDevicePasswordRetyped, 0, CHATTER_PASSWORD_MAX_LENGTH + 1);
+
+            display->showAlert("Password Mismatch", "Please retype password", AlertError);
+            delay(3000);
+            // get input again
+            passwordLength = 0;
+            passwordRetypeLength = 0;
+          }
+        }
+
+      }
+
     }
   }
   else {

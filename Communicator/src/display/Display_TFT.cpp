@@ -11,24 +11,10 @@ Display_TFT::Display_TFT(ThermalEncoder* _encoder) {
   
 
   display.begin();
-
-  changeFont(FontNormal);
-
   setBrightness(100);
 
-  clear();
 
-  resetProgress();
-  showProgressBar(.1);
-
-  // show splash screen
-  changeFont(FontBold);
-  showText(APP_TITLE, DISPLAY_TFT_SPLASH_TITLE_X, DISPLAY_TFT_SPLASH_TITLE_Y, TextSmall, DarkBlue);
-  changeFont(FontTiny);
-  showText(APP_SUBTITLE, DISPLAY_TFT_SPLASH_SUBTITLE_X, DISPLAY_TFT_SPLASH_SUBTITLE_Y, TextSmall, DarkBlue);
-  changeFont(FontNormal);
-  showProgressBar(.25);
-
+  showStartupScreen(0.25);
 }
 
 void Display_TFT::touchInterrupt() {

@@ -172,6 +172,8 @@ class Display {
     DisplayContext getDisplayContext() {return displayContext;}
     void setDisplayContext (DisplayContext ctx) { displayContext = ctx; }
 
+    void showStartupScreen (float progress);
+
   protected:
     float currentProgress = 0; // placeholder for progress spinner
     float currentCacheUsed = 0; // placeholder for cache pct
