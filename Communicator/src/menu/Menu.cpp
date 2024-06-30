@@ -113,13 +113,14 @@ void Menu::mainMenu(bool fullRepaint) {
 void Menu::deviceMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_DEVICE;
-  oledMenu.noOfmenuItems = 6;
+  oledMenu.noOfmenuItems = 9;
   oledMenu.menuTitle = "Device";
 
   oledMenu.menuItems[MENU_DEVICE_CLEAR_MESSAGES] = "Clear Messages";
   oledMenu.menuItems[MENU_DEVICE_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
   //oledMenu.menuItems[MENU_DEVICE_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
   oledMenu.menuItems[MENU_DEVICE_SCREEN_TIMEOUT] = "Screen Timeout";
+  oledMenu.menuItems[MENU_DEVICE_CHANGE_PASSWORD] = "Change Password";
   oledMenu.menuItems[MENU_DEVICE_SHOW_ID] = "Show ID";
   oledMenu.menuItems[MENU_DEVICE_SET_TIME] = "Set Time";
   oledMenu.menuItems[MENU_DEVICE_SECURE_FACTORY_RESET] = "Factory Reset";
@@ -306,6 +307,10 @@ void Menu::deviceActions() {
       case MENU_DEVICE_SHOW_ID:
         resetMenu();
         handler->handleEvent(UserRequestShowId);
+        break;
+      case MENU_DEVICE_CHANGE_PASSWORD:
+        resetMenu();
+        handler->handleEvent(UserRequestChangePassword);
         break;
       case MENU_DEVICE_SCREEN_TIMEOUT:
         screenTimeoutMenu();

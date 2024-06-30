@@ -54,7 +54,8 @@ enum CommunicatorEventType {
     UserRequestScreenTimeout1Min = 45,
     UserRequestScreenTimeout2Min = 46,
     UserRequestScreenTimeout5Min = 47,
-    UserRequestScreenTimeoutNever = 48
+    UserRequestScreenTimeoutNever = 48,
+    UserRequestChangePassword = 49
 };
 
 struct CommunicatorEvent {

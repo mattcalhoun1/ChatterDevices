@@ -146,10 +146,6 @@ void GuiControlMode::beginInteractiveIfPossible() {
 
 void GuiControlMode::handleStartupError() {
     // force landscape for easier user input
-    if (fullyInteractive) {
-      ((FullyInteractiveDisplay*)display)->setKeyboardOrientation(Landscape);
-    }
-
     display->showAlert("Startup Error!", AlertError);
     delay(5000);
 
@@ -796,7 +792,11 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       chatter->getDeviceStore()->setScreenTimeout(ScreenTimeoutNever);
       loadScreenLockTimeout();
       return true;
+    case UserRequestChangePassword:
+      // prompt new password twice
+      changeUserPassword();
 
+      break;
     case UserRequestQuickFactoryReset:
     case UserRequestSecureFactoryReset:
       if (isFullyInteractive()) {
@@ -805,6 +805,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         if (newMessageLength > 0 && (messageBuffer[0] == 'y' || messageBuffer[0] == 'Y')) {
           logConsole("Factory reset confirmed");
           fullRepaint = true;
+          factoryResetCheck(true, true);
         }
         else {
           logConsole("Factory reset cancelled");
@@ -822,6 +823,45 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   fullRepaint = true;
 
   return parentResult;
+}
+
+void GuiControlMode::changeUserPassword() {
+  uint8_t passwordLength = 0;
+  uint8_t passwordRetypeLength = 0;
+  memset(newDevicePassword, 0, CHATTER_PASSWORD_MAX_LENGTH+1);
+  passwordLength = ((FullyInteractiveDisplay*)display)->getModalInput("Password", "Never forget this password!", CHATTER_PASSWORD_MAX_LENGTH, CharacterFilterNone, newDevicePassword, "", 0);
+
+  if (passwordLength != 0) {
+    memset(newDevicePasswordRetyped, 0, CHATTER_PASSWORD_MAX_LENGTH+1);
+    passwordRetypeLength = ((FullyInteractiveDisplay*)display)->getModalInput("Retype Password", "Never forget this password!", CHATTER_PASSWORD_MAX_LENGTH, CharacterFilterNone, newDevicePasswordRetyped, "", 0);
+    if (passwordRetypeLength != 0) {
+      // check that passwords match
+      if (passwordLength == passwordRetypeLength && memcmp(newDevicePassword, newDevicePasswordRetyped, passwordLength) == 0) {
+        // re-encrypt settings/clusters with new password
+        if(chatter->getDeviceStore()->changePassphrase (newDevicePassword, passwordLength, chatter->getPasswordTestPhrase())) {
+          display->showAlert("Password changed.", AlertSuccess);
+        }
+        else {
+          display->showAlert("Password change failed", "May need factory reset!", AlertError);
+        }
+
+        delay(2000);
+      }
+      else {
+        display->showAlert("Password mismatch", "Not changed!", AlertError);
+        delay(2000);
+      }
+    }
+    else {
+      display->showAlert("Password change cancelled!", AlertWarning);
+      delay(2000);
+    }
+  }
+  else {
+    display->showAlert("Password change cancelled!", AlertWarning);
+    delay(2000);
+  }
+
 }
 
 void GuiControlMode::promptUserNewTime () {
@@ -1718,6 +1758,9 @@ uint8_t GuiControlMode::promptForPassword (char* passwordBuffer, uint8_t maxPass
       delay(1000);
     }
   }
+
+  // ensure touch listening
+  ((FullyInteractiveDisplay*)display)->setTouchListening(true);
 
   uint8_t pwLength = 0;
   while (pwLength == 0) {

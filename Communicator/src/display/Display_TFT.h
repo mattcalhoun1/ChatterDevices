@@ -219,6 +219,8 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     int getAlertAreaX() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_X : DISPLAY_TFT_ALERT_X; }
     int getAlertAreaY() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_Y: DISPLAY_TFT_ALERT_Y; }
+    int getAlertSubAreaX() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_SUB_X : DISPLAY_TFT_ALERT_SUB_X; }
+    int getAlertSubAreaY() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_SUB_Y: DISPLAY_TFT_ALERT_SUB_Y; }
     int getAlertAreaHeight() { return rotation == Landscape ? DISPLAY_TFT_LS_ALERT_HEIGHT : DISPLAY_TFT_ALERT_HEIGHT; }
 
     int getButtonAreaX() {return DISPLAY_BUTTON_AREA_X;}

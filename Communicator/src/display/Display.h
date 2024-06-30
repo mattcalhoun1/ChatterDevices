@@ -139,6 +139,7 @@ class Display {
     void resetProgress () {currentProgress = 0;}
     void showProgress (float percent);
     void showAlert (const char* alertText, AlertType alertType);
+    void showAlert (const char* alertText, const char* alertSubText, AlertType alertType);
     void showMainMessage (const char* messageText, const char* mainSubMessage, AlertType alertType);
     void showProgressBar (float percent);
     void showCacheUsed (float percent, bool forceRepaint = false);
@@ -260,6 +261,8 @@ class Display {
 
     virtual int getAlertAreaX() = 0;
     virtual int getAlertAreaY() = 0;
+    virtual int getAlertSubAreaX() = 0;
+    virtual int getAlertSubAreaY() = 0;
     virtual int getAlertAreaHeight() = 0;
 
     virtual int getMainScrollUpX() = 0;

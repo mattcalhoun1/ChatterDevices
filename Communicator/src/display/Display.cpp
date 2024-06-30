@@ -325,6 +325,24 @@ uint8_t Display::getNearbyDevicePosition (int positionX, int positionY) {
 }
 
 
+void Display::showAlert (const char* alertText, const char* alertSubText, AlertType alertType) {
+    DisplayColor color = BrightGreen;
+    if (alertType == AlertWarning) {
+        color = Beige;
+    }
+    else if (alertType == AlertError) {
+        color = DarkRed;
+    }
+    else if (alertType == AlertActivity) {
+      color = LightBlue;
+    }
+    clearAll();
+    //clearArea(0, getAlertAreaY() - getTextUpperVerticalOffset(TextMedium), getScreenWidth(), getAlertAreaHeight());
+    changeFont(FontNormal);
+    showText(alertText, getAlertAreaX(), getAlertAreaY(), TextSmall, color);
+    showText(alertSubText, getAlertSubAreaX(), getAlertSubAreaY(), TextSmall, color);
+}
+
 void Display::showAlert (const char* alertText, AlertType alertType) {
     DisplayColor color = BrightGreen;
     if (alertType == AlertWarning) {
@@ -338,7 +356,7 @@ void Display::showAlert (const char* alertText, AlertType alertType) {
     }
     clearAll();
     //clearArea(0, getAlertAreaY() - getTextUpperVerticalOffset(TextMedium), getScreenWidth(), getAlertAreaHeight());
-    changeFont(FontMidSize);
+    changeFont(FontNormal);
     showText(alertText, getAlertAreaX(), getAlertAreaY(), TextSmall, color);
 }
 
