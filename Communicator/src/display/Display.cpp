@@ -145,7 +145,7 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
       showText(
         textBuffer,
         getMessageAreaX(), 
-        getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())) + (12*lineNum) - getMessageTitleYOffset(), 
+        getMessageAreaY() + getMessageTitleHeight() + (position * (getMessageHeight() + getMessageTitleHeight())) + (14*lineNum) - getMessageTitleYOffset(), 
         TextSmall, 
         received ? messageColor : DarkGray);
       charsShown += thisLineSize;
@@ -261,12 +261,19 @@ const char* Display::getChannelName(char pingChannelId) {
 
 void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, uint8_t connectionQuality, uint8_t meshDirectRating, uint8_t meshIndirectRating, const char* readableTS, bool isTrusted, int16_t rssi, char channel, char secondaryChannel, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
   // show a line above the message for separation
+  // show a line above the message for separation
+  if (position != 0) {
+    int lineYPos = getMessageAreaY() - 3 + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2) - getMessageTitleYOffset()*2;
+    drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, Beige);
+  }
+
+  /*
   if (position != 0) {
     int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2);
     drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, Beige);
-  }
-  int dotYPos = getMessageAreaY() - getMessageTitleYOffset() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall);
-  fillCircle(getMessageAreaX(), dotYPos, getTickerSize(), getColorForConnectionQuality(connectionQuality));
+  }*/
+  int dotYPos = getMessageAreaY() - getMessageTitleYOffset() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall) + 1;
+  fillCircle(getMessageAreaX(), dotYPos, getTickerSize()-1, getColorForConnectionQuality(connectionQuality));
 
   changeFont(isTrusted ? FontBold : FontNormal);
   showText(
@@ -282,7 +289,7 @@ void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, u
   showText(
     getChannelName(channel), 
     getMessageAreaX() - getMessageStatusXOffset()*2.5 + getMessageAreaWidth() - getMessageTitleTsXOffset(), 
-    getMessageAreaY() - (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 5) - getMessageTitleYOffset()*1.5, 
+    getMessageAreaY() - (getMessageTitleYOffset() + 4) + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
     TextSmall, 
     isTrusted ? titleColor : LightGray);
 
@@ -290,7 +297,7 @@ void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, u
     showText(
       getChannelName(secondaryChannel), 
       getMessageAreaX() - getMessageStatusXOffset()*2.5 + getMessageAreaWidth() - getMessageTitleTsXOffset(), 
-      getMessageAreaY() - 7 + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 5) - getMessageTitleYOffset()*1.5, 
+      getMessageAreaY() - (9 + getMessageTitleYOffset()) + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) - 2), 
       TextSmall, 
       isTrusted ? titleColor : LightGray);
   }
@@ -482,7 +489,7 @@ void Display::showStartupScreen (float progress) {
   showProgressBar(progress);
 
   // show splash screen
-  changeFont(FontBold);
+  changeFont(FontUpSize);
   showText(APP_TITLE, DISPLAY_TFT_SPLASH_TITLE_X, DISPLAY_TFT_SPLASH_TITLE_Y, TextSmall, DarkBlue);
   changeFont(FontTiny);
   showText(APP_SUBTITLE, DISPLAY_TFT_SPLASH_SUBTITLE_X, DISPLAY_TFT_SPLASH_SUBTITLE_Y, TextSmall, DarkBlue);

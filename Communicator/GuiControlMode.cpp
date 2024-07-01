@@ -302,18 +302,29 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
     }
  
     // if it's a small message, go ahead and print. otherwise, user will have to look
-    if (messageIterator->isPreviewable(msg)) {
-      chatter->getMessageStore()->loadMessage (messageIterator->getItemVal(msg), (uint8_t*)previewTextBuffer, MESSAGE_PREVIEW_BUFFER_SIZE);
+    if (previewTitleBuffer[3] == 'P') {
+      if (messageIterator->isPreviewable(msg)) {
+        chatter->getMessageStore()->loadMessage (messageIterator->getItemVal(msg), (uint8_t*)previewTextBuffer, MESSAGE_PREVIEW_BUFFER_SIZE);
+      }
+      else {
+        sprintf(previewTextBuffer, "%s", "[large message]");
+      }
+    }
+    else if (previewTitleBuffer[3] == 'T') {
+        sprintf(previewTextBuffer, "%s", "[thermal image]");
+    }
+    else if (previewTitleBuffer[3] == 'K') {
+        sprintf(previewTextBuffer, "%s", "[public key]");
     }
     else {
-      sprintf(previewTextBuffer, "%s", "[large message]");
+        sprintf(previewTextBuffer, "%s", "[unknown message type]");
     }
     //logConsole(previewTitleBuffer);
     display->showMessageAndTitle(
-      previewTitleBuffer+5, 
+      previewTitleBuffer+6, 
       previewTextBuffer, 
       previewTsBuffer, 
-      previewTitleBuffer[3] == '<', 
+      previewTitleBuffer[4] == '<', 
       previewTitleBuffer[1], 
       previewTitleBuffer[0], 
       previewTitleBuffer[0] == SentViaBroadcast ? DarkBlue : Yellow, 
@@ -351,7 +362,7 @@ void GuiControlMode::showNearbyDevices(bool resetOffset) {
   display->clearMessageArea();
 
   if (previewSize == 0) {
-    display->showMainMessage ("No Neighbors", "No devices are nearby", AlertActivity);
+    display->showMainMessage ("No Neighbors", "There are no devices nearby", AlertActivity);
     return;
   }
 
@@ -1941,7 +1952,7 @@ bool GuiControlMode::syncLearnActivity () {
 
               for (uint8_t messageNum = 0; messageNum < messageIterator->getNumItems(); messageNum++) {
                 // if its from the other device and is a learning message, subtract the learning ts from the received ts to get delivery time
-                bool isLarge = chatter->getMessageStore()->loadMessageDetails (messageIterator->getItemVal(messageNum), learnSenderIdBuffer, learnRecipientIdBuffer, learnMessageIdBuffer, learnTimestampBuffer, learnStatusBuffer, learnSendMethodBuffer);
+                bool isLarge = chatter->getMessageStore()->loadMessageDetails (messageIterator->getItemVal(messageNum), learnSenderIdBuffer, learnRecipientIdBuffer, learnMessageIdBuffer, learnTimestampBuffer, learnStatusBuffer, learnSendMethodBuffer, learnMessageTypeBuffer);
                 bool thisDeviceSent = memcmp(chatter->getDeviceId(), learnSenderIdBuffer, CHATTER_DEVICE_ID_SIZE) == 0;
 
                 if (thisDeviceSent) {

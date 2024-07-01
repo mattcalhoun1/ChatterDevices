@@ -34,7 +34,7 @@ bool MessageIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
     memset(readableTimestampBuffer, 0, 12);
 
     //Serial.print("loadItemName (");Serial.print(itemNum);Serial.print("), which is slot: ");Serial.println(previewable[itemNum]);
-    bool isLarge = messageStore-> loadMessageDetails (messageSlots[itemNum], senderIdBuffer, recipientIdBuffer, messageIdBuffer, timestampBuffer, statusBuffer, sendMethodBuffer);
+    bool isLarge = messageStore-> loadMessageDetails (messageSlots[itemNum], senderIdBuffer, recipientIdBuffer, messageIdBuffer, timestampBuffer, statusBuffer, sendMethodBuffer, messageTypeBuffer);
     bool thisDeviceSent = memcmp(thisDeviceId, senderIdBuffer, CHATTER_DEVICE_ID_SIZE) == 0;
 
     memcpy(readableTimestampBuffer, timestampBuffer + 2, 2);
@@ -55,6 +55,7 @@ bool MessageIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
     nameBuffer[0] = (char)sendMethodBuffer;
     nameBuffer[1] = (char)statusBuffer;
     nameBuffer[2] = isLarge ? 'L' : 'S';
+    nameBuffer[3] = (char)messageTypeBuffer;
 
     // if it was a sent broadcast, the recipient is everyone (*)
     if (thisDeviceSent && sendMethodBuffer == SentViaBroadcast && memcmp(recipientIdBuffer, chatter->getClusterBroadcastId(), CHATTER_DEVICE_ID_SIZE) == 0) {
@@ -70,7 +71,7 @@ bool MessageIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
         trustStore->loadAlias(thisDeviceSent ? recipientIdBuffer : senderIdBuffer, aliasBuffer);
     }
 
-    sprintf(nameBuffer + 3, "%s%s:%s", thisDeviceSent ? "> " : "< ", readableTimestampBuffer, aliasBuffer);
+    sprintf(nameBuffer + 4, "%s%s:%s", thisDeviceSent ? "> " : "< ", readableTimestampBuffer, aliasBuffer);
     return true;
 }
 

@@ -597,7 +597,7 @@ void Display_TFT::showButtons() {
     //drawLine(getFlipButtonX() + getFlipButtonSize() * .1, getFlipButtonY() + getFlipButtonSize() * .5, getFlipButtonX() + getFlipButtonSize() *.9, getFlipButtonY() + getFlipButtonSize()*.5, LightBlue);
     drawLine(getFlipButtonX() + getFlipButtonSize() * .1, getFlipButtonY() + getFlipButtonSize() * .9, getFlipButtonX() + getFlipButtonSize() *.9, getFlipButtonY() + getFlipButtonSize()*.1, LightBlue);
 
-    fillCircle(getFlipButtonX() + (.5*getFlipButtonSize()), getFlipButtonY() + (.5*getFlipButtonSize()), .184*getFlipButtonSize(), Beige);
+    fillCircle(getFlipButtonX() + (.5*getFlipButtonSize()), getFlipButtonY() + (.5*getFlipButtonSize()), .13*getFlipButtonSize(), Beige);
 
     fillCircle(getFlipButtonX() + (.15*getFlipButtonSize()), getLockButtonY() + getFlipButtonSize() * .15, .07*getFlipButtonSize(), LightBlue);
     fillCircle(getFlipButtonX() + (.15*getFlipButtonSize()), getLockButtonY() + getFlipButtonSize() * .85, .07*getFlipButtonSize(), LightBlue);

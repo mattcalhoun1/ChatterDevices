@@ -18,7 +18,7 @@
 #define GUICONTROLMODE_H
 
 //                                status    channels            ts       :          alias               (           send/rcpient     )   sp  >>  term
-#define MESSAGE_TITLE_BUFFER_SIZE 3 +        2 + STORAGE_TS_SIZE + 1 +  CHATTER_ALIAS_NAME_SIZE + 1 + CHATTER_DEVICE_ID_SIZE + 1 + 1 + 2 + 2
+#define MESSAGE_TITLE_BUFFER_SIZE 4 +        2 + STORAGE_TS_SIZE + 1 +  CHATTER_ALIAS_NAME_SIZE + 1 + CHATTER_DEVICE_ID_SIZE + 1 + 1 + 2 + 2
 
 #define MESSAGE_PREVIEW_BUFFER_SIZE 64
 
@@ -194,6 +194,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         char learnAliasBuffer[STORAGE_MAX_ALIAS_LENGTH + 1];
         MessageSendMethod learnSendMethodBuffer;
         MessageStatus learnStatusBuffer;
+        MessageType learnMessageTypeBuffer;
         char learnTimestampBuffer[STORAGE_TS_SIZE+1];
 
         /** end learning mode stuff **/

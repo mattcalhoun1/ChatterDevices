@@ -30,6 +30,7 @@ class MessageIterator : public ItemIterator {
 
         MessageSendMethod sendMethodBuffer;
         MessageStatus statusBuffer;
+        MessageType messageTypeBuffer;
         char timestampBuffer[STORAGE_TS_SIZE+1];
         char readableTimestampBuffer[12]; // mm/dd hh:mm
         char thisDeviceId[CHATTER_DEVICE_ID_SIZE + 1];
