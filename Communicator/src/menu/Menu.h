@@ -18,6 +18,7 @@
 #define MENU_MAIN_CONNECTIONS 4
 #define MENU_MAIN_POWER 5
 #define MENU_MAIN_REMOTE 6
+#define MENU_MAIN_BACKUPS 99
 
 #define MENU_CLUSTER_SECURE_CAST 1
 #define MENU_CLUSTER_CHANGE_CLUSTER 2
@@ -33,6 +34,9 @@
 #define MENU_MESH_ENABLE_LEARNING 5
 #define MENU_MESH_ENABLE_REMOTE_CONFIG 6
 
+#define MENU_BACKUPS_LOCAL_BACKUP 1
+#define MENU_BACKUPS_LOCAL_RESTORE 2
+//#define MENU_CLUSTER_JOIN_CLUSTER 3
 
 #define MENU_DEVICE_CLEAR_MESSAGES 1
 #define MENU_DEVICE_MESSAGE_HISTORY 2
@@ -74,6 +78,7 @@
 #define MENU_ID_REMOTE 6
 #define MENU_ID_SCREEN_TIMEOUT 7
 #define MENU_ID_ITERATOR 8
+#define MENU_ID_BACKUPS 9
 
 #define MENU_HIGHLIGHT_CENTER false
 #define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
@@ -117,6 +122,7 @@ class Menu : public TouchListener {
         void connectionsMenu();
         void clusterMenu ();
         void meshMenu ();
+        void backupsMenu ();
         void powerMenu();
         void remoteMenu();
         void iteratorMenu (bool fullRepaint = false);
@@ -152,6 +158,7 @@ class Menu : public TouchListener {
         void screenTimeoutActions();
         void connectionsActions ();
         void mainActions ();
+        void backupsActions ();
         void clusterActions ();
         void meshActions ();
         void powerMenuActions ();

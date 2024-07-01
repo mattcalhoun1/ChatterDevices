@@ -97,6 +97,7 @@ void Menu::mainMenu(bool fullRepaint) {
   oledMenu.menuItems[MENU_MAIN_CLUSTER] = "Cluster";
   oledMenu.menuItems[MENU_MAIN_DEVICE] = "Device";
   oledMenu.menuItems[MENU_MAIN_MESH] = "Mesh";
+  //oledMenu.menuItems[MENU_MAIN_BACKUPS] = "Backups";
   oledMenu.menuItems[MENU_MAIN_CONNECTIONS] = "Connections";
   oledMenu.menuItems[MENU_MAIN_POWER] = "Power";
 
@@ -203,6 +204,22 @@ void Menu::meshMenu() {
   oledMenu.menuItems[MENU_MESH_ENABLE_REMOTE_CONFIG] = prefHandler->isPreferenceEnabled(PreferenceRemoteConfigEnabled) ? "Disable Remote Cfg" : "Enable Remote Cfg";
 
   // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+
+  mode = MenuActive;
+  needsRepainted = true;
+}
+
+void Menu::backupsMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_BACKUPS;
+  oledMenu.menuTitle = "Backups";
+
+  oledMenu.noOfmenuItems = 2;
+  oledMenu.menuItems[MENU_BACKUPS_LOCAL_BACKUP] = "Backup (Local)";
+  oledMenu.menuItems[MENU_BACKUPS_LOCAL_RESTORE] = "Restore (Local)";
+
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
 
@@ -458,6 +475,21 @@ void Menu::powerMenuActions() {
   }
 }
 
+void Menu::backupsActions() {
+  if (oledMenu.menuId == MENU_ID_BACKUPS) {  
+    switch (oledMenu.selectedMenuItem) {
+      case MENU_BACKUPS_LOCAL_BACKUP:
+        resetMenu();
+        handler->handleEvent(DeviceBackup);
+        break;
+      case MENU_BACKUPS_LOCAL_RESTORE:
+        resetMenu();
+        handler->handleEvent(DeviceRestore);
+        break;
+    }
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
 void Menu::screenTimeoutActions () {
   if (oledMenu.menuId == MENU_ID_SCREEN_TIMEOUT) {  
     switch (oledMenu.selectedMenuItem) {
@@ -597,6 +629,9 @@ void Menu::menuActions () {
   else if (oledMenu.menuId == MENU_ID_SCREEN_TIMEOUT) {
     screenTimeoutActions();
   }
+  else if (oledMenu.menuId == MENU_ID_BACKUPS) {
+    backupsActions();
+  }
 }
 
 void Menu::mainActions() {
@@ -630,6 +665,11 @@ void Menu::mainActions() {
         break;
       case MENU_MAIN_REMOTE:
         remoteMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;
+      case MENU_MAIN_BACKUPS:
+        backupsMenu();
         mode = MenuActive;
         needsRepainted = true;
         break;

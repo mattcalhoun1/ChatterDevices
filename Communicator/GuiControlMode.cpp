@@ -781,7 +781,13 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       delay(5000);
       return true;
     case DeviceRestore:
-      logConsole("restore...");
+      if (chatter->performLocalRestore()) {
+        display->showAlert("Restore Complete", AlertSuccess);
+      }
+      else {
+        display->showAlert("Restore Failed", AlertError);
+      }
+      delay(5000);
       return true;
 
     case UserRequestChangeTime:
@@ -1587,7 +1593,7 @@ bool GuiControlMode::promptClusterInfo (bool forceInput) {
 
     if (newFreqLength > 0) {
       newFrequency = atof(newFreq);
-      if (newFrequency >= LORA_MIN_FREQUENCY || newFrequency <= LORA_MAX_FREQUENCY) {
+      if (newFrequency >= LORA_MIN_FREQUENCY && newFrequency <= LORA_MAX_FREQUENCY) {
         goodFreq = true;
       }
     }
