@@ -294,13 +294,13 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
     messageIterator->loadItemName(msg, previewTitleBuffer);
 
     // timestamp is in position5 and 11 chars long
-    memcpy(previewTsBuffer, previewTitleBuffer + 5, 11);
+    memcpy(previewTsBuffer, previewTitleBuffer + 6, 11);
 
     // shift the rest of the title left, so we wipe the timestamp
-    for (uint8_t c = 5; c + 12 < MESSAGE_TITLE_BUFFER_SIZE + 1; c++) {
+    for (uint8_t c = 6; c + 12 < MESSAGE_TITLE_BUFFER_SIZE + 1; c++) {
       previewTitleBuffer[c] = previewTitleBuffer[c+12];
     }
- 
+
     // if it's a small message, go ahead and print. otherwise, user will have to look
     if (previewTitleBuffer[3] == 'P') {
       if (messageIterator->isPreviewable(msg)) {

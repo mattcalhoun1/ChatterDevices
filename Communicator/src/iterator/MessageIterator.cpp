@@ -51,7 +51,7 @@ bool MessageIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
     // the first 3 fields are not really intended to directly display, but rather
     // to allow for color coding/etc to indicate hwo they should be shown
 
-    // [D|B|I][R|N|][L|S]TS [SENDER/RECIPIENT alias]([Sender/rcp id]) [ >> or << ]
+    // [D|B|I][R|N|][L|S][type]TS [SENDER/RECIPIENT alias]([Sender/rcp id]) [ >> or << ]
     nameBuffer[0] = (char)sendMethodBuffer;
     nameBuffer[1] = (char)statusBuffer;
     nameBuffer[2] = isLarge ? 'L' : 'S';
