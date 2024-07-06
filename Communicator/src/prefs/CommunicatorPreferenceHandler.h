@@ -11,7 +11,18 @@ enum CommunicatorPreference {
     PreferenceMeshLearningEnabled = 6,
     PreferenceRemoteConfigEnabled = 7,
     PreferenceDstEnabled = 8,
-    PreferenceIgnoreExpiryEnabled = 9
+    PreferenceIgnoreExpiryEnabled = 9,
+    PreferenceBackpacksEnabled = 10,
+    PreferenceBackpackThermalEnabled = 11,
+    PreferenceBackpackThermalRemoteEnabled = 12,
+    PreferenceBackpackThermalAutoEnabled = 13
+};
+
+enum StoredPreference {
+    StoredPrefBackpacksEnabled = 0,
+    StoredPrefBackpackThermalEnabled = 1,
+    StoredPrefBackpackThermalRemoteEnabled = 2,
+    StoredPrefBackpackThermalAutoEnabled = 3
 };
 
 class CommunicatorPreferenceHandler {

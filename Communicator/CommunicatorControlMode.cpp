@@ -26,10 +26,18 @@ StartupState CommunicatorControlMode::init() {
       }
 
       // check if backpack needs initialized
-      if (BACKPACK_THERMAL_ENABLED) {
-        encoder = new ThermalEncoder(THERMAL_HEIGHT, THERMAL_WIDTH, false);      
-        camera = new Camera();
-        logConsole("Thermal ready");
+      if (isPreferenceEnabled(PreferenceBackpacksEnabled)) {
+        if (isPreferenceEnabled(PreferenceBackpackThermalEnabled)) {
+          showStatus("Init Thermal...");
+          encoder = new ThermalEncoder(THERMAL_HEIGHT, THERMAL_WIDTH, false);      
+          camera = new Camera();
+          if (camera->isReady()) {
+            logConsole("Thermal ready");
+          }
+          else {
+            logConsole("No Thermal!");
+          }
+        }
       }
     }
 
@@ -609,4 +617,219 @@ uint8_t CommunicatorControlMode::getBatteryLevel () {
   #else
     return 99;
   #endif
+}
+
+bool CommunicatorControlMode::isPreferenceEnabled (CommunicatorPreference pref) {
+  switch (pref) {
+    case PreferenceMessageHistory:
+      return chatter->getDeviceStore()->getMessageHistoryEnabled();
+    case PreferenceKeyboardLandscape:
+      return chatter->getDeviceStore()->getKeyboardOrientedLandscape();
+    case PreferenceWifiEnabled:
+      return chatter->getDeviceStore()->getWifiEnabled();
+    case PreferenceMeshEnabled:
+      return chatter->getDeviceStore()->getMeshEnabled();
+    case PreferenceWiredEnabled:
+      return chatter->getDeviceStore()->getUartEnabled();
+    case PreferenceLoraEnabled:
+      return chatter->getDeviceStore()->getLoraEnabled();
+    case PreferenceMeshLearningEnabled:
+      return chatter->getDeviceStore()->getMeshLearningEnabled();
+    case PreferenceRemoteConfigEnabled:
+      return chatter->getDeviceStore()->getRemoteConfigEnabled();
+    case PreferenceDstEnabled:
+      return chatter->getDeviceStore()->getDstEnabled();
+    case PreferenceIgnoreExpiryEnabled:
+      return chatter->getDeviceStore()->getAllowExpiredMessages();
+    case PreferenceBackpacksEnabled:
+      return chatter->getDeviceStore()->getCustomPreference(StoredPrefBackpacksEnabled) == 'T';
+    case PreferenceBackpackThermalEnabled:
+      return chatter->getDeviceStore()->getCustomPreference(StoredPrefBackpackThermalEnabled) == 'T';
+    case PreferenceBackpackThermalRemoteEnabled:
+      return chatter->getDeviceStore()->getCustomPreference(StoredPrefBackpackThermalRemoteEnabled) == 'T';
+    case PreferenceBackpackThermalAutoEnabled:
+      return chatter->getDeviceStore()->getCustomPreference(StoredPrefBackpackThermalAutoEnabled) == 'T';
+  }
+
+  logConsole("Unknown preference read attempt");
+  return false;
+}
+
+void CommunicatorControlMode::enablePreference (CommunicatorPreference pref) {
+  switch (pref) {
+    case PreferenceMessageHistory:
+      chatter->getDeviceStore()->setMessageHistoryEnabled(true);
+      logConsole("Message history enabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceKeyboardLandscape:
+      chatter->getDeviceStore()->setKeyboardOrientedLandscape(true);
+
+      logConsole("Keyboard landscape enabled");
+      restartDevice();
+      break;
+    case PreferenceWifiEnabled:
+      chatter->getDeviceStore()->setWifiEnabled(true);
+      logConsole("Wifi enabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceMeshEnabled:
+      chatter->getDeviceStore()->setMeshEnabled(true);
+      logConsole("Mesh enabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceWiredEnabled:
+      chatter->getDeviceStore()->setUartEnabled(true);
+      logConsole("Wired enabled");
+      // reset device
+      restartDevice();
+      break;
+    case PreferenceLoraEnabled:
+      chatter->getDeviceStore()->setLoraEnabled(true);
+      logConsole("Lora enabled");
+      // reset device
+      restartDevice();
+      break;
+    case PreferenceMeshLearningEnabled:
+      chatter->getDeviceStore()->setMeshLearningEnabled(true);
+      break;
+    case PreferenceRemoteConfigEnabled:
+      chatter->getDeviceStore()->setRemoteConfigEnabled(true);
+
+      // reset device
+      restartDevice();
+      break;
+    case PreferenceDstEnabled:
+      chatter->getDeviceStore()->setDstEnabled(true);
+
+      restartDevice();
+      break;
+    case PreferenceIgnoreExpiryEnabled:
+      chatter->getDeviceStore()->setAllowExpiredMessages(true);
+      break;
+
+    case PreferenceBackpacksEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpacksEnabled, 'T');
+      restartDevice();
+      break;
+
+    case PreferenceBackpackThermalEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackThermalEnabled, 'T');
+      restartDevice();
+      break;
+
+    case PreferenceBackpackThermalRemoteEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackThermalRemoteEnabled, 'T');
+      restartDevice();
+      break;
+
+    case PreferenceBackpackThermalAutoEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackThermalAutoEnabled, 'T');
+      restartDevice();
+      break;
+
+    default:
+      logConsole("Unknown preference enable attempt");
+  }
+}
+
+void CommunicatorControlMode::disablePreference (CommunicatorPreference pref) {
+  switch (pref) {
+    case PreferenceMessageHistory:
+      chatter->getDeviceStore()->setMessageHistoryEnabled(false);
+      logConsole("Message history disabled");
+
+      // reset device
+      restartDevice();
+      break;
+    case PreferenceKeyboardLandscape:
+      chatter->getDeviceStore()->setKeyboardOrientedLandscape(false);
+
+      logConsole("Keyboard landscape disabled");
+      restartDevice();
+      break;
+    case PreferenceWifiEnabled:
+      chatter->getDeviceStore()->setWifiEnabled(false);
+      logConsole("Wifi disabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceMeshEnabled:
+      chatter->getDeviceStore()->setMeshEnabled(false);
+      logConsole("Mesh disabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceLoraEnabled:
+      chatter->getDeviceStore()->setLoraEnabled(false);
+      logConsole("Lora disabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceWiredEnabled:
+      chatter->getDeviceStore()->setUartEnabled(false);
+      logConsole("Wired disabled");
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceMeshLearningEnabled:
+      chatter->getDeviceStore()->setMeshLearningEnabled(false);
+      break;
+
+    case PreferenceRemoteConfigEnabled:
+      chatter->getDeviceStore()->setRemoteConfigEnabled(false);
+
+      // reset device
+      restartDevice();
+
+      break;
+    case PreferenceDstEnabled:
+      chatter->getDeviceStore()->setDstEnabled(false);
+
+      restartDevice();
+      break;
+    case PreferenceIgnoreExpiryEnabled:
+      chatter->getDeviceStore()->setAllowExpiredMessages(false);
+      break;
+
+    case PreferenceBackpacksEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpacksEnabled, 'F');
+      restartDevice();
+      break;
+
+    case PreferenceBackpackThermalEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackThermalEnabled, 'F');
+      restartDevice();
+      break;
+
+    case PreferenceBackpackThermalRemoteEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackThermalRemoteEnabled, 'F');
+      restartDevice();
+      break;
+
+    case PreferenceBackpackThermalAutoEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackThermalAutoEnabled, 'F');
+      restartDevice();
+      break;
+
+    default:
+      logConsole("Unknown preference disable attempt");
+  }
 }

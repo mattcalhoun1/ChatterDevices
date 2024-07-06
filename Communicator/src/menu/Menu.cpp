@@ -91,12 +91,13 @@ void Menu::populateIteratorMenu () {
 void Menu::mainMenu(bool fullRepaint) {
   resetMenu(fullRepaint); // clear any previous menu
   oledMenu.menuId = MENU_ID_MAIN;
-  oledMenu.noOfmenuItems = 5;
+  oledMenu.noOfmenuItems = 6;
   oledMenu.menuTitle = "Main Menu";
 
   oledMenu.menuItems[MENU_MAIN_CLUSTER] = "Cluster";
   oledMenu.menuItems[MENU_MAIN_DEVICE] = "Device";
   oledMenu.menuItems[MENU_MAIN_MESH] = "Mesh";
+  oledMenu.menuItems[MENU_MAIN_BACKPACKS] = "Backpacks";
   //oledMenu.menuItems[MENU_MAIN_BACKUPS] = "Backups";
   oledMenu.menuItems[MENU_MAIN_CONNECTIONS] = "Connections";
   oledMenu.menuItems[MENU_MAIN_POWER] = "Power";
@@ -105,6 +106,42 @@ void Menu::mainMenu(bool fullRepaint) {
     oledMenu.noOfmenuItems += 1;
     oledMenu.menuItems[MENU_MAIN_REMOTE] = "Issue Command";
   }
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+}
+
+void Menu::backpacksMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_BACKPACKS;
+  oledMenu.noOfmenuItems = 1;
+  oledMenu.menuTitle = "Backpacks";
+
+  oledMenu.menuItems[MENU_BACKPACK_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceBackpacksEnabled) ? "Disable Backpacks" : "Enable Backpacks";
+
+  if (prefHandler->isPreferenceEnabled(PreferenceBackpacksEnabled)) {
+    oledMenu.noOfmenuItems += 4;
+    oledMenu.menuItems[MENU_BACKPACK_THERMAL] = "Thermal Cam";
+    oledMenu.menuItems[MENU_BACKPACK_ULTRASONIC] = "Ultrasonic";
+    oledMenu.menuItems[MENU_BACKPACK_MOTION] = "Motion Sensor";
+    oledMenu.menuItems[MENU_BACKPACK_RELAY] = "Relay";
+  }
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+}
+
+void Menu::thermalMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_THERMAL;
+  oledMenu.noOfmenuItems = 3;
+  oledMenu.menuTitle = "Thermal Cam";
+
+  oledMenu.menuItems[MENU_THERMAL_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceBackpackThermalEnabled) ? "Disable Thermal" : "Enable Thermal";
+  oledMenu.menuItems[MENU_THERMAL_REMOTE_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceBackpackThermalRemoteEnabled) ? "Disable Remote" : "Enable Remote";
+  oledMenu.menuItems[MENU_THERMAL_AUTO_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceBackpackThermalAutoEnabled) ? "Disable Auto" : "Enable Auto";
 
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
@@ -375,6 +412,67 @@ void Menu::connectionsActions() {
   }
 }
 
+void Menu::backpacksActions() {
+  if (oledMenu.menuId == MENU_ID_BACKPACKS) {  
+    switch (oledMenu.selectedMenuItem) {
+      // preference toggles
+      case MENU_BACKPACK_ENABLE:
+        if (prefHandler->isPreferenceEnabled(PreferenceBackpacksEnabled)) {
+          prefHandler->disablePreference(PreferenceBackpacksEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceBackpacksEnabled);
+        }
+        resetMenu();
+        break;
+      case MENU_BACKPACK_THERMAL:
+        thermalMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;        
+    }
+
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
+void Menu::thermalActions() {
+  if (oledMenu.menuId == MENU_ID_THERMAL) {  
+    switch (oledMenu.selectedMenuItem) {
+      // preference toggles
+      case MENU_THERMAL_ENABLE:
+        if (prefHandler->isPreferenceEnabled(PreferenceBackpackThermalEnabled)) {
+          prefHandler->disablePreference(PreferenceBackpackThermalEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceBackpackThermalEnabled);
+        }
+        resetMenu();
+        break;
+      case MENU_THERMAL_REMOTE_ENABLE:
+        if (prefHandler->isPreferenceEnabled(PreferenceBackpackThermalRemoteEnabled)) {
+          prefHandler->disablePreference(PreferenceBackpackThermalRemoteEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceBackpackThermalRemoteEnabled);
+        }
+        resetMenu();
+        break;
+      case MENU_THERMAL_AUTO_ENABLE:
+        if (prefHandler->isPreferenceEnabled(PreferenceBackpackThermalAutoEnabled)) {
+          prefHandler->disablePreference(PreferenceBackpackThermalAutoEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceBackpackThermalAutoEnabled);
+        }
+        resetMenu();
+        break;
+    }
+
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
 void Menu::meshActions() {
   if (oledMenu.menuId == MENU_ID_MESH) {  
     switch (oledMenu.selectedMenuItem) {
@@ -632,6 +730,12 @@ void Menu::menuActions () {
   else if (oledMenu.menuId == MENU_ID_BACKUPS) {
     backupsActions();
   }
+  else if (oledMenu.menuId == MENU_ID_BACKPACKS) {
+    backpacksActions();
+  }
+  else if (oledMenu.menuId == MENU_ID_THERMAL) {
+    thermalActions();
+  }
 }
 
 void Menu::mainActions() {
@@ -670,6 +774,11 @@ void Menu::mainActions() {
         break;
       case MENU_MAIN_BACKUPS:
         backupsMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;
+      case MENU_MAIN_BACKPACKS:
+        backpacksMenu();
         mode = MenuActive;
         needsRepainted = true;
         break;

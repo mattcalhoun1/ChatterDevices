@@ -4,7 +4,10 @@ Camera::Camera() {
   logConsole("Initialize MLX90640 Thermal Camera");
   if (! mlx.begin(MLX90640_I2CADDR_DEFAULT, &Wire)) {
     logConsole("MLX90640 not found!");
-    while (1) delay(10);
+    ready = false;
+  }
+  else {
+    ready = true;
   }
   
   //mlx.setMode(MLX90640_INTERLEAVED);
@@ -17,6 +20,9 @@ Camera::Camera() {
   logSettings();
 }
 
+bool Camera::isReady () {
+  return ready;
+}
 
 bool Camera::captureImage () {
   //logConsole("Capturing thermal image");

@@ -425,11 +425,11 @@ void GuiControlMode::showNearbyDevices(bool resetOffset) {
 bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   bool result = false;
   switch(eventType) {
-    case ThermalReceived:
+    case UserThermalSnap:
       // show thermal on screen
       camera->captureImage();
       display->showInterpolatedThermal(camera->getImageData(), false, "Live");
-      delay(2000);
+      delay(2000); // remove this, it will be replaced by interactive context controlling what is seen
       return true;
     case UserRequestScreenLock:
       lockScreen();
@@ -1398,7 +1398,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
           }
           else {
             // show the powerdown menu
-            ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
+            /*((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
             menu->powerMenu();
 
             // wait for result of contact selections
@@ -1408,6 +1408,8 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
               ((FullyInteractiveDisplay*)display)->handleIfTouched();
             }
             ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
+            */
+            lockScreen();
           }
           return true;
         case ButtonFlip:

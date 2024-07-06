@@ -16,8 +16,9 @@
 #define MENU_MAIN_DEVICE 2
 #define MENU_MAIN_MESH 3
 #define MENU_MAIN_CONNECTIONS 4
-#define MENU_MAIN_POWER 5
-#define MENU_MAIN_REMOTE 6
+#define MENU_MAIN_BACKPACKS 5
+#define MENU_MAIN_POWER 6
+#define MENU_MAIN_REMOTE 7
 #define MENU_MAIN_BACKUPS 99
 
 #define MENU_CLUSTER_SECURE_CAST 1
@@ -33,6 +34,12 @@
 #define MENU_MESH_CLEAR_GRAPH 4
 #define MENU_MESH_ENABLE_LEARNING 5
 #define MENU_MESH_ENABLE_REMOTE_CONFIG 6
+
+#define MENU_BACKPACK_ENABLE 1
+#define MENU_BACKPACK_THERMAL 2
+#define MENU_BACKPACK_ULTRASONIC 3
+#define MENU_BACKPACK_MOTION 4
+#define MENU_BACKPACK_RELAY 5
 
 #define MENU_BACKUPS_LOCAL_BACKUP 1
 #define MENU_BACKUPS_LOCAL_RESTORE 2
@@ -69,6 +76,10 @@
 #define MENU_POWER_LOCK_SCREEN 1
 #define MENU_POWER_POWEROFF 2
 
+#define MENU_THERMAL_ENABLE 1
+#define MENU_THERMAL_REMOTE_ENABLE 2
+#define MENU_THERMAL_AUTO_ENABLE 3
+
 #define MENU_ID_MAIN 0
 #define MENU_ID_CLUSTER 1
 #define MENU_ID_DEVICE 2
@@ -79,6 +90,8 @@
 #define MENU_ID_SCREEN_TIMEOUT 7
 #define MENU_ID_ITERATOR 8
 #define MENU_ID_BACKUPS 9
+#define MENU_ID_BACKPACKS 10
+#define MENU_ID_THERMAL 11
 
 #define MENU_HIGHLIGHT_CENTER false
 #define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
@@ -125,6 +138,8 @@ class Menu : public TouchListener {
         void backupsMenu ();
         void powerMenu();
         void remoteMenu();
+        void backpacksMenu();
+        void thermalMenu();
         void iteratorMenu (bool fullRepaint = false);
         void iteratorActions ();        
 
@@ -163,6 +178,8 @@ class Menu : public TouchListener {
         void meshActions ();
         void powerMenuActions ();
         void remoteActions();
+        void backpacksActions();
+        void thermalActions();
 
         void populateIteratorMenu ();
 

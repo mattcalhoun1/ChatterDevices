@@ -3,12 +3,11 @@
 #include "src/display/Display_TFT.h"
 #include "src/menu/Menu.h"
 #include "src/keyboard/Keyboard.h"
-#include "src/prefs/CommunicatorPreferenceHandler.h"
 
 #ifndef HEADSUPCONTROLMODE_H
 #define HEADSUPCONTROLMODE_H
 
-class HeadsUpControlMode : public CommunicatorControlMode, public CommunicatorPreferenceHandler {
+class HeadsUpControlMode : public CommunicatorControlMode {
     public:
         HeadsUpControlMode (DeviceType _deviceType) : CommunicatorControlMode (_deviceType) {}
         StartupState init ();
@@ -32,9 +31,6 @@ class HeadsUpControlMode : public CommunicatorControlMode, public CommunicatorPr
 
         bool isFullyInteractive () { return fullyInteractive; }
 
-        bool isPreferenceEnabled (CommunicatorPreference pref);
-        void enablePreference (CommunicatorPreference pref);
-        void disablePreference (CommunicatorPreference pref);                
     protected:
         bool fullyInteractive = false;
         bool screenLocked = false;

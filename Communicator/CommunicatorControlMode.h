@@ -5,6 +5,7 @@
 #include "src/display/FullyInteractiveDisplay.h"
 #include "src/touch/TouchControl.h"
 #include "RemoteConfig.h"
+#include "src/prefs/CommunicatorPreferenceHandler.h"
 
 // temp: thermal
 #include "src/backpacks/thermal/Camera.h"
@@ -17,7 +18,7 @@
 #ifndef COMMUNICATORCONTROLMODE_H
 #define COMMUNICATORCONTROLMODE_H
 
-class CommunicatorControlMode : public ControlMode, public CommunicatorEventHandler {
+class CommunicatorControlMode : public ControlMode, public CommunicatorEventHandler, public CommunicatorPreferenceHandler {
     public:
         CommunicatorControlMode (DeviceType _deviceType) : ControlMode (_deviceType) {}
         StartupState init ();
@@ -57,6 +58,10 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
         virtual void notifyMessageReceived();
 
         uint8_t getBatteryLevel (); // 0 - 100
+
+        bool isPreferenceEnabled (CommunicatorPreference pref);
+        void enablePreference (CommunicatorPreference pref);
+        void disablePreference (CommunicatorPreference pref);                
 
     protected:
         virtual void sleepOrBackground(unsigned long sleepTime);
