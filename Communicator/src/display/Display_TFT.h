@@ -95,8 +95,8 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     void setTouchListening(bool _listening);
     void touchInterrupt();
-    void showButtons ();
-    DisplayedButton getButtonAt (int x, int y);
+    void showButtons (InteractiveContext context);
+    DisplayedButton getButtonAt (InteractiveContext context, int x, int y);
 
   protected:
     int getStatusX();
@@ -238,8 +238,8 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getFlipButtonSize() { return DISPLAY_TFT_FLIP_BUTTON_SIZE; }
 
 
-    void showButton(uint8_t buttonPosition, const char* buttonText);
-    const char* getButtonText (DisplayedButton btn){return buttonTexts[btn];}
+    void showButton(InteractiveContext context, uint8_t buttonPosition);
+    //const char* getButtonText (DisplayedButton btn){return buttonTexts[btn];}
 
     int getMainAreaX () {return DISPLAY_TFT_MAIN_AREA_X;}
     int getMainAreaY () {return DISPLAY_TFT_MAIN_AREA_Y;}
@@ -269,7 +269,15 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     FontType currFontType = FontNormal;
 
-    const char* buttonTexts[NUM_DISPLAYED_BUTTONS] = {DISPLAY_BUTTON_TEXT_SEND, DISPLAY_BUTTON_TEXT_FILTER, DISPLAY_BUTTON_TEXT_MENU};
+    const char* buttonTexts[NUM_INTERACTIVE_CONTEXTS][NUM_DISPLAYED_BUTTONS] = {
+      { DISPLAY_BUTTON_TEXT_SEND, DISPLAY_BUTTON_TEXT_FILTER, DISPLAY_BUTTON_TEXT_MENU },
+      { DISPLAY_BUTTON_THERMAL_SNAP, DISPLAY_BUTTON_THERMAL_SEND, DISPLAY_BUTTON_THERMAL_EXIT }
+    };
+
+    DisplayedButton displayedButtons[NUM_INTERACTIVE_CONTEXTS][NUM_DISPLAYED_BUTTONS] = {
+      { ButtonDM, ButtonFilter, ButtonMenu },
+      { ButtonThermalSnap, ButtonThermalSend, ButtonThermalExit }
+    };
 
     bool touchListening = false;
     bool touchInitialized = false;

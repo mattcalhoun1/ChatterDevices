@@ -251,7 +251,7 @@ void GuiControlMode::notifyMessageReceived() {
 
 void GuiControlMode::showButtons () {
   if (fullyInteractive) {
-    ((FullyInteractiveDisplay*)display)->showButtons();
+    ((FullyInteractiveDisplay*)display)->showButtons(InteractiveHome);
   }
 }
 
@@ -1369,7 +1369,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
   // if the screen is locked, intercept all touches
   DisplayedButton pressedButton;
   if (screenLocked) {
-    pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (touchX, touchY);
+    pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (InteractiveHome, touchX, touchY);
     if (pressedButton == ButtonLock) {
       unlockScreen();
     }
@@ -1387,7 +1387,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
     }
 
     // if it's a button
-    pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (touchX, touchY);
+    pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (InteractiveHome, touchX, touchY);
 
     if (pressedButton != ButtonNone) {
       switch (pressedButton) {

@@ -7,6 +7,8 @@
 #define FULLYINTERACTIVEDISPLAY_H
 
 #define NUM_DISPLAYED_BUTTONS 3
+#define NUM_INTERACTIVE_CONTEXTS 2
+
 enum DisplayedButton {
     ButtonDM = 0,
     ButtonFilter = 1,
@@ -14,7 +16,15 @@ enum DisplayedButton {
     ButtonNone = 3,
     ButtonLock = 4,
     ButtonFlip = 5,
-    ButtonBroadcast = 6 // not currently displayed
+    ButtonBroadcast = 6, // not currently displayed,
+    ButtonThermalSnap = 7,
+    ButtonThermalSend = 8,
+    ButtonThermalExit = 9
+};
+
+enum InteractiveContext {
+    InteractiveHome = 0,
+    InteractiveThermal = 1
 };
 
 class FullyInteractiveDisplay : public TouchEnabledDisplay {
@@ -29,8 +39,8 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         //virtual void clearTouchInterrupts () = 0;
 
 
-        virtual void showButtons () = 0;
-        virtual DisplayedButton getButtonAt (int x, int y) = 0;
+        virtual void showButtons (InteractiveContext context) = 0;
+        virtual DisplayedButton getButtonAt (InteractiveContext context, int x, int y) = 0;
         virtual bool handleIfTouched () = 0;
     protected:
         virtual int getModalTitleX () = 0;
@@ -51,7 +61,7 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         virtual int getButtonWidth() = 0;
         virtual int getButtonHeight() = 0;
         virtual int getButtonHorizontalOffset() = 0;
-        virtual const char* getButtonText (DisplayedButton btn) = 0;
+        //virtual const char* getButtonText (DisplayedButton btn) = 0;
 
         virtual int getLockButtonX() = 0;
         virtual int getLockButtonY() = 0;
@@ -61,7 +71,7 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         virtual int getFlipButtonY() = 0;
         virtual int getFlipButtonSize() = 0;
 
-        virtual void showButton(uint8_t buttonPosition, const char* buttonText);
+        virtual void showButton(InteractiveContext context, uint8_t buttonPosition);
 
         Keyboard* defaultKeyboard;
 };
