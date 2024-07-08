@@ -1468,8 +1468,9 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
           if (promptSelectDevice()) {
             // send it to the user
             if(encoder->encode (camera->getImageData())) {
-              memcpy(messageBuffer, encoder->getEncodeDecodeBuffer(), messageBufferLength);
               messageBufferLength = encoder->getEncodedBufferLength();
+              memcpy(messageBuffer, encoder->getEncodeDecodeBuffer(), messageBufferLength);
+              
               messageBufferType = MessageTypeThermal;
 
               // change filter to show just messages to/from the selected user
@@ -1479,12 +1480,13 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
               if (rs != MessageNotSent) {
                 fullRepaint = true;
               }
-
-              // todo: add message type to thermal in flags
             }
           }
 
           return true;
+        // to do: add thermal actions
+        //case ButtonThermalReply:
+
       }
     }
     else if (previewSize > 0) {
@@ -1516,8 +1518,14 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
           else { // showing messages, select the appropriate device
             uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedPreview + previewOffset);
 
+            Serial.print("User chose visible index: ");
+            Serial.print(selectedPreview + previewOffset);
+            Serial.print(", which is slot: ");
+            Serial.println(selectedMessageSlot);
+
             // If it's thermal, display it
-            if (!messageIterator->isPreviewable(selectedMessageSlot)) {
+            //if (!messageIterator->isPreviewable(selectedMessageSlot)) {
+            //  logConsole("this is NOT previewable!");
               memset(histSenderId, 0, CHATTER_DEVICE_ID_SIZE+1);
               memset(histRecipientId, 0, CHATTER_DEVICE_ID_SIZE+1);
               memset(previewTsBuffer, 0, 12);
@@ -1526,23 +1534,27 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
               MessageSendMethod messageSendMethod;
               MessageType messageType;
 
-              int loadMessage (uint8_t internalMessageId, uint8_t* buffer, int maxMessageLength);
+              //int loadMessage (uint8_t internalMessageId, uint8_t* buffer, int maxMessageLength);
               if (chatter->getMessageStore()->loadMessageDetails (selectedMessageSlot, histSenderId, histRecipientId, histMessageId, previewTsBuffer, messageStatus, messageSendMethod, messageType)) {
+                Serial.print("Message Type: ");Serial.println((char)messageType);
                 if (messageType == MessageTypeThermal) {
                   int imageSize = chatter->getMessageStore()->loadMessage(selectedMessageSlot, messageBuffer, GUI_MESSAGE_BUFFER_SIZE);
+                  encoder->decode(messageBuffer);
 
                   // switch to thermal context
                   interactiveContext = InteractiveThermalRemote;
                   display->clearMessageArea();
                   showButtons();
 
-                  display->showInterpolatedThermal(messageBuffer, false, "Remote Thermal");
+                  display->showInterpolatedThermal(encoder->getEncodeDecodeBuffer(), false, "Remote Thermal");
+                  return true;
+
                 }             
               }
               
-              return true;
-            } // queue a reply event to that message slot
-            else if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
+            //} // queue a reply event to that message slot
+            if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
+              logConsole("this is previewable!");
               // whichever is not this device becomes the target
               if (memcmp(chatter->getDeviceId(), histSenderId, CHATTER_DEVICE_ID_SIZE) != 0) {
                 memcpy(eventBuffer.EventTarget, histSenderId, CHATTER_DEVICE_ID_SIZE);
