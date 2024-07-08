@@ -271,12 +271,14 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     const char* buttonTexts[NUM_INTERACTIVE_CONTEXTS][NUM_DISPLAYED_BUTTONS] = {
       { DISPLAY_BUTTON_TEXT_SEND, DISPLAY_BUTTON_TEXT_FILTER, DISPLAY_BUTTON_TEXT_MENU },
-      { DISPLAY_BUTTON_THERMAL_SNAP, DISPLAY_BUTTON_THERMAL_SEND, DISPLAY_BUTTON_THERMAL_EXIT }
+      { DISPLAY_BUTTON_THERMAL_SNAP, DISPLAY_BUTTON_THERMAL_SEND, DISPLAY_BUTTON_THERMAL_EXIT },
+      { DISPLAY_BUTTON_THERMAL_REPLY, DISPLAY_BUTTON_THERMAL_FORWARD, DISPLAY_BUTTON_THERMAL_EXIT },
     };
 
     DisplayedButton displayedButtons[NUM_INTERACTIVE_CONTEXTS][NUM_DISPLAYED_BUTTONS] = {
       { ButtonDM, ButtonFilter, ButtonMenu },
-      { ButtonThermalSnap, ButtonThermalSend, ButtonThermalExit }
+      { ButtonThermalSnap, ButtonThermalSend, ButtonThermalExit },
+      { ButtonThermalReply, ButtonThermalForward, ButtonThermalExit },
     };
 
     bool touchListening = false;

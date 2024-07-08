@@ -159,6 +159,22 @@ void GuiControlMode::loop () {
 
   // if the user is interacting, skip the main loop
   if (!menu->isShowing()) {
+    if (actionButtonPressed) {
+      actionButtonPressed = false;
+      if (isPreferenceEnabled(PreferenceBackpacksEnabled)) {
+        if (isPreferenceEnabled(PreferenceBackpackThermalEnabled)) {
+          logConsole("User snapped thermal");
+          interactiveContext = InteractiveThermal;
+          display->clearMessageArea();
+          showButtons();
+          handleEvent(UserThermalSnap);
+        }
+      }
+      else {
+        logConsole("Button pressed, no action configured");
+      }
+    }
+
     // scroll message
     updatePreviewsIfNecessary();
 
@@ -213,6 +229,10 @@ void GuiControlMode::loop () {
     syncLearnActivity();
   }
   else {
+    if (actionButtonPressed) {
+      actionButtonPressed = false;
+      menu->notifyButtonPressed();
+    }
     // still let touch events through
     if (fullyInteractive) {
       ((FullyInteractiveDisplay*)display)->handleIfTouched();
@@ -251,7 +271,7 @@ void GuiControlMode::notifyMessageReceived() {
 
 void GuiControlMode::showButtons () {
   if (fullyInteractive) {
-    ((FullyInteractiveDisplay*)display)->showButtons(InteractiveHome);
+    ((FullyInteractiveDisplay*)display)->showButtons(interactiveContext);
   }
 }
 
@@ -428,8 +448,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
     case UserThermalSnap:
       // show thermal on screen
       camera->captureImage();
-      display->showInterpolatedThermal(camera->getImageData(), false, "Live");
-      delay(2000); // remove this, it will be replaced by interactive context controlling what is seen
+      display->showInterpolatedThermal(camera->getImageData(), false, "Onboard Thermal");
       return true;
     case UserRequestScreenLock:
       lockScreen();
@@ -478,6 +497,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         else {
           messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput("Secure Broadcast", "Cast to all trusted devices", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 30000);
         }
+        messageBufferType = MessageTypePlain;
 
         // send it
         if(messageBufferLength > 0) {
@@ -683,6 +703,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         logConsole("Sending remote battery request to: ", otherDeviceId);
         sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigBattery);
         messageBufferLength = 5; // CFG:B
+        messageBufferType = MessageTypeControl;
         attemptDirectSend();
 
       }
@@ -697,6 +718,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         logConsole("Sending messages clear req to: ", otherDeviceId);
         sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigMessagesClear);
         messageBufferLength = 5; // CFG:B
+        messageBufferType = MessageTypeControl;
         attemptDirectSend();
       }
       return true;
@@ -706,6 +728,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         logConsole("Sending remote graph clear req to: ", otherDeviceId);
         sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigMeshGraphClear);
         messageBufferLength = 5; // CFG:B
+        messageBufferType = MessageTypeControl;
         attemptDirectSend();
       }
       return true;
@@ -715,6 +738,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         logConsole("Sending remote graph clear req to: ", otherDeviceId);
         sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigMeshCacheClear);
         messageBufferLength = 5; // CFG:B
+        messageBufferType = MessageTypeControl;
         attemptDirectSend();
       }
       return true;
@@ -724,6 +748,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         logConsole("Sending remote graph clear req to: ", otherDeviceId);
         sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigPingTableClear);
         messageBufferLength = 5; // CFG:B
+        messageBufferType = MessageTypeControl;
         attemptDirectSend();
       }
       return true;
@@ -733,6 +758,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         logConsole("Sending remote graph clear req to: ", otherDeviceId);
         sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigEnableLearn);
         messageBufferLength = 5; // CFG:B
+        messageBufferType = MessageTypeControl;
         attemptDirectSend();
       }
       return true;
@@ -742,6 +768,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         logConsole("Sending remote graph clear req to: ", otherDeviceId);
         sprintf((char*)messageBuffer, "%s:%c", "CFG", RemoteConfigDisableLearn);
         messageBufferLength = 5; // CFG:B
+        messageBufferType = MessageTypeControl;
         attemptDirectSend();
       }
       return true;
@@ -766,6 +793,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
           memcpy(messageBuffer+5, toDevice, CHATTER_DEVICE_ID_SIZE);
           messageBufferLength = 5+CHATTER_DEVICE_ID_SIZE; // CFG:P[device id]
           messageBuffer[messageBufferLength]=0;
+          messageBufferType = MessageTypeControl;
           attemptDirectSend();
         }
       }
@@ -1097,7 +1125,7 @@ void GuiControlMode::hideChatProgress () {
 
 bool GuiControlMode::userInterrupted() {
   if(((FullyInteractiveDisplay*)display)->wasTouched()) {
-    logConsole("user interrupted!");
+    //logConsole("user interrupted!");
     return true;
   }
   return false;
@@ -1178,7 +1206,7 @@ bool GuiControlMode::sendDirectMessage () {
 
   logConsole("Sending DM..");
   ChatterMessageFlags flags;
-  flags.Flag0 = EncodingTypeText;
+  flags.Flag0 = messageBufferType;
   flags.Flag2 = AckRequestTrue;
 
   if (chatter->send(messageBuffer, messageBufferLength, otherDeviceId, &flags)) {
@@ -1199,7 +1227,7 @@ bool GuiControlMode::sendViaBridge() {
 
   logConsole("Sending via bridge..");
   ChatterMessageFlags flags;
-  flags.Flag0 = EncodingTypeText;
+  flags.Flag0 = messageBufferType;
   flags.Flag1 = BridgeRequestEcho;//BridgeRequestEcho / BridgeRequestBridge
   flags.Flag2 = AckRequestTrue;
 
@@ -1225,6 +1253,7 @@ bool GuiControlMode::sendViaMesh() {
 
   logConsole("Sending via mesh..");
   ChatterMessageFlags flags;
+  flags.Flag0 = messageBufferType;
 
   // drop message into mesh
   if (chatter->sendViaMesh(messageBuffer, messageBufferLength, otherDeviceId, &flags)) {
@@ -1245,6 +1274,7 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
 
         // pop up the keyboard
         messageBufferLength = ((FullyInteractiveDisplay*)display)->getModalInput((const char*)eventBuffer.EventData, "Send to the selected device", chatter->getMessageStore()->getMaxSmallMessageSize(), CharacterFilterNone, (char*)messageBuffer, "", 30000);
+        messageBufferType = MessageTypePlain;
         if (messageBufferLength > 0) {
           // send it
           return attemptDirectSend() != MessageNotSent;
@@ -1369,7 +1399,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
   // if the screen is locked, intercept all touches
   DisplayedButton pressedButton;
   if (screenLocked) {
-    pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (InteractiveHome, touchX, touchY);
+    pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (interactiveContext, touchX, touchY);
     if (pressedButton == ButtonLock) {
       unlockScreen();
     }
@@ -1387,7 +1417,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
     }
 
     // if it's a button
-    pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (InteractiveHome, touchX, touchY);
+    pressedButton = ((FullyInteractiveDisplay*)display)->getButtonAt (interactiveContext, touchX, touchY);
 
     if (pressedButton != ButtonNone) {
       switch (pressedButton) {
@@ -1424,6 +1454,37 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
           ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
           menu->show();
           return true;
+        case ButtonThermalExit:
+          interactiveContext = InteractiveHome;
+          fullRepaint = true;
+          return true;
+        case ButtonThermalSnap:
+          handleEvent(UserThermalSnap);
+          return true;
+        case ButtonThermalSend:
+          logConsole("user wants to send thermal");
+
+          // get a selected destination
+          if (promptSelectDevice()) {
+            // send it to the user
+            if(encoder->encode (camera->getImageData())) {
+              memcpy(messageBuffer, encoder->getEncodeDecodeBuffer(), messageBufferLength);
+              messageBufferLength = encoder->getEncodedBufferLength();
+              messageBufferType = MessageTypeThermal;
+
+              // change filter to show just messages to/from the selected user
+              setCurrentDeviceFilter(otherDeviceId);
+
+              MessageSendResult rs = attemptDirectSend();
+              if (rs != MessageNotSent) {
+                fullRepaint = true;
+              }
+
+              // todo: add message type to thermal in flags
+            }
+          }
+
+          return true;
       }
     }
     else if (previewSize > 0) {
@@ -1455,8 +1516,33 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
           else { // showing messages, select the appropriate device
             uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedPreview + previewOffset);
 
-            // queue a reply event to that message slot
-            if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
+            // If it's thermal, display it
+            if (!messageIterator->isPreviewable(selectedMessageSlot)) {
+              memset(histSenderId, 0, CHATTER_DEVICE_ID_SIZE+1);
+              memset(histRecipientId, 0, CHATTER_DEVICE_ID_SIZE+1);
+              memset(previewTsBuffer, 0, 12);
+
+              MessageStatus messageStatus;
+              MessageSendMethod messageSendMethod;
+              MessageType messageType;
+
+              int loadMessage (uint8_t internalMessageId, uint8_t* buffer, int maxMessageLength);
+              if (chatter->getMessageStore()->loadMessageDetails (selectedMessageSlot, histSenderId, histRecipientId, histMessageId, previewTsBuffer, messageStatus, messageSendMethod, messageType)) {
+                if (messageType == MessageTypeThermal) {
+                  int imageSize = chatter->getMessageStore()->loadMessage(selectedMessageSlot, messageBuffer, GUI_MESSAGE_BUFFER_SIZE);
+
+                  // switch to thermal context
+                  interactiveContext = InteractiveThermalRemote;
+                  display->clearMessageArea();
+                  showButtons();
+
+                  display->showInterpolatedThermal(messageBuffer, false, "Remote Thermal");
+                }             
+              }
+              
+              return true;
+            } // queue a reply event to that message slot
+            else if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
               // whichever is not this device becomes the target
               if (memcmp(chatter->getDeviceId(), histSenderId, CHATTER_DEVICE_ID_SIZE) != 0) {
                 memcpy(eventBuffer.EventTarget, histSenderId, CHATTER_DEVICE_ID_SIZE);
@@ -1521,8 +1607,9 @@ void GuiControlMode::refreshDisplayContext(bool fullRefresh) {
 }
 
 void GuiControlMode::buttonInterrupt () {
-  menu->notifyButtonPressed();
+  //menu->notifyButtonPressed();
   //sendText = true;
+  actionButtonPressed = true;
 }
 
 void GuiControlMode::touchInterrupt () {
@@ -1906,6 +1993,7 @@ bool GuiControlMode::syncLearnActivity () {
             // delivery took
             memset(messageBuffer, 0, GUI_MESSAGE_BUFFER_SIZE);
             sprintf((char*)messageBuffer, "%s%d", "LRN:", rtc->getEpoch());
+            messageBufferType = MessageTypePlain;
             messageBufferLength = strlen((const char*)messageBuffer);
 
             // choose a random recipient from our known recipients

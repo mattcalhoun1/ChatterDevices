@@ -7,7 +7,7 @@
 #define FULLYINTERACTIVEDISPLAY_H
 
 #define NUM_DISPLAYED_BUTTONS 3
-#define NUM_INTERACTIVE_CONTEXTS 2
+#define NUM_INTERACTIVE_CONTEXTS 3
 
 enum DisplayedButton {
     ButtonDM = 0,
@@ -19,12 +19,15 @@ enum DisplayedButton {
     ButtonBroadcast = 6, // not currently displayed,
     ButtonThermalSnap = 7,
     ButtonThermalSend = 8,
-    ButtonThermalExit = 9
+    ButtonThermalExit = 9,
+    ButtonThermalReply = 10,
+    ButtonThermalForward = 11
 };
 
 enum InteractiveContext {
     InteractiveHome = 0,
-    InteractiveThermal = 1
+    InteractiveThermal = 1,
+    InteractiveThermalRemote = 2
 };
 
 class FullyInteractiveDisplay : public TouchEnabledDisplay {

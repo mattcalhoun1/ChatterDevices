@@ -57,6 +57,11 @@ void setup() {
 
   pinMode(DISPLAY_TFT_BACKLIGHT, OUTPUT);
 
+  #ifdef BUTTON_ACTION_PIN
+    attachInterrupt(digitalPinToInterrupt(BUTTON_ACTION_PIN), buttonInterrupt, LOW);
+  #endif
+
+
   #ifdef ROTARY_ENABLED
     pinMode(BUTTON_A_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(BUTTON_A_PIN), buttonInterrupt, LOW);

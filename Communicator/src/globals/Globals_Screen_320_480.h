@@ -63,12 +63,14 @@
 #define DISPLAY_TFT_MENU_SCROLL_DOWN_Y 370
 #define DISPLAY_TFT_MENU_SCROLL_RADIUS 6
 #define DISPLAY_TFT_MENU_SCROLL_TOUCH_RADIUS 20
-#define DISPLAY_TFT_MAIN_IMAGE_X 35
+
+// images
+#define DISPLAY_TFT_MAIN_IMAGE_X 95
 #define DISPLAY_TFT_MAIN_IMAGE_Y 120
 #define DISPLAY_TFT_MAIN_IMAGE_WIDTH 64
 #define DISPLAY_TFT_MAIN_IMAGE_HEIGHT 48
-#define DISPLAY_TFT_MAIN_IMAGE_SUBTITLE_X 55 // relative to bottom left corner of image
-#define DISPLAY_TFT_MAIN_IMAGE_SUBTITLE_Y 130 // relative to bottom left corner of image
+#define DISPLAY_TFT_MAIN_IMAGE_SUBTITLE_X -15 // relative to bottom left corner of image
+#define DISPLAY_TFT_MAIN_IMAGE_SUBTITLE_Y 30 // relative to bottom left corner of image
 
 #define DISPLAY_TFT_ALT_IMAGE_X 35
 #define DISPLAY_TFT_ALT_IMAGE_Y 120
@@ -144,6 +146,8 @@
 #define DISPLAY_BUTTON_THERMAL_SEND "Send"
 #define DISPLAY_BUTTON_THERMAL_SNAP "Snap"
 #define DISPLAY_BUTTON_THERMAL_EXIT "Exit"
+#define DISPLAY_BUTTON_THERMAL_REPLY "Reply"
+#define DISPLAY_BUTTON_THERMAL_FORWARD "Forwd"
 
 
 // landscape

@@ -117,6 +117,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void changeUserPassword ();
 
     private:
+        InteractiveContext interactiveContext = InteractiveHome;
         bool awaitingLicense = false;
         bool fullRepaint = false;
         bool unreadMessage = false;
@@ -171,10 +172,13 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         CommunicatorEvent eventBuffer;
         char histSenderId[CHATTER_DEVICE_ID_SIZE+1];
         char histRecipientId[CHATTER_DEVICE_ID_SIZE+1];
+        char histMessageId[CHATTER_MESSAGE_ID_SIZE+1];
 
         unsigned long tickFrequency = 3000; // how often the ticker should blink
         unsigned long lastTick = 0;
         unsigned long lastTouch = millis();
+
+        volatile bool actionButtonPressed = false;
 
         /** learning mode stuff **/
 

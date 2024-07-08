@@ -2,22 +2,29 @@
 
 Camera::Camera() {
   logConsole("Initialize MLX90640 Thermal Camera");
-  if (! mlx.begin(MLX90640_I2CADDR_DEFAULT, &Wire)) {
-    logConsole("MLX90640 not found!");
-    ready = false;
+  bool mlxFound = false;
+  mlxFound = mlx.begin(MLX90640_I2CADDR_DEFAULT, &Wire);
+  if (!mlxFound) {
+    logConsole("MLX90640 not found on default");
+
+    mlxFound = mlx.begin(0x32, &Wire);
+    if (!mlxFound) {
+      logConsole("MLX90640 not found on secondary");
+    }
   }
-  else {
+
+  if (mlxFound) {
+    //mlx.setMode(MLX90640_INTERLEAVED);
+    mlx.setMode(MLX90640_CHESS);
+    mlx.setResolution(MLX90640_ADC_18BIT);
+    //mlx.setRefreshRate(MLX90640_2_HZ);
+    mlx.setRefreshRate(MLX90640_4_HZ);
+    logConsole("Adafruit MLX90640 Thermal is Configured");
+
+    logSettings();
+
     ready = true;
   }
-  
-  //mlx.setMode(MLX90640_INTERLEAVED);
-  mlx.setMode(MLX90640_CHESS);
-  mlx.setResolution(MLX90640_ADC_18BIT);
-  //mlx.setRefreshRate(MLX90640_2_HZ);
-  mlx.setRefreshRate(MLX90640_4_HZ);
-  logConsole("Adafruit MLX90640 Thermal is Configured");
-
-  logSettings();
 }
 
 bool Camera::isReady () {
