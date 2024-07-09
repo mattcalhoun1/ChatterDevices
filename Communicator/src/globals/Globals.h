@@ -7,6 +7,7 @@
 
 #define LOG_ENABLED true
 #define BACKPACK_THERMAL_ENABLED false
+#define MAX_BACKPACKS 2
 
 //#define RH_PLATFORM 1
 #define APP_TITLE "ChatterBox"

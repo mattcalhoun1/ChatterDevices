@@ -1,8 +1,8 @@
 #include "CommunicatorControlMode.h"
-#include "src/display/Display.h"
-#include "src/display/Display_TFT.h"
-#include "src/menu/Menu.h"
-#include "src/keyboard/Keyboard.h"
+#include "../display/Display.h"
+#include "../display/Display_TFT.h"
+#include "../menu/Menu.h"
+#include "../keyboard/Keyboard.h"
 
 #ifndef HEADSUPCONTROLMODE_H
 #define HEADSUPCONTROLMODE_H

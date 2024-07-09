@@ -25,6 +25,32 @@ StartupState GuiControlMode::init() {
     }
 
     if (returnState == StartupComplete) {
+      encoder = new ThermalEncoder(THERMAL_HEIGHT, THERMAL_WIDTH, false);
+
+      // check if backpack needs initialized
+      if (isPreferenceEnabled(PreferenceBackpacksEnabled)) {
+        if (isPreferenceEnabled(PreferenceBackpackThermalEnabled)) {
+          backpacks[0] = new ThermalBackpack (chatter, display, this);
+          if (backpacks[0]->init()) {
+            logConsole("Thermal backpack ready!");
+            numBackpacks = 1;
+          }
+          else {
+            logConsole("Thermal backpack init failed!");
+          }
+
+          /*showStatus("Init Thermal...");
+          encoder = new ThermalEncoder(THERMAL_HEIGHT, THERMAL_WIDTH, false);      
+          camera = new Camera();
+          if (camera->isReady()) {
+            logConsole("Thermal ready");
+          }
+          else {
+            logConsole("No Thermal!");
+          }*/
+        }
+      }
+
       deviceIterator = new DeviceAliasIterator(chatter->getTrustStore());
       messageIterator = new MessageIterator(chatter->getMessageStore(), chatter->getTrustStore(), chatter);
       nearbyDeviceIterator = new NearbyDeviceIterator(chatter->getPingTable(), chatter->getTrustStore(), chatter);
@@ -43,6 +69,7 @@ StartupState GuiControlMode::init() {
 
       //showMessageHistory(true);
       //showButtons();
+
       fullRepaint = true;
     }
 
@@ -161,17 +188,10 @@ void GuiControlMode::loop () {
   if (!menu->isShowing()) {
     if (actionButtonPressed) {
       actionButtonPressed = false;
-      if (isPreferenceEnabled(PreferenceBackpacksEnabled)) {
-        if (isPreferenceEnabled(PreferenceBackpackThermalEnabled)) {
-          logConsole("User snapped thermal");
-          interactiveContext = InteractiveThermal;
-          display->clearMessageArea();
-          showButtons();
-          handleEvent(UserThermalSnap);
-        }
-      }
-      else {
-        logConsole("Button pressed, no action configured");
+
+      // notify all backpacks
+      for (uint8_t b = 0; b < numBackpacks; b++) {
+        backpacks[b]->handleUserEvent(UserPressActionButton);
       }
     }
 
@@ -442,14 +462,33 @@ void GuiControlMode::showNearbyDevices(bool resetOffset) {
   display->showMainScrolls(previewOffset > 0, previewSize > previewOffset + display->getMaxDisplayableMessages());
 }
 
+Backpack* GuiControlMode::getBackpack (BackpackType type) {
+  for (uint8_t b = 0; b < numBackpacks; b++) {
+    if (backpacks[b]->getType() == type && backpacks[b]->isRunning()) {
+      return backpacks[b];
+    }
+  }
+
+  return nullptr;
+}
+
+
 bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   bool result = false;
+  Backpack* bk = nullptr;  
+  
   switch(eventType) {
     case UserThermalSnap:
-      // show thermal on screen
-      camera->captureImage();
-      display->showInterpolatedThermal(camera->getImageData(), false, "Onboard Thermal");
+      // see if backpack configured and ready
+      bk = getBackpack(BackpackTypeThermal);
+      if (bk != nullptr) {
+        return bk->handleUserEvent(UserThermalSnap);
+      }
+      else {
+        logConsole ("Thermal backpack not ready!");
+      }
       return true;
+      break;
     case UserRequestScreenLock:
       lockScreen();
       return true;
@@ -1464,26 +1503,12 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
         case ButtonThermalSend:
           logConsole("user wants to send thermal");
 
-          // get a selected destination
-          if (promptSelectDevice()) {
-            // send it to the user
-            if(encoder->encode (camera->getImageData())) {
-              messageBufferLength = encoder->getEncodedBufferLength();
-              memcpy(messageBuffer, encoder->getEncodeDecodeBuffer(), messageBufferLength);
-              
-              messageBufferType = MessageTypeThermal;
-
-              // change filter to show just messages to/from the selected user
-              setCurrentDeviceFilter(otherDeviceId);
-
-              MessageSendResult rs = attemptDirectSend();
-              if (rs != MessageNotSent) {
-                fullRepaint = true;
-              }
-            }
+          Backpack* bk = getBackpack(BackpackTypeThermal);
+          if (bk != nullptr) {
+            return bk->handleUserEvent(UserThermalSend);
           }
 
-          return true;
+          return false;
         // to do: add thermal actions
         //case ButtonThermalReply:
 
@@ -1596,6 +1621,17 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
 
   return true;
 }
+
+bool GuiControlMode::sendMessage (const char* deviceId, uint8_t* msg, int msgSize, MessageType _type) {
+  // copy buffers over
+  messageBufferLength = msgSize;
+  memset(messageBuffer, 0, GUI_MESSAGE_BUFFER_SIZE);
+  memcpy(messageBuffer, msg, msgSize);
+  messageBufferType = _type;
+
+  return attemptDirectSend() != MessageNotSent;
+}
+
 
 void GuiControlMode::showLastMessage () {
   //display->showMessage((const char*)messageBuffer, Green, 0);

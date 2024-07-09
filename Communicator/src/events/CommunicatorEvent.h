@@ -58,7 +58,8 @@ enum CommunicatorEventType {
     UserRequestChangePassword = 49,
     UserThermalSnap = 50,
     UserThermalSend = 51,
-    UserThermalExit = 52
+    UserThermalExit = 52,
+    UserPressActionButton = 53
 };
 
 struct CommunicatorEvent {

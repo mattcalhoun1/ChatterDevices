@@ -5,6 +5,8 @@
         "random": "cpp",
         "limits": "cpp",
         "semaphore": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "*.tcc": "cpp",
+        "ios": "cpp"
     }
 }

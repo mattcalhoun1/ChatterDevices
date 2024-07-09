@@ -1,11 +1,11 @@
 #include "src/globals/Globals.h" // load first, to make sure settings propegate into chatter library
 #include <Arduino.h>
 #include <stdint.h>
-#include "ControlMode.h"
-#include "CommunicatorControlMode.h"
-#include "HeadlessControlMode.h"
-#include "GuiControlMode.h"
-#include "TestControlMode.h"
+#include "src/control/ControlMode.h"
+#include "src/control/CommunicatorControlMode.h"
+#include "src/control/HeadlessControlMode.h"
+#include "src/control/GuiControlMode.h"
+#include "src/control/TestControlMode.h"
 
 CommunicatorControlMode* controlMode;
 

@@ -1,16 +1,23 @@
 #include "ControlMode.h"
 #include "HeadsUpControlMode.h"
-#include "src/display/Display.h"
-#include "src/display/TouchEnabledDisplay.h"
+#include "InteractiveControlMode.h"
+#include "../display/Display.h"
+#include "../display/TouchEnabledDisplay.h"
 #include <RotaryEncoder.h>
-#include "src/menu/Menu.h"
-#include "src/iterator/DeviceAliasIterator.h"
-#include "src/iterator/MessageIterator.h"
-#include "src/iterator/TestIterator.h"
-#include "src/iterator/ItemIterator.h"
-#include "src/iterator/NearbyDeviceIterator.h"
-#include "src/iterator/ClusterAliasIterator.h"
+#include "../menu/Menu.h"
+#include "../iterator/DeviceAliasIterator.h"
+#include "../iterator/MessageIterator.h"
+#include "../iterator/TestIterator.h"
+#include "../iterator/ItemIterator.h"
+#include "../iterator/NearbyDeviceIterator.h"
+#include "../iterator/ClusterAliasIterator.h"
 #include <SHA256.h>
+
+// temp: thermal
+//#include "../backpacks/thermal/Camera.h"
+#include "../backpacks/thermal/ThermalEncoder.h"
+#include "../backpacks/Backpack.h"
+#include "../backpacks/thermal/ThermalBackpack.h"
 
 #include <qrcode.h>
 
@@ -30,7 +37,7 @@ enum MessageSendResult {
 };
 
 
-class GuiControlMode : public HeadsUpControlMode, public TouchListener {
+class GuiControlMode : public HeadsUpControlMode, public TouchListener, public InteractiveControlMode {
     public:
         GuiControlMode(DeviceType _deviceType) : HeadsUpControlMode (_deviceType) {}
         StartupState init ();
@@ -83,12 +90,20 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void handleStartupError ();
         void handleUnlicensedDevice ();
 
+        void showButtons();
+
+        bool promptSelectDevice ();
+        const char* getSelectedDeviceId() { return otherDeviceId; }
+        void setCurrentDeviceFilter(const char* deviceFilter);
+        bool sendMessage (const char* deviceId, uint8_t* msg, int msgSize, MessageType _type);
+        void requestFullRepaint () { fullRepaint = true; }
+
+
     protected:
         void refreshDisplayContext(bool fullRefresh);
         bool updatePreviewsIfNecessary ();
         void showMessageHistory(bool resetOffset);
         void showNearbyDevices(bool resetOffset);
-        void showButtons ();
         void sleepOrBackground (unsigned long sleepTime);
 
         void notifyMessageReceived();
@@ -97,7 +112,6 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         void lockScreen ();
         void unlockScreen ();
         void showMeshPath (const char* recipientId);
-        bool promptSelectDevice ();
         bool promptSelectCluster ();
         void promptUserNewTime();
         bool validateDatePart(int partVal, uint8_t partNum);
@@ -116,8 +130,13 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
 
         void changeUserPassword ();
 
+        ThermalEncoder* encoder;
+        //Camera* camera;
+        Backpack* backpacks[MAX_BACKPACKS];
+        uint8_t numBackpacks = 0;
+        Backpack* getBackpack (BackpackType type);
+
     private:
-        InteractiveContext interactiveContext = InteractiveHome;
         bool awaitingLicense = false;
         bool fullRepaint = false;
         bool unreadMessage = false;
@@ -167,7 +186,6 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener {
         char previewAliasBuffer[CHATTER_ALIAS_NAME_SIZE + 1];
 
         char currentDeviceFilter[CHATTER_DEVICE_ID_SIZE + 1];
-        void setCurrentDeviceFilter(const char* deviceFilter);
 
         CommunicatorEvent eventBuffer;
         char histSenderId[CHATTER_DEVICE_ID_SIZE+1];
