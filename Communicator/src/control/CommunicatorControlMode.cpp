@@ -88,6 +88,16 @@ void CommunicatorControlMode::loop () {
               evt.EventDataLength = messageBufferLength;
               memcpy(evt.EventData, messageBuffer, messageBufferLength);
             }
+            else if (isBackpackRequest(messageBuffer, messageBufferLength)) {
+              Serial.print("backpack request received: ");
+              for (uint8_t i = 0; i < messageBufferLength; i++) {
+                Serial.print((char)messageBuffer[i]);
+              }
+              Serial.println("");
+              evt.EventType = RemoteBackpackRequestReceived;
+              evt.EventDataLength = messageBufferLength;
+              memcpy(evt.EventData, messageBuffer, messageBufferLength);
+            }
             else {
               evt.EventType = MessageReceived;
             }
@@ -133,6 +143,11 @@ void CommunicatorControlMode::loop () {
 bool CommunicatorControlMode::isRemoteConfig (const uint8_t* msg, int msgLength) {
   return msgLength >= 5 && memcmp("CFG:", msg, 4) == 0;
 }
+
+bool CommunicatorControlMode::isBackpackRequest (const uint8_t* msg, int msgLength) {
+  return msgLength >= 4 && memcmp("BK:", msg, 3) == 0;
+}
+
 
 bool CommunicatorControlMode::executeRemoteConfig (CommunicatorEvent* event) {
   switch (event->EventData[4]) {

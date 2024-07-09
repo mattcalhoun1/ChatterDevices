@@ -472,6 +472,14 @@ Backpack* GuiControlMode::getBackpack (BackpackType type) {
   return nullptr;
 }
 
+Backpack* GuiControlMode::getBackpack (uint8_t* remoteRequest, int requestLength) {
+  // the 4th char of the request indicates which backpack, so we need to
+  // check to see if we ahve that onboard and if its running
+  BackpackType bkType = (BackpackType)remoteRequest[3];
+  return getBackpack(bkType);
+}
+
+
 
 bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   bool result = false;
@@ -489,6 +497,27 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       }
       return true;
       break;
+    case UserTriggerRemoteThermal:
+      // user select device
+      if(promptSelectDevice()) {
+        memset(messageBuffer, 0, GUI_MESSAGE_BUFFER_SIZE);
+        sprintf((char*)messageBuffer, "%s%c","BK:", BackpackTypeThermal);
+        messageBufferLength = strlen((const char*)messageBuffer);
+        messageBufferType = MessageTypePlain;
+
+        showStatus("Trigger remote");
+        if (attemptDirectSend()) {
+          display->showAlert("Trigger Sent", "Trigger successfully sent", AlertSuccess);
+        }
+        else {
+          display->showAlert("Not Sent", "Trigger not sent", AlertError);
+        }
+      }
+
+      return true;
+    case UserTriggerRemoteRelay:
+      logConsole("relay trigger not yet implemented");
+      return true;
     case UserRequestScreenLock:
       lockScreen();
       return true;
@@ -1306,6 +1335,8 @@ bool GuiControlMode::sendViaMesh() {
 }
 
 bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
+  Backpack* bk = nullptr;
+
   switch (event->EventType) {
     case UserRequestReply:
       if (isFullyInteractive()) {
@@ -1357,6 +1388,18 @@ bool GuiControlMode::handleEvent(CommunicatorEvent* event) {
       // change to the device in quesiton, if necessary
       setCurrentDeviceFilter(event->EventTarget);
       showMessageHistory(true);
+      return true;
+    case RemoteBackpackRequestReceived:
+      logConsole("Received remote backpack request, checking if onboard");
+      // see if we have the backpack onboard that is requested
+      bk = getBackpack(event->EventData, event->EventDataLength);
+      if (bk != nullptr) {
+        return bk->handleMessage(event->EventData, event->EventDataLength, event->EventTarget, chatter->getDeviceId());
+      }
+      else {
+        logConsole("Requested backpack not on board");
+      }
+      fullRepaint = true;
       return true;
 
   }

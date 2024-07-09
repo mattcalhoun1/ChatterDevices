@@ -8,8 +8,8 @@
 #define BACKPACK_H
 
 enum BackpackType {
-    BackpackTypeThermal = 0,
-    BackpackTypeRelay = 1
+    BackpackTypeThermal = (uint8_t)'T',
+    BackpackTypeRelay = (uint8_t)'R'
 };
 
 class Backpack {

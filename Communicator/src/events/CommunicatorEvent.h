@@ -59,7 +59,10 @@ enum CommunicatorEventType {
     UserThermalSnap = 50,
     UserThermalSend = 51,
     UserThermalExit = 52,
-    UserPressActionButton = 53
+    UserPressActionButton = 53,
+    RemoteBackpackRequestReceived = 54,
+    UserTriggerRemoteThermal = 55,
+    UserTriggerRemoteRelay = 56    
 };
 
 struct CommunicatorEvent {

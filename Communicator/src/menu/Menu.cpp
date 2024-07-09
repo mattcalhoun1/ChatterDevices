@@ -100,7 +100,8 @@ void Menu::mainMenu(bool fullRepaint) {
   oledMenu.menuItems[MENU_MAIN_BACKPACKS] = "Backpacks";
   //oledMenu.menuItems[MENU_MAIN_BACKUPS] = "Backups";
   oledMenu.menuItems[MENU_MAIN_CONNECTIONS] = "Connections";
-  oledMenu.menuItems[MENU_MAIN_POWER] = "Power";
+  //oledMenu.menuItems[MENU_MAIN_POWER] = "Power";
+  oledMenu.menuItems[MENU_MAIN_BACKPACK_TRIGGER] = "Trigger Backpacks";
 
   if (remoteAllowed) {
     oledMenu.noOfmenuItems += 1;
@@ -127,6 +128,20 @@ void Menu::backpacksMenu() {
     oledMenu.menuItems[MENU_BACKPACK_MOTION] = "Motion Sensor";
     oledMenu.menuItems[MENU_BACKPACK_RELAY] = "Relay";
   }
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+}
+
+void Menu::backpackTriggerMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_BACKPACK_TRIGGER;
+  oledMenu.noOfmenuItems = 2;
+  oledMenu.menuTitle = "Trigger Backpack";
+
+  oledMenu.menuItems[MENU_BACKPACK_TRIGGER_THERMAL] = "Request Thermal";
+  oledMenu.menuItems[MENU_BACKPACK_TRIGGER_RELAY] = "Open/Close Relay";
 
   // highlight the center item to make he menu full
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
@@ -436,6 +451,26 @@ void Menu::backpacksActions() {
   }
 }
 
+void Menu::backpackTriggerActions() {
+  if (oledMenu.menuId == MENU_ID_BACKPACK_TRIGGER) {  
+    switch (oledMenu.selectedMenuItem) {
+
+      case MENU_BACKPACK_TRIGGER_THERMAL:
+        resetMenu();
+        handler->handleEvent(UserTriggerRemoteThermal);
+
+        break;
+      case MENU_BACKPACK_TRIGGER_RELAY:
+        resetMenu();
+        handler->handleEvent(UserTriggerRemoteRelay);
+
+        break;        
+    }
+
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
 void Menu::thermalActions() {
   if (oledMenu.menuId == MENU_ID_THERMAL) {  
     switch (oledMenu.selectedMenuItem) {
@@ -736,6 +771,9 @@ void Menu::menuActions () {
   else if (oledMenu.menuId == MENU_ID_THERMAL) {
     thermalActions();
   }
+  else if (oledMenu.menuId == MENU_ID_BACKPACK_TRIGGER) {
+    backpackTriggerActions();
+  }
 }
 
 void Menu::mainActions() {
@@ -752,11 +790,11 @@ void Menu::mainActions() {
         mode = MenuActive;
         needsRepainted = true;
         break;        
-      case MENU_MAIN_POWER:
+      /*case MENU_MAIN_POWER:
         powerMenu();
         mode = MenuActive;
         needsRepainted = true;
-        break;        
+        break;        */
       case MENU_MAIN_MESH:
         meshMenu();
         mode = MenuActive;
@@ -779,6 +817,11 @@ void Menu::mainActions() {
         break;
       case MENU_MAIN_BACKPACKS:
         backpacksMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;
+      case MENU_MAIN_BACKPACK_TRIGGER:
+        backpackTriggerMenu();
         mode = MenuActive;
         needsRepainted = true;
         break;

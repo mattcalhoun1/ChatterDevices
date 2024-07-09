@@ -135,6 +135,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener, public I
         Backpack* backpacks[MAX_BACKPACKS];
         uint8_t numBackpacks = 0;
         Backpack* getBackpack (BackpackType type);
+        Backpack* getBackpack (uint8_t* remoteRequest, int requestLength);
 
     private:
         bool awaitingLicense = false;

@@ -71,6 +71,31 @@ bool ThermalBackpack::handleUserEvent (CommunicatorEventType eventType) {
 }
 
 bool ThermalBackpack::handleMessage (const uint8_t* message, int messageSize, const char* senderId, const char* recipientId) {
-    logConsole("Thermal handleMessage not implemented");
+    // only one option at the moment, return a current image
+    if (remoteEnabled) {
+        logConsole("Thermal backpack handling remote request");
+        display->showStatus("Thermal remote", BrightYellow);
+        camera->captureImage();
+        if(encoder->encode (camera->getImageData())) {
+            if (control->sendMessage(
+                senderId, 
+                encoder->getEncodeDecodeBuffer(), 
+                encoder->getEncodedBufferLength(), 
+                MessageTypeThermal)) {
+                logConsole("Thermal backpack sent message");
+                control->requestFullRepaint();
+
+                return true;
+            }
+            else {
+                logConsole("Remote thermal requested but send failed.");
+            }
+        }
+
+    }
+    else {
+        logConsole("Remote image requested, but not enabled in settings");
+    }
+
     return false;
 }

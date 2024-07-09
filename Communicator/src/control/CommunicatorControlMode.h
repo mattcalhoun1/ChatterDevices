@@ -103,6 +103,7 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
 
         bool isRemoteConfig (const uint8_t* msg, int msgLength);
         bool executeRemoteConfig (CommunicatorEvent* event);
+        bool isBackpackRequest (const uint8_t* msg, int msgLength);
 
 };
 
