@@ -84,6 +84,9 @@
 #define MENU_THERMAL_REMOTE_ENABLE 2
 #define MENU_THERMAL_AUTO_ENABLE 3
 
+#define MENU_RELAY_ENABLE 1
+#define MENU_RELAY_REMOTE_ENABLE 2
+
 #define MENU_ID_MAIN 0
 #define MENU_ID_CLUSTER 1
 #define MENU_ID_DEVICE 2
@@ -97,6 +100,7 @@
 #define MENU_ID_BACKPACKS 10
 #define MENU_ID_THERMAL 11
 #define MENU_ID_BACKPACK_TRIGGER 12
+#define MENU_ID_RELAY 13
 
 #define MENU_HIGHLIGHT_CENTER false
 #define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
@@ -146,6 +150,7 @@ class Menu : public TouchListener {
         void remoteMenu();
         void backpacksMenu();
         void thermalMenu();
+        void relayMenu();
         void iteratorMenu (bool fullRepaint = false);
         void iteratorActions ();        
         void backpackTriggerActions ();
@@ -187,6 +192,7 @@ class Menu : public TouchListener {
         void remoteActions();
         void backpacksActions();
         void thermalActions();
+        void relayActions();
 
         void populateIteratorMenu ();
 

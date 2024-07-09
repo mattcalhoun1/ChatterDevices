@@ -18,6 +18,7 @@
 #include "../backpacks/thermal/ThermalEncoder.h"
 #include "../backpacks/Backpack.h"
 #include "../backpacks/thermal/ThermalBackpack.h"
+#include "../backpacks/relay/RelayBackpack.h"
 
 #include <qrcode.h>
 
@@ -136,6 +137,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener, public I
         uint8_t numBackpacks = 0;
         Backpack* getBackpack (BackpackType type);
         Backpack* getBackpack (uint8_t* remoteRequest, int requestLength);
+        bool sendRemoteTrigger (BackpackType type);
 
     private:
         bool awaitingLicense = false;

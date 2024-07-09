@@ -649,6 +649,10 @@ bool CommunicatorControlMode::isPreferenceEnabled (CommunicatorPreference pref) 
       return chatter->getDeviceStore()->getCustomPreference(StoredPrefBackpackThermalRemoteEnabled) == 'T';
     case PreferenceBackpackThermalAutoEnabled:
       return chatter->getDeviceStore()->getCustomPreference(StoredPrefBackpackThermalAutoEnabled) == 'T';
+    case PreferenceBackpackRelayEnabled:
+      return chatter->getDeviceStore()->getCustomPreference(StoredPrefBackpackRelayEnabled) == 'T';
+    case PreferenceBackpackRelayRemoteEnabled:
+      return chatter->getDeviceStore()->getCustomPreference(StoredPrefBackpackRelayRemoteEnabled) == 'T';
   }
 
   logConsole("Unknown preference read attempt");
@@ -734,6 +738,16 @@ void CommunicatorControlMode::enablePreference (CommunicatorPreference pref) {
 
     case PreferenceBackpackThermalAutoEnabled:
       chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackThermalAutoEnabled, 'T');
+      restartDevice();
+      break;
+
+    case PreferenceBackpackRelayEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackRelayEnabled, 'T');
+      restartDevice();
+      break;
+
+    case PreferenceBackpackRelayRemoteEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackRelayRemoteEnabled, 'T');
       restartDevice();
       break;
 
@@ -826,6 +840,16 @@ void CommunicatorControlMode::disablePreference (CommunicatorPreference pref) {
 
     case PreferenceBackpackThermalAutoEnabled:
       chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackThermalAutoEnabled, 'F');
+      restartDevice();
+      break;
+
+    case PreferenceBackpackRelayEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackRelayEnabled, 'F');
+      restartDevice();
+      break;
+
+    case PreferenceBackpackRelayRemoteEnabled:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackRelayRemoteEnabled, 'F');
       restartDevice();
       break;
 

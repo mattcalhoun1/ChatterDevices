@@ -163,6 +163,20 @@ void Menu::thermalMenu() {
   oledMenu.lastMenuActivity = millis();
 }
 
+void Menu::relayMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_RELAY;
+  oledMenu.noOfmenuItems = 2;
+  oledMenu.menuTitle = "Relay";
+
+  oledMenu.menuItems[MENU_RELAY_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceBackpackRelayEnabled) ? "Disable Relay" : "Enable Relay";
+  oledMenu.menuItems[MENU_RELAY_REMOTE_ENABLE] = prefHandler->isPreferenceEnabled(PreferenceBackpackRelayRemoteEnabled) ? "Disable Remote" : "Enable Remote";
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+}
+
 void Menu::deviceMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_DEVICE;
@@ -445,6 +459,11 @@ void Menu::backpacksActions() {
         mode = MenuActive;
         needsRepainted = true;
         break;        
+      case MENU_BACKPACK_RELAY:
+        relayMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;        
     }
 
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
@@ -499,6 +518,34 @@ void Menu::thermalActions() {
         } 
         else {
           prefHandler->enablePreference(PreferenceBackpackThermalAutoEnabled);
+        }
+        resetMenu();
+        break;
+    }
+
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
+void Menu::relayActions() {
+  if (oledMenu.menuId == MENU_ID_RELAY) {  
+    switch (oledMenu.selectedMenuItem) {
+      // preference toggles
+      case MENU_RELAY_ENABLE:
+        if (prefHandler->isPreferenceEnabled(PreferenceBackpackRelayEnabled)) {
+          prefHandler->disablePreference(PreferenceBackpackRelayEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceBackpackRelayEnabled);
+        }
+        resetMenu();
+        break;
+      case MENU_RELAY_REMOTE_ENABLE:
+        if (prefHandler->isPreferenceEnabled(PreferenceBackpackRelayRemoteEnabled)) {
+          prefHandler->disablePreference(PreferenceBackpackRelayRemoteEnabled);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceBackpackRelayRemoteEnabled);
         }
         resetMenu();
         break;
@@ -773,6 +820,9 @@ void Menu::menuActions () {
   }
   else if (oledMenu.menuId == MENU_ID_BACKPACK_TRIGGER) {
     backpackTriggerActions();
+  }
+  else if (oledMenu.menuId == MENU_ID_RELAY) {
+    relayActions();
   }
 }
 

@@ -30,24 +30,24 @@ StartupState GuiControlMode::init() {
       // check if backpack needs initialized
       if (isPreferenceEnabled(PreferenceBackpacksEnabled)) {
         if (isPreferenceEnabled(PreferenceBackpackThermalEnabled)) {
-          backpacks[0] = new ThermalBackpack (chatter, display, this);
-          if (backpacks[0]->init()) {
+          backpacks[numBackpacks] = new ThermalBackpack (chatter, display, this);
+          if (backpacks[numBackpacks]->init()) {
             logConsole("Thermal backpack ready!");
-            numBackpacks = 1;
+            numBackpacks += 1;
           }
           else {
             logConsole("Thermal backpack init failed!");
           }
-
-          /*showStatus("Init Thermal...");
-          encoder = new ThermalEncoder(THERMAL_HEIGHT, THERMAL_WIDTH, false);      
-          camera = new Camera();
-          if (camera->isReady()) {
-            logConsole("Thermal ready");
+        }
+        if (isPreferenceEnabled(PreferenceBackpackRelayEnabled)) {
+          backpacks[numBackpacks] = new RelayBackpack (chatter, display, this);
+          if (backpacks[numBackpacks]->init()) {
+            logConsole("Relay backpack ready!");
+            numBackpacks += 1;
           }
           else {
-            logConsole("No Thermal!");
-          }*/
+            logConsole("Relay backpack init failed!");
+          }
         }
       }
 
@@ -480,6 +480,27 @@ Backpack* GuiControlMode::getBackpack (uint8_t* remoteRequest, int requestLength
 }
 
 
+bool GuiControlMode::sendRemoteTrigger (BackpackType type) {
+    // user select device
+    if(promptSelectDevice()) {
+      memset(messageBuffer, 0, GUI_MESSAGE_BUFFER_SIZE);
+      sprintf((char*)messageBuffer, "%s%c","BK:", type);
+      messageBufferLength = strlen((const char*)messageBuffer);
+      messageBufferType = MessageTypePlain;
+
+      showStatus("Trigger remote");
+      if (attemptDirectSend()) {
+        display->showAlert("Trigger Sent", "Trigger successfully sent", AlertSuccess);
+      }
+      else {
+        display->showAlert("Not Sent", "Trigger not sent", AlertError);
+      }
+    }
+
+    return true;
+
+}
+
 
 bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   bool result = false;
@@ -498,26 +519,9 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       return true;
       break;
     case UserTriggerRemoteThermal:
-      // user select device
-      if(promptSelectDevice()) {
-        memset(messageBuffer, 0, GUI_MESSAGE_BUFFER_SIZE);
-        sprintf((char*)messageBuffer, "%s%c","BK:", BackpackTypeThermal);
-        messageBufferLength = strlen((const char*)messageBuffer);
-        messageBufferType = MessageTypePlain;
-
-        showStatus("Trigger remote");
-        if (attemptDirectSend()) {
-          display->showAlert("Trigger Sent", "Trigger successfully sent", AlertSuccess);
-        }
-        else {
-          display->showAlert("Not Sent", "Trigger not sent", AlertError);
-        }
-      }
-
-      return true;
+      return sendRemoteTrigger(BackpackTypeThermal);
     case UserTriggerRemoteRelay:
-      logConsole("relay trigger not yet implemented");
-      return true;
+      return sendRemoteTrigger(BackpackTypeRelay);
     case UserRequestScreenLock:
       lockScreen();
       return true;
