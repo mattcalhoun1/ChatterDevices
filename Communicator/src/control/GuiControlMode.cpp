@@ -489,8 +489,12 @@ bool GuiControlMode::sendRemoteTrigger (BackpackType type) {
       messageBufferType = MessageTypePlain;
 
       showStatus("Trigger remote");
-      if (attemptDirectSend()) {
-        display->showAlert("Trigger Sent", "Trigger successfully sent", AlertSuccess);
+      MessageSendResult result = attemptDirectSend();
+      if (result == MessageSentDirect) {
+        display->showAlert("Trigger Sent", "Trigger directly sent", AlertSuccess);
+      }
+      else if (result == MessageSentMesh) {
+        display->showAlert("Trigger Q'd", "Trigger directly mesh", AlertSuccess);
       }
       else {
         display->showAlert("Not Sent", "Trigger not sent", AlertError);
@@ -519,9 +523,13 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       return true;
       break;
     case UserTriggerRemoteThermal:
-      return sendRemoteTrigger(BackpackTypeThermal);
+      result = sendRemoteTrigger(BackpackTypeThermal);
+      ((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
+      return result;
     case UserTriggerRemoteRelay:
-      return sendRemoteTrigger(BackpackTypeRelay);
+      result = sendRemoteTrigger(BackpackTypeRelay);
+      ((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
+      return result;
     case UserRequestScreenLock:
       lockScreen();
       return true;
@@ -1136,6 +1144,8 @@ bool GuiControlMode::promptSelectDevice() {
       logConsole("User chose device :");
       logConsole(otherDeviceId);
 
+      ((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
+
       return true;
     }
   }
@@ -1493,7 +1503,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
   }
   else {
     // if the keyboard is showing, it gets the event
-    if (menu->isShowing()){
+    if (menu->isShowing() || millis() - menu->getLastActivity() < 500){
       return true;
     }
     else if (fullyInteractive) {

@@ -171,6 +171,7 @@ class Menu : public TouchListener {
         void serviceMenu ();
         void menuUpdate ();
         bool isShowing () {return mode != MenuOff; }
+        unsigned long getLastActivity() {return oledMenu.lastMenuActivity; }
         void show ();
         void notifyButtonPressed ();
         void notifyRotaryChanged ();

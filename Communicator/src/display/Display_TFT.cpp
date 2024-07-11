@@ -182,6 +182,11 @@ bool Display_TFT::handleIfTouched () {
       // notify all listeners
       for (uint8_t l = 0; l < numListeners; l++) {
         success = listeners[l]->handleScreenTouched(transposedX, transposedY) && success;
+
+        // if the listener handled , skip the rest
+        if (success) {
+          return true;
+        }
       }
   } 
 
