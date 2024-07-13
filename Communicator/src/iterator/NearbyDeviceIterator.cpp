@@ -30,6 +30,11 @@ bool NearbyDeviceIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
     channelBuffer = pingTable->getChannel(deviceSlots[itemNum]);
     secondaryChannelBuffer = pingTable->getSecondaryChannel(deviceSlots[itemNum]);
 
+    // if dst, add an hour to the timestamp
+    if (chatter->getRtc()->isDstEnabled()) {
+        timestampBuffer += (60*60); // plus an hour
+    }
+
     if (!isTrustedBuffer) {
         sprintf(aliasBuffer, "unknown");
     }
