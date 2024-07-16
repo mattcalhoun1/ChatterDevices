@@ -1262,7 +1262,11 @@ MessageSendResult GuiControlMode::attemptDirectSend () {
   }
 
   if (sentViaMesh) {
-    display->showAlert("Q'd Mesh", AlertWarning);
+    display->showAlert("Sending Mesh", "Planning Route", AlertWarning);
+    chatter->syncMesh(true); // force an instant sync, to schedule deliveries
+    display->showAlert("Sending Mesh", "Forwarding first hop", AlertWarning);
+    chatter->syncMesh(true); // force another instant sync, to send packets if possible
+    display->showAlert("Sending Mesh", "Mesh Queued", AlertSuccess);
     messageSendResult = MessageSentMesh;
   }
   else if (sentViaBridge) {
