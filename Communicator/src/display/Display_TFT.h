@@ -186,7 +186,7 @@ class Display_TFT : public FullyInteractiveDisplay {
     DisplayColor getTitleColor() { return Beige; }
 
     TextSize getSubtitleTextSize () { return TextSmall; }
-    DisplayColor getSubtitleColor() { return DarkRed; }
+    DisplayColor getSubtitleColor() { return Beige; }
 
     int getSpinnerX () { return DISPLAY_TFT_SPINNER_X; }
     int getSpinnerY () { return DISPLAY_TFT_SPINNER_Y; }
