@@ -132,12 +132,17 @@ void GuiControlMode::showQrCode (bool isLicensed) {
         }
     }
 
+    display->showTitle(CHATTERBOX_FIRMWARE_VERSION);
+    display->showSubtitle("ALTWARE DEVELOPMENT LLC");
+
     if (isLicensed) {
       display->showText("This device is licensed.", DISPLAY_TFT_LICENSE_INSTRUCTIONS_X, DISPLAY_TFT_LICENSE_INSTRUCTIONS_Y, TextSmall, Green);
       //display->showText("https://chatters.io", 55, 280, TextSmall, Green);
     }
     else {
+      #if defined(TOUCH_CONTROL_ADAFRUIT_35)
       display->showText("Please obtain a license at:", DISPLAY_TFT_LICENSE_INSTRUCTIONS_X, DISPLAY_TFT_LICENSE_INSTRUCTIONS_Y, TextSmall, Green);
+      #endif
       display->showText("https://chatters.io", DISPLAY_TFT_LICENSE_LINK_X, DISPLAY_TFT_LICENSE_LINK_Y, TextSmall, Green);
     }
 
@@ -628,6 +633,16 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         fullRepaint = true;
         return false;
       }
+      break;
+    case UserRequestPublicKeyTest:
+      if (promptSelectDevice()) {
+        if (chatter->requestDeviceInfo(chatter->getDeviceId(), otherDeviceId)) {
+          logConsole("Test request sent");
+          display->showStatus("Test request sent", Green);
+        }
+      }
+
+      return true;
       break;
     case UserRequestSelfAnnounce:
       // show alert

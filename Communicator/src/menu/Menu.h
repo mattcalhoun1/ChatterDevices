@@ -15,10 +15,11 @@
 #define MENU_MAIN_CLUSTER 1
 #define MENU_MAIN_DEVICE 2
 #define MENU_MAIN_MESH 3
-#define MENU_MAIN_CONNECTIONS 4
+#define MENU_MAIN_SECURITY 4
 #define MENU_MAIN_BACKPACKS 5
 #define MENU_MAIN_BACKPACK_TRIGGER 6
 #define MENU_MAIN_REMOTE 7
+#define MENU_MAIN_CONNECTIONS 8
 //#define MENU_MAIN_POWER 6
 #define MENU_MAIN_BACKUPS 99
 
@@ -28,6 +29,10 @@
 #define MENU_CLUSTER_CREATE_CLUSTER 4
 #define MENU_CLUSTER_DELETE_CLUSTER 5
 #define MENU_CLUSTER_ONBOARD_DEVICE 6
+
+#define MENU_SECURITY_KEY_TEST 1
+#define MENU_SECURITY_LOCK_TRUSTSTORE 2
+#define MENU_SECURITY_KEY_FORWARDING 3
 
 #define MENU_MESH_SHOW_PATH 1
 #define MENU_MESH_ENABLE 2
@@ -101,6 +106,7 @@
 #define MENU_ID_THERMAL 11
 #define MENU_ID_BACKPACK_TRIGGER 12
 #define MENU_ID_RELAY 13
+#define MENU_ID_SECURITY 14
 
 #define MENU_HIGHLIGHT_CENTER false
 #define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
@@ -145,6 +151,7 @@ class Menu : public TouchListener {
         void clusterMenu ();
         void backpackTriggerMenu ();
         void meshMenu ();
+        void securityMenu ();
         void backupsMenu ();
         void powerMenu();
         void remoteMenu();
@@ -189,6 +196,7 @@ class Menu : public TouchListener {
         void backupsActions ();
         void clusterActions ();
         void meshActions ();
+        void securityActions ();
         void powerMenuActions ();
         void remoteActions();
         void backpacksActions();

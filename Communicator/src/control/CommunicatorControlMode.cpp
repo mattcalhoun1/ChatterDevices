@@ -18,6 +18,11 @@ StartupState CommunicatorControlMode::init() {
       
       //logPublicKey();
 
+      // set chatter preferences
+      chatter->setKeyForwardingAllowed(isPreferenceEnabled(PreferenceKeyForwarding));
+      chatter->setTruststoreLocked(isPreferenceEnabled(PreferenceTruststoreLocked));
+      
+
       enableMessaging();
 
       remoteConfigEnabled = chatter->getDeviceStore()->getRemoteConfigEnabled();
@@ -653,6 +658,10 @@ bool CommunicatorControlMode::isPreferenceEnabled (CommunicatorPreference pref) 
       return chatter->getDeviceStore()->getCustomPreference(StoredPrefBackpackRelayEnabled) == 'T';
     case PreferenceBackpackRelayRemoteEnabled:
       return chatter->getDeviceStore()->getCustomPreference(StoredPrefBackpackRelayRemoteEnabled) == 'T';
+    case PreferenceTruststoreLocked:
+      return chatter->getDeviceStore()->getCustomPreference(StoredPrefTruststoreLocked) == 'T';
+    case PreferenceKeyForwarding:
+      return chatter->getDeviceStore()->getCustomPreference(StoredPrefKeyForwarding) != 'F';
   }
 
   logConsole("Unknown preference read attempt");
@@ -749,6 +758,16 @@ void CommunicatorControlMode::enablePreference (CommunicatorPreference pref) {
     case PreferenceBackpackRelayRemoteEnabled:
       chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackRelayRemoteEnabled, 'T');
       restartDevice();
+      break;
+
+    case PreferenceTruststoreLocked:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefTruststoreLocked, 'T');
+      chatter->setTruststoreLocked(true);
+      break;
+
+    case PreferenceKeyForwarding:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefKeyForwarding, 'T');
+      chatter->setKeyForwardingAllowed(true);
       break;
 
     default:
@@ -851,6 +870,16 @@ void CommunicatorControlMode::disablePreference (CommunicatorPreference pref) {
     case PreferenceBackpackRelayRemoteEnabled:
       chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpackRelayRemoteEnabled, 'F');
       restartDevice();
+      break;
+
+    case PreferenceTruststoreLocked:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefTruststoreLocked, 'F');
+      chatter->setTruststoreLocked(false);
+      break;
+
+    case PreferenceKeyForwarding:
+      chatter->getDeviceStore()->setCustomPreference(StoredPrefKeyForwarding, 'F');
+      chatter->setKeyForwardingAllowed(false);
       break;
 
     default:

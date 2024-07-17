@@ -17,7 +17,9 @@ enum CommunicatorPreference {
     PreferenceBackpackThermalRemoteEnabled = 12,
     PreferenceBackpackThermalAutoEnabled = 13,
     PreferenceBackpackRelayEnabled = 14,
-    PreferenceBackpackRelayRemoteEnabled = 15
+    PreferenceBackpackRelayRemoteEnabled = 15,
+    PreferenceTruststoreLocked = 16,
+    PreferenceKeyForwarding = 17
 };
 
 enum StoredPreference {
@@ -26,7 +28,9 @@ enum StoredPreference {
     StoredPrefBackpackThermalRemoteEnabled = 2,
     StoredPrefBackpackThermalAutoEnabled = 3,
     StoredPrefBackpackRelayEnabled = 4,
-    StoredPrefBackpackRelayRemoteEnabled = 5
+    StoredPrefBackpackRelayRemoteEnabled = 5,
+    StoredPrefTruststoreLocked = 6,
+    StoredPrefKeyForwarding = 7
 };
 
 class CommunicatorPreferenceHandler {

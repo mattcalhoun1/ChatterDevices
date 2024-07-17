@@ -91,12 +91,13 @@ void Menu::populateIteratorMenu () {
 void Menu::mainMenu(bool fullRepaint) {
   resetMenu(fullRepaint); // clear any previous menu
   oledMenu.menuId = MENU_ID_MAIN;
-  oledMenu.noOfmenuItems = 6;
+  oledMenu.noOfmenuItems = 7;
   oledMenu.menuTitle = "Main Menu";
 
   oledMenu.menuItems[MENU_MAIN_CLUSTER] = "Cluster";
   oledMenu.menuItems[MENU_MAIN_DEVICE] = "Device";
   oledMenu.menuItems[MENU_MAIN_MESH] = "Mesh";
+  oledMenu.menuItems[MENU_MAIN_SECURITY] = "Security";
   oledMenu.menuItems[MENU_MAIN_BACKPACKS] = "Backpacks";
   //oledMenu.menuItems[MENU_MAIN_BACKUPS] = "Backups";
   oledMenu.menuItems[MENU_MAIN_CONNECTIONS] = "Connections";
@@ -106,6 +107,25 @@ void Menu::mainMenu(bool fullRepaint) {
   if (remoteAllowed) {
     oledMenu.noOfmenuItems += 1;
     oledMenu.menuItems[MENU_MAIN_REMOTE] = "Issue Command";
+  }
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+}
+
+void Menu::securityMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_SECURITY;
+  oledMenu.noOfmenuItems = 2;
+  oledMenu.menuTitle = "Security";
+
+  oledMenu.menuItems[MENU_SECURITY_KEY_TEST] = "Test Public Key";
+  oledMenu.menuItems[MENU_SECURITY_LOCK_TRUSTSTORE] = prefHandler->isPreferenceEnabled(PreferenceTruststoreLocked) ? "Unlock Truststore" : "Lock Truststore";
+
+  if (!prefHandler->isPreferenceEnabled(PreferenceTruststoreLocked)) {
+    oledMenu.noOfmenuItems += 1;
+    oledMenu.menuItems[MENU_SECURITY_KEY_FORWARDING] = prefHandler->isPreferenceEnabled(PreferenceKeyForwarding) ? "Disable PubKey Forward" : "Enable PubKey Forward";
   }
 
   // highlight the center item to make he menu full
@@ -470,6 +490,38 @@ void Menu::backpacksActions() {
   }
 }
 
+void Menu::securityActions() {
+  if (oledMenu.menuId == MENU_ID_SECURITY) {  
+    switch (oledMenu.selectedMenuItem) {
+      // preference toggles
+      case MENU_SECURITY_KEY_TEST:
+        resetMenu();
+        handler->handleEvent(UserRequestPublicKeyTest);
+        break;
+      case MENU_SECURITY_LOCK_TRUSTSTORE:
+        if (prefHandler->isPreferenceEnabled(PreferenceTruststoreLocked)) {
+          prefHandler->disablePreference(PreferenceTruststoreLocked);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceTruststoreLocked);
+        }
+        resetMenu();
+        break;
+      case MENU_SECURITY_KEY_FORWARDING:
+        if (prefHandler->isPreferenceEnabled(PreferenceKeyForwarding)) {
+          prefHandler->disablePreference(PreferenceKeyForwarding);
+        } 
+        else {
+          prefHandler->enablePreference(PreferenceKeyForwarding);
+        }
+        resetMenu();
+        break;
+    }
+
+    oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
 void Menu::backpackTriggerActions() {
   if (oledMenu.menuId == MENU_ID_BACKPACK_TRIGGER) {  
     switch (oledMenu.selectedMenuItem) {
@@ -824,6 +876,9 @@ void Menu::menuActions () {
   else if (oledMenu.menuId == MENU_ID_RELAY) {
     relayActions();
   }
+  else if (oledMenu.menuId == MENU_ID_SECURITY) {
+    securityActions();
+  }
 }
 
 void Menu::mainActions() {
@@ -872,6 +927,11 @@ void Menu::mainActions() {
         break;
       case MENU_MAIN_BACKPACK_TRIGGER:
         backpackTriggerMenu();
+        mode = MenuActive;
+        needsRepainted = true;
+        break;
+      case MENU_MAIN_SECURITY:
+        securityMenu();
         mode = MenuActive;
         needsRepainted = true;
         break;

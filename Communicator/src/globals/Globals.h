@@ -5,6 +5,8 @@
 // radiolib vs rf 95w wrapper for radiohead
 //#define RH_USE_RADIOLIB true
 
+#define CHATTERBOX_FIRMWARE_VERSION "0.5.0"
+
 #define LOG_ENABLED true
 #define BACKPACK_THERMAL_ENABLED false
 #define MAX_BACKPACKS 2
