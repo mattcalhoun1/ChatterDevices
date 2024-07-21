@@ -67,7 +67,8 @@ void Menu::iteratorMenu (bool fullRepaint) {
   // pop up the menu
   //mode = MenuActive;
   oledMenu.selectedMenuItem = ITERATOR_SELECTION_NONE;
-
+  iteratorSelection = ITERATOR_SELECTION_NONE;
+  
   mode = MenuActive;
   needsRepainted = true;
 
@@ -942,7 +943,7 @@ void Menu::mainActions() {
 
 void Menu::iteratorActions () {
   if (oledMenu.selectedMenuItem != ITERATOR_SELECTION_NONE) {
-    //Serial.print("User selected: "); Serial.print(oledMenu.selectedMenuItem + iteratorOffset -1);
+    //Serial.print("User selected: "); Serial.println(oledMenu.selectedMenuItem + iteratorOffset -1);
     mode = MenuOff;
     iteratorSelection = oledMenu.selectedMenuItem + iteratorOffset -1; // this menu system is indexed to 1 instead of 0
     resetMenu();

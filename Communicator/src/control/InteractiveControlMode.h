@@ -8,7 +8,7 @@ class InteractiveControlMode {
         virtual void showButtons () = 0;
     
 
-        virtual bool promptSelectDevice () = 0;
+        virtual bool promptSelectDevice (bool includeAllDevicesOption = false) = 0;
         virtual const char* getSelectedDeviceId() = 0;
         virtual bool sendMessage (const char* deviceId, uint8_t* msg, int msgSize, MessageType _type) = 0;
         virtual void setCurrentDeviceFilter (const char* _device) = 0;

@@ -7,7 +7,7 @@
 class MessageIterator : public ItemIterator {
     public:
         MessageIterator (MessageStore* _messageStore, TrustStore* _trustStore, Chatter* _chatter) {messageStore = _messageStore; trustStore = _trustStore; chatter = _chatter; }
-        bool init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc);
+        bool init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc, bool _includeAllOption);
         bool init (const char* _clusterId, const char* _thisDeviceId, const char* _filterDeviceId, bool _sortAsc);
         uint8_t getNumItems ();
         bool loadItemName (uint8_t itemNum, char* nameBuffer);

@@ -42,7 +42,7 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         //virtual void clearTouchInterrupts () = 0;
 
 
-        virtual void showButtons (InteractiveContext context) = 0;
+        virtual void showButtons (InteractiveContext context, DisplayedButton activeButton = ButtonNone) = 0;
         virtual DisplayedButton getButtonAt (InteractiveContext context, int x, int y) = 0;
         virtual bool handleIfTouched () = 0;
     protected:
@@ -74,7 +74,7 @@ class FullyInteractiveDisplay : public TouchEnabledDisplay {
         virtual int getFlipButtonY() = 0;
         virtual int getFlipButtonSize() = 0;
 
-        virtual void showButton(InteractiveContext context, uint8_t buttonPosition);
+        virtual void showButton(InteractiveContext context, uint8_t buttonPosition, DisplayedButton activeButton);
 
         Keyboard* defaultKeyboard;
 };

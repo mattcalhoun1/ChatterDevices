@@ -566,7 +566,7 @@ int Display_TFT::calculateModalTitleX (const char* titleText, FontType fontType)
   //return DISPLAY_TFT_MODAL_TITLE_X;
 }
 
-void Display_TFT::showButton(InteractiveContext context, uint8_t buttonPosition){
+void Display_TFT::showButton(InteractiveContext context, uint8_t buttonPosition, DisplayedButton activeButton){
   // draw a round rectangle (filled) inside another rectangle
   int buttonX = getButtonAreaX() + (buttonPosition * getButtonHorizontalOffset());
   display.drawRoundRect(buttonX, getButtonAreaY(), getButtonWidth(), getButtonHeight(), 1, getTFTColor(LightGreen));
@@ -577,13 +577,19 @@ void Display_TFT::showButton(InteractiveContext context, uint8_t buttonPosition)
   uint8_t charsPerButton = 14;
   int textX = buttonX + (max(0, ((charsPerButton - strlen(buttonText))/2) * DISPLAY_BUTTON_PIXELS_PER_CHAR));
   changeFont(FontMidSize);
-  showText(buttonText, textX, getButtonAreaY() + DISPLAY_BUTTON_TEXT_VERT_ADJ + getButtonHeight() - getTextLowerVerticalOffset(TextSmall), TextSmall, Beige);
+
+  DisplayColor textColor = Beige;
+  if (activeButton == displayedButtons[context][buttonPosition]) {
+    textColor = LightBlue;
+  }
+
+  showText(buttonText, textX, getButtonAreaY() + DISPLAY_BUTTON_TEXT_VERT_ADJ + getButtonHeight() - getTextLowerVerticalOffset(TextSmall), TextSmall, textColor);
   changeFont(FontNormal);
 }
 
-void Display_TFT::showButtons(InteractiveContext context) {
+void Display_TFT::showButtons(InteractiveContext context, DisplayedButton activeButton) {
   for (uint8_t btnCount = 0; btnCount < NUM_DISPLAYED_BUTTONS; btnCount++){
-    showButton(context, btnCount);
+    showButton(context, btnCount, activeButton);
   }
 
   // show the lock button

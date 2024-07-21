@@ -93,7 +93,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener, public I
 
         void showButtons();
 
-        bool promptSelectDevice ();
+        bool promptSelectDevice (bool includeAllDevicesOption = false);
         const char* getSelectedDeviceId() { return otherDeviceId; }
         void setCurrentDeviceFilter(const char* deviceFilter);
         bool sendMessage (const char* deviceId, uint8_t* msg, int msgSize, MessageType _type);
@@ -102,6 +102,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener, public I
 
     protected:
         void refreshDisplayContext(bool fullRefresh);
+        bool isFilterActive = false;
         bool updatePreviewsIfNecessary ();
         void showMessageHistory(bool resetOffset);
         void showNearbyDevices(bool resetOffset);

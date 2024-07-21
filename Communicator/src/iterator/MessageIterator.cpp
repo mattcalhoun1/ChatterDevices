@@ -1,6 +1,6 @@
 #include "MessageIterator.h"
 
-bool MessageIterator::init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc) {
+bool MessageIterator::init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc, bool _includeAllOption) {
     return init(_clusterId, _thisDeviceId, _thisDeviceId, _sortAsc);
 }
 

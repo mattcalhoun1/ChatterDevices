@@ -1,6 +1,6 @@
 #include "NearbyDeviceIterator.h"
 
-bool NearbyDeviceIterator::init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc) {
+bool NearbyDeviceIterator::init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc, bool _includeAllOption) {
     memcpy(thisDeviceId, _thisDeviceId, CHATTER_DEVICE_ID_SIZE);
     thisDeviceId[CHATTER_DEVICE_ID_SIZE] = 0;
 

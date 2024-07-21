@@ -247,6 +247,7 @@ char Keyboard::getLetterAt (int touchX, int touchY) {
   
 
   //Serial.print("x dist: ");Serial.print(xDistFromCenter); Serial.print(", y dist: ");Serial.println(yDistFromCenter);
+  //Serial.print("row: ");Serial.println(row);Serial.print(", col: ");Serial.println(col);
 
   // last row where multiple keys are combined, dont check for horzontal centering
   if (((row == 4) || (xDistFromCenter < (.5*keyWidth))) && yDistFromCenter < (.5*keyHeight)) {

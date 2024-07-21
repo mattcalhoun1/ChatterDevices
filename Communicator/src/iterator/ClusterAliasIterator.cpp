@@ -1,6 +1,6 @@
 #include "ClusterAliasIterator.h"
 
-bool ClusterAliasIterator::init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc) {
+bool ClusterAliasIterator::init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc, bool _includeAllOption) {
     numClusters = clusterStore->populateClusterIndices (_sortAsc, clusterSlots);
 
     //Serial.print("Iterator loaded "); Serial.print(numClusters); Serial.print(" clusters ");

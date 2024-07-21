@@ -95,7 +95,7 @@ class Display_TFT : public FullyInteractiveDisplay {
 
     void setTouchListening(bool _listening);
     void touchInterrupt();
-    void showButtons (InteractiveContext context);
+    void showButtons (InteractiveContext context, DisplayedButton activeButton);
     DisplayedButton getButtonAt (InteractiveContext context, int x, int y);
 
   protected:
@@ -238,7 +238,7 @@ class Display_TFT : public FullyInteractiveDisplay {
     int getFlipButtonSize() { return DISPLAY_TFT_FLIP_BUTTON_SIZE; }
 
 
-    void showButton(InteractiveContext context, uint8_t buttonPosition);
+    void showButton(InteractiveContext context, uint8_t buttonPosition, DisplayedButton activeButton);
     //const char* getButtonText (DisplayedButton btn){return buttonTexts[btn];}
 
     int getMainAreaX () {return DISPLAY_TFT_MAIN_AREA_X;}

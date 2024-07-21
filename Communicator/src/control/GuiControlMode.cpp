@@ -296,7 +296,8 @@ void GuiControlMode::notifyMessageReceived() {
 
 void GuiControlMode::showButtons () {
   if (fullyInteractive) {
-    ((FullyInteractiveDisplay*)display)->showButtons(interactiveContext);
+    DisplayedButton activeButton = isFilterActive ? ButtonFilter : ButtonNone;
+    ((FullyInteractiveDisplay*)display)->showButtons(interactiveContext, activeButton);
   }
 }
 
@@ -397,7 +398,7 @@ void GuiControlMode::showNearbyDevices(bool resetOffset) {
   if (resetOffset) {
     // reload from ping table
     //Serial.println("nearby dev iterator");
-    nearbyDeviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+    nearbyDeviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true, false);
     //Serial.println("nearby dev iterator initialized");
     previewOffset = 0; // 0 will have closest device
     previewSize = nearbyDeviceIterator->getNumItems();
@@ -566,6 +567,7 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         logConsole("Canceled");
         return false;
       }
+
       // fall through to the other send message logic
 
     case UserRequestSecureBroadcast:
@@ -777,13 +779,22 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       fullRepaint = true;
       return true;
     case UserRequestFilterMessages:
-      if (!promptSelectDevice()) {
+      if (!promptSelectDevice(true)) {
         logConsole("Canceled");
         return false;
       }
 
+      
+
       // change filter to this device and do full repaint
-      setCurrentDeviceFilter(otherDeviceId);
+      if (memcmp(otherDeviceId, "*", 1) == 0) {
+        logConsole("User filter to all devices");
+        setCurrentDeviceFilter(chatter->getDeviceId());
+      }
+      else {
+        logConsole("User filter to device: ", otherDeviceId);
+        setCurrentDeviceFilter(otherDeviceId);
+      }
       return true;
 
     case UserRequestMeshShowPath:
@@ -1105,6 +1116,20 @@ void GuiControlMode::setCurrentDeviceFilter(const char* deviceFilter) {
     currentDeviceFilter[CHATTER_DEVICE_ID_SIZE] = 0;
     fullRepaint = true;
   }
+
+  if (memcmp(currentDeviceFilter, chatter->getDeviceId(), CHATTER_DEVICE_ID_SIZE) != 0) {
+    if (!isFilterActive) {
+      fullRepaint = true;
+    }
+    isFilterActive = true;
+  }
+  else {
+    if (isFilterActive) {
+      fullRepaint = true;
+    }
+    isFilterActive = false;
+  }
+
 }
 
 bool GuiControlMode::validateDatePart(int partVal, uint8_t partNum) {
@@ -1127,11 +1152,11 @@ bool GuiControlMode::validateDatePart(int partVal, uint8_t partNum) {
 }
 
 
-bool GuiControlMode::promptSelectDevice() {
+bool GuiControlMode::promptSelectDevice(bool includeAllDevicesOption) {
   memset(otherDeviceId, 0, CHATTER_DEVICE_ID_SIZE+1);
   if (isFullyInteractive()) {
     // select a recipient (or broadcast)
-    deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+    deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true, includeAllDevicesOption);
     menu->setItemIterator(deviceIterator);
     menu->iteratorMenu(true); // modal
 
@@ -1150,19 +1175,31 @@ bool GuiControlMode::promptSelectDevice() {
       // find the associated device id for the given slot
       uint8_t selectedSlot = deviceIterator->getItemVal(menu->getIteratorSelection());
 
+      if (selectedSlot == DEVICE_SELECTION_ALL) {
+        sprintf(newDeviceAlias, "%s", "[All Devices]");
+        sprintf(otherDeviceId, "%s", "*");
+        ((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
+        fullRepaint = true;
+        return true;
+      }
+
       // populate recipient name for modal display
       memset(newDeviceAlias, 0, CHATTER_ALIAS_NAME_SIZE+2);
+
       deviceIterator->loadItemName(menu->getIteratorSelection(), newDeviceAlias+1);
       newDeviceAlias[0] = '@';
 
       chatter->getTrustStore()->loadDeviceId(selectedSlot, otherDeviceId);
-      logConsole("User chose device :");
-      logConsole(otherDeviceId);
+      //logConsole("User chose device :");
+      //logConsole(otherDeviceId);
 
       ((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
+      fullRepaint = true;
 
       return true;
     }
+    ((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
+    fullRepaint = true;
   }
   else {
     logConsole("not interactive");
@@ -1175,7 +1212,7 @@ bool GuiControlMode::promptSelectCluster() {
   memset(otherClusterId, 0, CHATTER_LOCAL_NET_ID_SIZE+CHATTER_GLOBAL_NET_ID_SIZE+1);
   if (isFullyInteractive()) {
     // select a recipient (or broadcast)
-    clusterIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+    clusterIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true, false);
     menu->setItemIterator(clusterIterator);
     menu->iteratorMenu(true); // modal
 
@@ -1195,8 +1232,8 @@ bool GuiControlMode::promptSelectCluster() {
       uint8_t selectedSlot = clusterIterator->getItemVal(menu->getIteratorSelection());
 
       chatter->getClusterStore()->loadClusterId(selectedSlot, otherClusterId);
-      logConsole("User chose cluster :");
-      logConsole(otherClusterId);
+      //logConsole("User chose cluster :");
+      //logConsole(otherClusterId);
       return true;
     }
   }
@@ -1619,10 +1656,10 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
           else { // showing messages, select the appropriate device
             uint8_t selectedMessageSlot = messageIterator->getItemVal(selectedPreview + previewOffset);
 
-            Serial.print("User chose visible index: ");
+            /*Serial.print("User chose visible index: ");
             Serial.print(selectedPreview + previewOffset);
             Serial.print(", which is slot: ");
-            Serial.println(selectedMessageSlot);
+            Serial.println(selectedMessageSlot);*/
 
             // If it's thermal, display it
             //if (!messageIterator->isPreviewable(selectedMessageSlot)) {
@@ -1637,7 +1674,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
 
               //int loadMessage (uint8_t internalMessageId, uint8_t* buffer, int maxMessageLength);
               if (chatter->getMessageStore()->loadMessageDetails (selectedMessageSlot, histSenderId, histRecipientId, histMessageId, previewTsBuffer, messageStatus, messageSendMethod, messageType)) {
-                Serial.print("Message Type: ");Serial.println((char)messageType);
+                //Serial.print("Message Type: ");Serial.println((char)messageType);
                 if (messageType == MessageTypeThermal) {
                   int imageSize = chatter->getMessageStore()->loadMessage(selectedMessageSlot, messageBuffer, GUI_MESSAGE_BUFFER_SIZE);
                   encoder->decode(messageBuffer);
@@ -1655,7 +1692,7 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
               
             //} // queue a reply event to that message slot
             if (chatter->getMessageStore()->loadDeviceIds (selectedMessageSlot, histSenderId, histRecipientId)) {
-              logConsole("this is previewable!");
+              //logConsole("this is previewable!");
               // whichever is not this device becomes the target
               if (memcmp(chatter->getDeviceId(), histSenderId, CHATTER_DEVICE_ID_SIZE) != 0) {
                 memcpy(eventBuffer.EventTarget, histSenderId, CHATTER_DEVICE_ID_SIZE);
@@ -2106,7 +2143,7 @@ bool GuiControlMode::syncLearnActivity () {
             // we are aiming to send messages at the given rate, across the entire cluster.
             // so if we are aiming for 1 message per minute, each device should send once per (minute * num devices)
             // to hit that average
-            deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+            deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true, false);
             nextScheduledLearn = millis() + random(5000, 20000) + learnMessageFreq * deviceIterator->getNumItems();
         }
         else if (millis() >= nextScheduledLearn) {
@@ -2123,7 +2160,7 @@ bool GuiControlMode::syncLearnActivity () {
             // choose a random recipient from our known recipients
             // note: until mesh key exchange works, this can only work
             // if device keys have been exchanged before hand
-            deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+            deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true, false);
             uint8_t selectedDevice = random(0, deviceIterator->getNumItems());
             if (chatter->getTrustStore()->loadDeviceId(deviceIterator->getItemVal(selectedDevice), learningTargetDevice)) {
                 learningTargetDevice[CHATTER_DEVICE_ID_SIZE] = 0;
@@ -2150,7 +2187,7 @@ bool GuiControlMode::syncLearnActivity () {
           lastLearnLog = millis();
           Serial.println("=== Learning Data ===");
           Serial.print("{");
-          deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true);
+          deviceIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true, false);
           for (uint8_t devNum = 0; devNum < deviceIterator->getNumItems(); devNum++) {
             if(deviceIterator->loadItemName(devNum, learnAliasBuffer)) {
               chatter->getTrustStore()->loadDeviceId(deviceIterator->getItemVal(devNum), learningTargetDevice);

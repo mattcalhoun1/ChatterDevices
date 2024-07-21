@@ -1,6 +1,6 @@
 #include "TestIterator.h"
 
-bool TestIterator::init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc) {
+bool TestIterator::init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc, bool _includeAllOption) {
     //numTrusts = trustStore->populateDeviceIndices (_clusterId, trustSlots);
     //Serial.print("Iterator loaded "); Serial.print(numTrusts); Serial.print(" devices for cluster ");Serial.println(_clusterId);
     return true;

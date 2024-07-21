@@ -7,7 +7,7 @@
 class ClusterAliasIterator : public ItemIterator {
     public:
         ClusterAliasIterator (ClusterStore* _clusterStore) {clusterStore = _clusterStore; }
-        bool init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc);
+        bool init (const char* _clusterId, const char* _thisDeviceId, bool _sortAsc, bool _includeAllOption);
         uint8_t getNumItems ();
         bool loadItemName (uint8_t itemNum, char* nameBuffer);
         uint8_t getItemVal (uint8_t itemNum);

@@ -5,7 +5,7 @@
 
 class ItemIterator {
     public:
-        virtual bool init (const char* filter, const char* _thisDeviceId, bool _sortAsc) = 0;
+        virtual bool init (const char* filter, const char* _thisDeviceId, bool _sortAsc, bool _includeAllOption) = 0;
         virtual uint8_t getNumItems () = 0;
         virtual uint8_t getItemVal (uint8_t itemNum) = 0;
         virtual bool loadItemName (uint8_t itemNum, char* nameBuffer) = 0;

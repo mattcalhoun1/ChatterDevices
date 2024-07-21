@@ -45,14 +45,6 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
     received ? titleColor : LightGray);
   */
 
-  changeFont(FontSystem);
-  showSymbol(
-    received ? 0x19 : 0x18, 
-    getMessageAreaX() + 5, 
-    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextLowerVerticalOffset(TextSmall)+getMessageTitleIconOffset()),
-    received ? titleColor : LightGray);
-
-
   changeFont(FontBold);
   showText(
     title, 
@@ -61,6 +53,13 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
     TextSmall, 
     received ? titleColor : LightGray
   );
+
+  changeFont(FontSystem);
+  showSymbol(
+    received ? 0x19 : 0x18, 
+    getMessageAreaX() + 5, 
+    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextLowerVerticalOffset(TextSmall)+getMessageTitleIconOffset()),
+    received ? titleColor : LightGray);
 
   // add message timestamp
   changeFont(FontTiny);
