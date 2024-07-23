@@ -83,7 +83,19 @@ void GuiControlMode::handleUnlicensedDevice() {
     ((FullyInteractiveDisplay*)display)->setTouchListening(true);
     ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
 
+    unsigned long lastSerialPrompt = 0;
+
     while(true) {
+      // prompt serial every 3000 and check for input
+      if (millis() - lastSerialPrompt > 3000) {
+        if (Serial.available()) {
+          logConsole("got serial input");
+        }
+        Serial.print("UNLICENSED:");
+        Serial.println(chatter->getUniqueHardwareId());
+        lastSerialPrompt = millis();
+      }
+
       if (!((FullyInteractiveDisplay*)display)->isKeyboardShowing()) {
         ((FullyInteractiveDisplay*)display)->handleIfTouched();        
       }
