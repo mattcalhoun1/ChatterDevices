@@ -194,9 +194,15 @@ void GuiControlMode::loop () {
     if (actionButtonPressed) {
       actionButtonPressed = false;
 
-      // notify all backpacks
-      for (uint8_t b = 0; b < numBackpacks; b++) {
-        backpacks[b]->handleUserEvent(UserPressActionButton);
+      // if the screen is locked, unlock it
+      if (screenLocked) {
+        unlockScreen();
+      }
+      else {
+        // notify all backpacks
+        for (uint8_t b = 0; b < numBackpacks; b++) {
+          backpacks[b]->handleUserEvent(UserPressActionButton);
+        }
       }
     }
 

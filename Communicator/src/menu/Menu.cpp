@@ -92,18 +92,18 @@ void Menu::populateIteratorMenu () {
 void Menu::mainMenu(bool fullRepaint) {
   resetMenu(fullRepaint); // clear any previous menu
   oledMenu.menuId = MENU_ID_MAIN;
-  oledMenu.noOfmenuItems = 7;
+  oledMenu.noOfmenuItems = 4;
   oledMenu.menuTitle = "Main Menu";
 
   oledMenu.menuItems[MENU_MAIN_CLUSTER] = "Cluster";
   oledMenu.menuItems[MENU_MAIN_DEVICE] = "Device";
   oledMenu.menuItems[MENU_MAIN_MESH] = "Mesh";
   oledMenu.menuItems[MENU_MAIN_SECURITY] = "Security";
-  oledMenu.menuItems[MENU_MAIN_BACKPACKS] = "Backpacks";
+  //oledMenu.menuItems[MENU_MAIN_BACKPACKS] = "Backpacks";
   //oledMenu.menuItems[MENU_MAIN_BACKUPS] = "Backups";
-  oledMenu.menuItems[MENU_MAIN_CONNECTIONS] = "Connections";
+  //oledMenu.menuItems[MENU_MAIN_CONNECTIONS] = "Connections";
   //oledMenu.menuItems[MENU_MAIN_POWER] = "Power";
-  oledMenu.menuItems[MENU_MAIN_BACKPACK_TRIGGER] = "Trigger Backpacks";
+  //oledMenu.menuItems[MENU_MAIN_BACKPACK_TRIGGER] = "Trigger Backpacks";
 
   if (remoteAllowed) {
     oledMenu.noOfmenuItems += 1;
@@ -118,9 +118,10 @@ void Menu::mainMenu(bool fullRepaint) {
 void Menu::securityMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_SECURITY;
-  oledMenu.noOfmenuItems = 2;
+  oledMenu.noOfmenuItems = 3;
   oledMenu.menuTitle = "Security";
 
+  oledMenu.menuItems[MENU_SECURITY_CHANGE_PASSWORD] = "Change Password";
   oledMenu.menuItems[MENU_SECURITY_KEY_TEST] = "Test Public Key";
   oledMenu.menuItems[MENU_SECURITY_LOCK_TRUSTSTORE] = prefHandler->isPreferenceEnabled(PreferenceTruststoreLocked) ? "Unlock Truststore" : "Lock Truststore";
 
@@ -201,14 +202,13 @@ void Menu::relayMenu() {
 void Menu::deviceMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_DEVICE;
-  oledMenu.noOfmenuItems = 9;
+  oledMenu.noOfmenuItems = 8;
   oledMenu.menuTitle = "Device";
 
   oledMenu.menuItems[MENU_DEVICE_CLEAR_MESSAGES] = "Clear Messages";
   oledMenu.menuItems[MENU_DEVICE_MESSAGE_HISTORY] = prefHandler->isPreferenceEnabled(PreferenceMessageHistory) ? "Disable History" : "Enable History";
   //oledMenu.menuItems[MENU_DEVICE_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
   oledMenu.menuItems[MENU_DEVICE_SCREEN_TIMEOUT] = "Screen Timeout";
-  oledMenu.menuItems[MENU_DEVICE_CHANGE_PASSWORD] = "Change Password";
   oledMenu.menuItems[MENU_DEVICE_SHOW_ID] = "Show ID";
   oledMenu.menuItems[MENU_DEVICE_SET_TIME] = "Set Time";
   oledMenu.menuItems[MENU_DEVICE_SECURE_FACTORY_RESET] = "Factory Reset";
@@ -412,10 +412,6 @@ void Menu::deviceActions() {
         resetMenu();
         handler->handleEvent(UserRequestShowId);
         break;
-      case MENU_DEVICE_CHANGE_PASSWORD:
-        resetMenu();
-        handler->handleEvent(UserRequestChangePassword);
-        break;
       case MENU_DEVICE_SCREEN_TIMEOUT:
         screenTimeoutMenu();
         mode = MenuActive;
@@ -494,6 +490,10 @@ void Menu::backpacksActions() {
 void Menu::securityActions() {
   if (oledMenu.menuId == MENU_ID_SECURITY) {  
     switch (oledMenu.selectedMenuItem) {
+      case MENU_SECURITY_CHANGE_PASSWORD:
+        resetMenu();
+        handler->handleEvent(UserRequestChangePassword);
+        break;
       // preference toggles
       case MENU_SECURITY_KEY_TEST:
         resetMenu();
