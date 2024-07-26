@@ -2,10 +2,18 @@
 
 #define COMMUNICATORGLOBALS_H
 
+#include "ChatterAll.h"
+
 // radiolib vs rf 95w wrapper for radiohead
 //#define RH_USE_RADIOLIB true
 
-#define CHATTERBOX_FIRMWARE_VERSION "0.5.0"
+#define CHATTERBOX_FIRMWARE_VERSION "0.6.0"
+#define STRONG_ENCRYPTION_ENABLED true // false for export
+
+#define LORA_DEFAULT_FREQUENCY LORA_DEFAULT_FREQUENCY_915
+#define LORA_MIN_FREQUENCY LORA_MIN_FREQUENCY_915
+#define LORA_MAX_FREQUENCY LORA_MAX_FREQUENCY_915
+
 
 #define LOG_ENABLED true
 #define BACKPACK_THERMAL_ENABLED false

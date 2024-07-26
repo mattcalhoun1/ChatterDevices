@@ -17,13 +17,18 @@ logConsole("Initializing clock");
   rtc = new ZeroRtClock();
 #endif
 
+  logConsole("Encryption Level: ", STRONG_ENCRYPTION_ENABLED ? "STRONG" : "exportable");
+  char freqRange[16];
+  sprintf(freqRange, "%03.1f:%03.1f", LORA_MIN_FREQUENCY, LORA_MAX_FREQUENCY);
+  logConsole("Tx Range ", freqRange);
+
   if(rtc->isFunctioning()) {
     logConsole("RTC Time: ", rtc->getViewableTime());
 
     #if defined(STORAGE_FRAM_SPI)
-      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramSPI, this, this, this);
+      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramSPI, this, this, this, STRONG_ENCRYPTION_ENABLED);
     #elif defined(STORAGE_FRAM_I2C)
-      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramI2C, this, this, this);
+      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramI2C, this, this, this, STRONG_ENCRYPTION_ENABLED);
     #endif
 
     bool chatterReady = chatter->init();
@@ -68,7 +73,7 @@ logConsole("Initializing clock");
           chatter->addUartChannel(UART_CHANNEL_LOG_ENABLED);
         }
         else {
-          logConsole("Device LoRa disabled by user pref");
+          logConsole("Device UART disabled by user pref");
         }
 
       #endif
@@ -232,7 +237,7 @@ void ControlMode::logConsole(const char* msg, const char* msg2) {
 bool ControlMode::initializeNewDevice () {
   // by default, we just generate random stuff
   // if interactive, a subclass will handle this, and prompt for info
-  ClusterAdmin* admin = new ClusterAdmin(chatter);
+  ClusterAdmin* admin = new ClusterAdmin(chatter, STRONG_ENCRYPTION_ENABLED);
   char tempAlias[CHATTER_ALIAS_NAME_SIZE];
   memset(tempAlias, 0, CHATTER_ALIAS_NAME_SIZE);
   sprintf(tempAlias, "%s_%d", DEFAULT_DEVICE_ALIAS, millis()/100);

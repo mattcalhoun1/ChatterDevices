@@ -144,7 +144,10 @@ void GuiControlMode::showQrCode (bool isLicensed) {
         }
     }
 
-    display->showTitle(CHATTERBOX_FIRMWARE_VERSION);
+
+    char titleBuffer[16];
+    sprintf(titleBuffer, "%s %s", CHATTERBOX_FIRMWARE_VERSION, STRONG_ENCRYPTION_ENABLED ? "USA" : "exp");
+    display->showTitle(titleBuffer);
     display->showSubtitle("ALTWARE DEVELOPMENT LLC");
 
     if (isLicensed) {
@@ -1922,7 +1925,7 @@ bool GuiControlMode::promptClusterInfo (bool forceInput) {
 
 bool GuiControlMode::createNewCluster () {
   if (promptClusterInfo(false)) {
-    ClusterAdmin* admin = new ClusterAdmin(chatter);
+    ClusterAdmin* admin = new ClusterAdmin(chatter, STRONG_ENCRYPTION_ENABLED);
     display->showAlert("Initializing", AlertWarning);
     bool result = admin->generateCluster(newClusterAlias, newFrequency, newWifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, newWifiPreferred);
     chatter->getDeviceStore()->setClearMeshOnStartup(true);
@@ -2036,7 +2039,7 @@ bool GuiControlMode::initializeNewDevice () {
     deviceAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Device Name", "Unique(ish) name others will see", 12, CharacterFilterAlphaNumeric, newDeviceAlias, newDeviceAlias, 0);
   }
   newDeviceAlias[deviceAliasLength] = 0;//term it, if the user backspaced some
-  ClusterAdmin* admin = new ClusterAdmin(chatter);
+  ClusterAdmin* admin = new ClusterAdmin(chatter, STRONG_ENCRYPTION_ENABLED);
 
   if (promptClusterInfo(true)) {
     display->showAlert("Initializing", AlertWarning);

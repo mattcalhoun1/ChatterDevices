@@ -490,7 +490,7 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
 
       break;
     case UserRequestJoinCluster:
-      assistant = new ChatterClusterAssistant(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
+      assistant = new ChatterClusterAssistant(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED, STRONG_ENCRYPTION_ENABLED);
       if(assistant->init()) {
         bool success = assistant->attemptOnboard ();
         if (success) {
@@ -524,7 +524,7 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
 
 bool CommunicatorControlMode::handleConnectedDevice () {
   if (cluster == nullptr) {
-    cluster = new ChatterClusterAdminInterface(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
+    cluster = new ChatterClusterAdminInterface(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED, STRONG_ENCRYPTION_ENABLED);
     if (cluster->init()) {
       logConsole("Cluster Admin Interface Initialized");
       return cluster->isConnected();

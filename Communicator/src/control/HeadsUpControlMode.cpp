@@ -9,15 +9,10 @@ StartupState HeadsUpControlMode::init () {
 
       fullyInteractive = true;
       display = new Display_TFT(encoder);
-      logConsole("Display created");
-
-
 
       // attach keyboard to display
       Keyboard* keyboard = new Keyboard((TouchEnabledDisplay*)display);
-      logConsole("keyboard created");
       keyboard->init();
-      logConsole("keyboard initialized");
       ((FullyInteractiveDisplay*)display)->setDefaultKeyboard(keyboard);
     }
 
