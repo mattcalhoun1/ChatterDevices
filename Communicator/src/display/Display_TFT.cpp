@@ -165,6 +165,7 @@ void Display_TFT::setTouchListening(bool _listening) {
     touch->init();
     touch->resetToDefaultTouchSensitivity();
     touchInitialized = true;
+    logConsole("touch ready");
   }
   touchListening = _listening;
 }
