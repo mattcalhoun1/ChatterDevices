@@ -10,7 +10,7 @@
 #ifndef MENU_H
 #define MENU_H
 
-#define MENU_MAX_ITEMS 9
+#define MENU_MAX_ITEMS 30
 
 #define MENU_MAIN_CLUSTER 1
 #define MENU_MAIN_DEVICE 2
