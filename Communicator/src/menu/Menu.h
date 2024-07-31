@@ -10,7 +10,7 @@
 #ifndef MENU_H
 #define MENU_H
 
-#define MENU_MAX_ITEMS 30
+#define MENU_MAX_ITEMS 90
 
 #define MENU_MAIN_CLUSTER 1
 #define MENU_MAIN_DEVICE 2
@@ -118,8 +118,8 @@
 enum MenuMode {
     MenuOff,                                  // display is off
     MenuActive,                                 // a menu is active
-    MenuValueEntry,                                // 'enter a value' none blocking is active
-    MenuMessage,                              // displaying a message
+    //MenuValueEntry,                                // 'enter a value' none blocking is active
+    //MenuMessage,                              // displaying a message
     MenuBlocking                              // a blocking procedure is in progress (see enter value)
 };
 
@@ -165,17 +165,10 @@ class Menu : public TouchListener {
 
         void menuActions ();
 
-        // leftover from demo
-        //void demoMenu ();
-        //void menuActions ();
 
-
-        //void value1 ();
-        void menuValues ();
+        //void menuValues ();
         void resetMenu (bool repaint = false);
-        void displayMessage(String _title, String _message);
-        void createList(String _title, int _noOfElements, String *_list);
-        int serviceValue(bool _blocking);
+        int serviceValue(bool _blocking); // no longer in use
         void serviceMenu ();
         void menuUpdate ();
         bool isShowing () {return mode != MenuOff; }

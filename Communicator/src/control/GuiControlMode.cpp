@@ -64,11 +64,6 @@ StartupState GuiControlMode::init() {
 
       memset(title, 0, 32);
       sprintf(title, "%s @ %s", chatter->getDeviceAlias(), chatter->getClusterAlias());
-      //showTitle(title);
-      //showStatus("Ready");
-
-      //showMessageHistory(true);
-      //showButtons();
 
       fullRepaint = true;
     }
@@ -804,8 +799,6 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
         logConsole("Canceled");
         return false;
       }
-
-      
 
       // change filter to this device and do full repaint
       if (memcmp(otherDeviceId, "*", 1) == 0) {
@@ -1768,8 +1761,6 @@ bool GuiControlMode::sendMessage (const char* deviceId, uint8_t* msg, int msgSiz
 
 
 void GuiControlMode::showLastMessage () {
-  //display->showMessage((const char*)messageBuffer, Green, 0);
-  // refresh the message history if enabled
   display->setDisplayContext(DisplayFullHistory);
   refreshDisplayContext(true);
 }
@@ -1789,8 +1780,6 @@ void GuiControlMode::refreshDisplayContext(bool fullRefresh) {
 }
 
 void GuiControlMode::buttonInterrupt () {
-  //menu->notifyButtonPressed();
-  //sendText = true;
   actionButtonPressed = true;
 }
 
@@ -1798,7 +1787,6 @@ void GuiControlMode::touchInterrupt () {
   if (fullyInteractive) {
     ((FullyInteractiveDisplay*)display)->touchInterrupt();
   }
-  //sendText = true;
 }
 
 bool GuiControlMode::updatePreviewsIfNecessary () {
@@ -1880,7 +1868,7 @@ bool GuiControlMode::promptClusterInfo (bool forceInput) {
   newWifiEnabled = false;
   newWifiPreferred = false;
 
-  // wifi not enabled for v1.0
+  // wifi/udp not enabled for v1.0
   sprintf(newDeviceWifiSsid, "none", 4);
   sprintf(newDeviceWifiCred, "none", 4);
 
@@ -1941,7 +1929,6 @@ bool GuiControlMode::promptLicense () {
     ((FullyInteractiveDisplay*)display)->setTouchListening(true);
   }*/
 
-  // does the user want to password protect
   int licenseLength = -1;
   char userLicenseKey[20];
   memset(userLicenseKey, 0, 20);

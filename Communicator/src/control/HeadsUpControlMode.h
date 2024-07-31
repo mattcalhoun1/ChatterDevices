@@ -25,8 +25,6 @@ class HeadsUpControlMode : public CommunicatorControlMode {
         void showClusterError ();
         void showClusterOnboard ();
 
-        //void captureLiveThermal ();
-        //void showLiveThermal ();
         void loop ();
 
         bool isFullyInteractive () { return fullyInteractive; }

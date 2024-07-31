@@ -39,52 +39,6 @@ void HeadlessControlMode::updateChatDashboard () {
     }
 }
 
-/*
-void HeadlessControlMode::updateChatStatusBuffer(ChatStatus chatStatus) {
-    switch (chatStatus) {
-        case ChatDisconnected:
-            memcpy(chatStatusBuffer, "Disconnected", 12);
-            chatStatusBuffer[12] = '\0';
-            break;
-        case ChatConnecting:
-            memcpy(chatStatusBuffer, "Connecting", 10);
-            chatStatusBuffer[10] = '\0';
-            break;
-        case ChatConnected:
-            memcpy(chatStatusBuffer, "Connected", 9);
-            chatStatusBuffer[9] = '\0';
-            break;
-        case ChatReceiving:
-            memcpy(chatStatusBuffer, "Receiving", 9);
-            chatStatusBuffer[9] = '\0';
-            break;
-        case ChatReceived:
-            memcpy(chatStatusBuffer, "Received", 8);
-            chatStatusBuffer[8] = '\0';
-            break;
-        case ChatSending:
-            memcpy(chatStatusBuffer, "Sending", 7);
-            chatStatusBuffer[7] = '\0';
-            break;
-        case ChatSent:
-            memcpy(chatStatusBuffer, "Sent", 4);
-            chatStatusBuffer[4] = '\0';
-            break;
-        case ChatFailed:
-            memcpy(chatStatusBuffer, "Failed", 6);
-            chatStatusBuffer[6] = '\0';
-            break;
-        case ChatNoDevice:
-            memcpy(chatStatusBuffer, "No Device", 9);
-            chatStatusBuffer[9] = '\0';
-            break;
-        default:
-            memcpy(chatStatusBuffer, "Unknown", 7);
-            chatStatusBuffer[7] = '\0';
-    }
-}
-*/
-
 void HeadlessControlMode::showStatus(const char* status) {
     String statusWithId = String(chatter->getDeviceId()) + ": " + String(status);
     logConsole(statusWithId);

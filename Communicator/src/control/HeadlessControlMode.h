@@ -12,8 +12,6 @@ class HeadlessControlMode : public CommunicatorControlMode {
         void showTime ();
         void showTitle (const char* title);
         void updateChatDashboard ();
-        //void updateChatStatusBuffer(ChatStatus chatStatus);
-
         void showBusy (); // shows indicator that activity is happening
         void showReady ();
         void showClusterOk ();
@@ -22,7 +20,6 @@ class HeadlessControlMode : public CommunicatorControlMode {
 
     protected:
         unsigned long lastTimeUpdate = 0;
-        //char chatStatusBuffer[16];
 
         // for displaying latest status
         ChatStatus loraStatus = ChatNoDevice;

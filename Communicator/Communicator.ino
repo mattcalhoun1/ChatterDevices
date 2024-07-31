@@ -44,13 +44,8 @@ void setup() {
     }
     delay(100);
   }
-
-
-
-  // the bridge type test pins
-  //pinMode(CLUSTER_ADMIN_PIN, INPUT_PULLUP);
-  //pinMode(DEVICE_TYPE_PIN_MINI, INPUT_PULLUP);
   
+  // set up the various pin configs
   #ifdef FACTORY_RESET_PIN
   pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
   #endif
@@ -61,27 +56,26 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(BUTTON_ACTION_PIN), buttonInterrupt, LOW);
   #endif
 
-
   #ifdef ROTARY_ENABLED
     pinMode(BUTTON_A_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(BUTTON_A_PIN), buttonInterrupt, LOW);
   #endif
 
-  //Wire.setClock(400000L); // enc chip wants 400khz
   Wire.begin();
-
   SPI.begin();
 
-  //controlMode = new GuiControlMode(selectDeviceType());
-  //#if defined (ARDUINO_FEATHER_M4) || defined(ADAFRUIT_FEATHER_M4_EXPRESS)
-  //controlMode = new TestControlMode(selectDeviceType());
-  //#else
-  controlMode = new GuiControlMode(selectDeviceType());
-  //#endif
+  // setup the control mode
+  if (CONTROL_MODE_GUI == true) {
+    controlMode = new GuiControlMode(selectDeviceType());
+  }
+  else {
+    controlMode = new TestControlMode(selectDeviceType());
+  }
 
+  // attempt to startup
   StartupState startupState = controlMode->init();
 
-  // register interrupt routine
+  // rotary and touch interrupts (if configured)
   #ifdef ROTARY_ENABLED
     attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN1), handleRotary, CHANGE);
     attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_IN2), handleRotary, CHANGE);
@@ -117,20 +111,21 @@ DeviceType selectDeviceType () {
 }
 
 void buttonInterrupt () {
-  // dial decides whether remote or live image requested
+  // pass button press through to control mode
   if (controlMode->isInteractive()) {
     ((GuiControlMode*)controlMode)->buttonInterrupt();
   }
 }
 
 void handleRotary () {
-  // dial decides whether remote or live image requested
+  // pass rotary movement through to control mode
   if (controlMode->isInteractive()) {
     ((GuiControlMode*)controlMode)->handleRotaryInterrupt();
   }
 }
 
 void handleTouch () {
+  // pass touch notification through to control mode
   if (controlMode->isInteractive()) {
     ((GuiControlMode*)controlMode)->touchInterrupt();
   }
@@ -148,6 +143,8 @@ void loop() {
     }
     Serial1.print("!"); // just keep alive
   }
+
+  // control mode handles rest of the loop
   controlMode->loop();
 }
 

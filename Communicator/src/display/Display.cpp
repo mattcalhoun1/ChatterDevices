@@ -36,15 +36,6 @@ void Display::showMessageAndTitle (const char* title, const char* text, const ch
     drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, Beige);
   }
 
-  /*changeFont(FontTiny);
-  showText(
-    received ? "<<" : ">>", 
-    getMessageAreaX(), 
-    getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall)*2,
-    TextSmall,
-    received ? titleColor : LightGray);
-  */
-
   changeFont(FontBold);
   showText(
     title, 
@@ -260,17 +251,11 @@ const char* Display::getChannelName(char pingChannelId) {
 
 void Display::showNearbyDevice (const char* deviceAlias, const char* deviceId, uint8_t connectionQuality, uint8_t meshDirectRating, uint8_t meshIndirectRating, const char* readableTS, bool isTrusted, int16_t rssi, char channel, char secondaryChannel, DisplayColor titleColor, DisplayColor messageColor, uint8_t position) {
   // show a line above the message for separation
-  // show a line above the message for separation
   if (position != 0) {
     int lineYPos = getMessageAreaY() - 3 + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2) - getMessageTitleYOffset()*2;
     drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, Beige);
   }
 
-  /*
-  if (position != 0) {
-    int lineYPos = getMessageAreaY() + (position * (getMessageHeight() + getMessageTitleHeight())) - (getTextUpperVerticalOffset(TextSmall) + 2);
-    drawLine(getMessageAreaX(), lineYPos, getMessageAreaX() + getMessageAreaWidth(), lineYPos, Beige);
-  }*/
   int dotYPos = getMessageAreaY() - getMessageTitleYOffset() + (position * (getMessageHeight() + getMessageTitleHeight())) - getTextLowerVerticalOffset(TextSmall) + 1;
   fillCircle(getMessageAreaX(), dotYPos, getTickerSize()-1, getColorForConnectionQuality(connectionQuality));
 
@@ -617,9 +602,7 @@ void Display::showProgress(float percent) {
       // draw draw outer circle and empty inner
       drawCircle(getSpinnerX(), getSpinnerY(), getSpinnerRadius(), White);
       fillCircle(getSpinnerX(), getSpinnerY(), getSpinnerRadius()-1, Black);
-
     }
-
 
     if (percent > currentProgress) {
       fillCircle (getSpinnerX(), getSpinnerY(), getSpinnerRadius() * percent, White);

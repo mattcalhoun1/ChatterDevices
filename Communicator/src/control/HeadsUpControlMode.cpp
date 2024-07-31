@@ -26,10 +26,6 @@ void HeadsUpControlMode::updateChatDashboard () {
 
 
 void HeadsUpControlMode::updateChatDashboard (bool forceRepaint) {
-  //int screenWidth = deviceType == DeviceTypeCommunicatorMini ? 170 : 240;
-  //int dashboardY = 280;
-  // paint white bar across bottom
-  //display->clearArea(0, dashboardY , screenWidth, 16, Gray);
 
   bool statusChanged = false;
   for (int channelNum = 0; channelNum < chatter->getNumChannels(); channelNum++) {

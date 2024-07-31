@@ -9,11 +9,6 @@ bool TouchControlRak::init() {
     delay(1000);
     digitalWrite(PIN_TOUCH_RS, HIGH);
     delay(1000);
-    /*analogWrite(PIN_TOUCH_RS, 1);
-    delay(1000);
-    analogWrite(PIN_TOUCH_RS, 0);
-    delay(1000);*/
-
 
     int maxRetries = 5;
     int retryCount = 0;

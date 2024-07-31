@@ -9,10 +9,7 @@ StartupState CommunicatorControlMode::init() {
       airChannel = chatter->getChannel(0);
       //bridgeChannel = chatter->getChannel(1);
 
-      //showTitle("Communicator");
       logConsole("CommunicatorControlMode running");
-      //showTime();
-      //showStatus("Ready");
 
       initialized = true;
       
@@ -21,7 +18,6 @@ StartupState CommunicatorControlMode::init() {
       // set chatter preferences
       chatter->setKeyForwardingAllowed(isPreferenceEnabled(PreferenceKeyForwarding));
       chatter->setTruststoreLocked(isPreferenceEnabled(PreferenceTruststoreLocked));
-      
 
       enableMessaging();
 
@@ -40,11 +36,6 @@ void CommunicatorControlMode::loop () {
     showClusterError();
   }
 
-  // if a device is syncing/etc, handle that now
-  //if (adminEnabled) {
-  //  handleConnectedDevice();  
-  //}
-
   if (queuedEventType != CommunicatorEventNone) {
     // handle the event
     handleEvent(queuedEventType);
@@ -53,16 +44,13 @@ void CommunicatorControlMode::loop () {
     queuedEventType = CommunicatorEventNone;
   }
 
-  //showTime();
   int numPacketsThisCycle = 0;
 
   if (listeningForMessages) {
     while (chatter->hasMessage() && numPacketsThisCycle++ < maxReadPacketsPerCycle) {
       showStatus("Receiving");
       if(chatter->retrieveMessage() && chatter->getMessageType() == MessageTypeComplete) {
-        //int messageLength = chatter->getMessageSize();
         logConsole("Processing trusted message...");
-
         messageBufferLength = chatter->getMessageSize();
         memcpy(messageBuffer, chatter->getTextMessage(), messageBufferLength);
         messageBuffer[messageBufferLength] = 0;
@@ -116,8 +104,6 @@ void CommunicatorControlMode::loop () {
           evt.EventType = AckReceived;
         }
         handleEvent(&evt);
-
-        //showLastMessage ();
       }
     }
     showReady();
@@ -136,9 +122,8 @@ void CommunicatorControlMode::loop () {
     sendText = false;
   }
 
-  if (loopCount % RTC_SYNC_FREQUENCY == 0) {
-    // don't do this once the fram has been initialized
-    //rtc->syncWithExternalRtc();
+  if (RTC_SYNC_ENABLED == true && loopCount % RTC_SYNC_FREQUENCY == 0) {
+    rtc->syncWithExternalRtc();
   }
 
   sleepOrBackground(50);

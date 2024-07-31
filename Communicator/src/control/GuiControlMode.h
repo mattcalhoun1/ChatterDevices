@@ -13,8 +13,6 @@
 #include "../iterator/ClusterAliasIterator.h"
 #include <SHA256.h>
 
-// temp: thermal
-//#include "../backpacks/thermal/Camera.h"
 #include "../backpacks/thermal/ThermalEncoder.h"
 #include "../backpacks/Backpack.h"
 #include "../backpacks/thermal/ThermalBackpack.h"
@@ -25,9 +23,9 @@
 #ifndef GUICONTROLMODE_H
 #define GUICONTROLMODE_H
 
+// title and preview buffers are for display, not for full content
 //                                status    channels            ts       :          alias               (           send/rcpient     )   sp  >>  term
 #define MESSAGE_TITLE_BUFFER_SIZE 4 +        2 + STORAGE_TS_SIZE + 1 +  CHATTER_ALIAS_NAME_SIZE + 1 + CHATTER_DEVICE_ID_SIZE + 1 + 1 + 2 + 2
-
 #define MESSAGE_PREVIEW_BUFFER_SIZE 64
 
 enum MessageSendResult {
@@ -133,7 +131,6 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener, public I
         void changeUserPassword ();
 
         ThermalEncoder* encoder;
-        //Camera* camera;
         Backpack* backpacks[MAX_BACKPACKS];
         uint8_t numBackpacks = 0;
         Backpack* getBackpack (BackpackType type);

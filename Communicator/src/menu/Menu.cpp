@@ -951,6 +951,7 @@ void Menu::iteratorActions () {
 }
 
 // actions for value entered put in here
+/*
 void Menu::menuValues() {
 
   // action for "demo_value"
@@ -969,6 +970,7 @@ void Menu::menuValues() {
   }
 
 }
+*/
 
 void Menu::notifyButtonPressed () {
     if (millis() - oledMenu.lastMenuActivity > minButtonDelay) {
@@ -988,10 +990,7 @@ void Menu::notifyRotaryChanged () {
     if (mode == MenuOff) {
       // ignore, main screen or other function may be using the rotary
       return;
-      //  mainMenu(); // restart main menu
-      //  mode = MenuActive;
     }
-    //needsRepainted = true;
     if (millis() - oledMenu.lastMenuActivity > minRotaryDelay) {
       rotaryChanged = true;
       oledMenu.lastMenuActivity = millis();
@@ -1015,27 +1014,9 @@ void Menu::menuUpdate() {
         serviceMenu();
         menuActions();
         break;
-
-      // if there is an active none blocking 'enter value'
-      case MenuValueEntry:
-        serviceValue(0);
-        if (buttonPressed) {                        // if the button has been pressed
-            buttonPressed = false; // reset the button press flag
-          menuValues();                                             // a value has been entered so action it
-          break;
-        }
-
-      // if a message is being displayed
-      case MenuMessage:
-        if (buttonPressed) {
-            buttonPressed = false; // reset button flag
-            mainMenu();    // if button has been pressed return to default menu
-            mode = MenuActive;
-        } 
-        break;
     }
-}
 
+}
 
 // ----------------------------------------------------------------
 //                       -service active menu
@@ -1125,35 +1106,24 @@ void Menu::serviceMenu() {
 
           // add logic here for scroll bars
           display->showMenuScrolls(iteratorOffset > 0, iteratorOffset + displayMaxLines < iterator->getNumItems());
-
-          /*for (int i=1; i <= displayMaxLines; i++) {
-              int item = oledMenu.highlightedMenuItem - _centreLine + i;
-
-              if (item > 0 && item <= oledMenu.noOfmenuItems) {
-                  display->showMenuItem(i, oledMenu.menuItems[item], item == oledMenu.highlightedMenuItem ? Black : White, item == oledMenu.highlightedMenuItem ? White : Black);
-              }
-          }*/
         }
         else {
             // add logic here for scroll bars
             display->showMenuScrolls(oledMenu.highlightedMenuItem > MENU_DEFAULT_HIGHLIGHTED_ITEM, oledMenu.highlightedMenuItem + _centreLine <= oledMenu.noOfmenuItems);
         }
-        //else {
-          // menu
-          //for (int i=1; i <= displayMaxLines; i++) {
-          for (int i=1; i <= displayMaxLines; i++) {
-              int item = oledMenu.noOfmenuItems > displayMaxLines ? oledMenu.highlightedMenuItem - _centreLine + i : i;
 
-              if (item > 0 && item <= oledMenu.noOfmenuItems) {
-                if (MENU_HIGHLIGHT_CENTER) {
-                  display->showMenuItem(i, oledMenu.menuItems[item], item == oledMenu.highlightedMenuItem ? Black : White, item == oledMenu.highlightedMenuItem ? White : Black);
-                }
-                else {
-                  display->showMenuItem(i, oledMenu.menuItems[item], Beige, DarkGreen);
-                }
+        for (int i=1; i <= displayMaxLines; i++) {
+            int item = oledMenu.noOfmenuItems > displayMaxLines ? oledMenu.highlightedMenuItem - _centreLine + i : i;
+
+            if (item > 0 && item <= oledMenu.noOfmenuItems) {
+              if (MENU_HIGHLIGHT_CENTER) {
+                display->showMenuItem(i, oledMenu.menuItems[item], item == oledMenu.highlightedMenuItem ? Black : White, item == oledMenu.highlightedMenuItem ? White : Black);
               }
-          }
-        //}
+              else {
+                display->showMenuItem(i, oledMenu.menuItems[item], Beige, DarkGreen);
+              }
+            }
+        }
     }
 }
 
@@ -1230,42 +1200,6 @@ int Menu::serviceValue(bool _blocking) {
   return oledMenu.mValueEntered;        // used when in blocking mode
 
 }
-
-
-// ----------------------------------------------------------------
-//                           -list create
-// ----------------------------------------------------------------
-// create a menu from a list
-// e.g.       String tList[]={"main menu", "2", "3", "4", "5", "6"};
-//            createList("demo_list", 6, &tList[0]);
-
-void Menu::createList(String _title, int _noOfElements, String *_list) {
-  resetMenu();                      // clear any previous menu
-  mode = MenuActive;                  // enable menu mode
-  oledMenu.noOfmenuItems = _noOfElements;    // set the number of items in this menu
-  oledMenu.menuTitle = _title;               // menus title (used to identify it)
-
-  for (int i=1; i <= _noOfElements; i++) {
-    oledMenu.menuItems[i] = _list[i-1];        // set the menu items
-  }
-}
-
-
-// ----------------------------------------------------------------
-//                         -message display
-// ----------------------------------------------------------------
-// 21 characters per line, use "\n" for next line
-// assistant:  <     line 1        ><     line 2        ><     line 3        ><     line 4         >
-
- void Menu::displayMessage(String _title, String _message) {
-  resetMenu();
-  mode = MenuMessage;
-
-    display->clearMenu();
-    display->showMenuTitle(_title);
-    display->showMenuItem(1, _message, White, Black);
- }
-
 
 // ----------------------------------------------------------------
 //                        -reset menu system

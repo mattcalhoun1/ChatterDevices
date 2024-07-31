@@ -81,7 +81,6 @@ class CommunicatorControlMode : public ControlMode, public CommunicatorEventHand
 
     private:
         void sendEchoText();
-        //bool sendUserText (CommunicatorEvent* event);
         unsigned long loopCount = 0;
         uint8_t lastChannel = 0;
         ChatterPacketSmall chatterPacketDetails;
