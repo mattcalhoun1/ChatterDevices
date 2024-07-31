@@ -5,6 +5,8 @@ ChatterDevices contains firmware for devices that support the Chatters protocol.
 Currently only the Communicator devices is supported. This device is also known as the "ChatterBox".
 The ChatterBox is based on Adafruit M4 SAMD51, RFM95W, 256/512kb FRAM, and the DS3231 realtime clock.
 
+<video src='https://youtu.be/rJjFlZsUep0' width=320/>
+
 About Chatters (protocol is in a different repo):
 Chatters is a secure mesh communication platform that can use pretty much any medium to pass encrypted messages around. Within Chatters, 
 the group of trusted mesh-connected devices is called a "Cluster". All devices in the cluster share a couple of symmetric keys and also
