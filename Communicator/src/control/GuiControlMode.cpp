@@ -145,6 +145,8 @@ void GuiControlMode::showQrCode (bool isLicensed) {
     display->showTitle(titleBuffer);
     display->showSubtitle("ALTWARE DEVELOPMENT LLC");
 
+    display->showMessage("By proceeding you agree to the terms and conditions at https://chatters.io/terms", Beige, 0);
+
     if (isLicensed) {
       display->showText("This device is licensed.", DISPLAY_TFT_LICENSE_INSTRUCTIONS_X, DISPLAY_TFT_LICENSE_INSTRUCTIONS_Y, TextSmall, Green);
       //display->showText("https://chatters.io", 55, 280, TextSmall, Green);
