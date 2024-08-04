@@ -331,6 +331,9 @@ void GuiControlMode::showMessageHistory(bool resetOffset) {
     if (messageIterator->getNumItems() > display->getMaxDisplayableMessages()) {
       previewOffset = messageIterator->getNumItems() - display->getMaxDisplayableMessages();
     }
+    else {
+      previewOffset = 0;
+    }
   }
 
   // clear the message area
@@ -1771,7 +1774,7 @@ void GuiControlMode::showLastMessage () {
 void GuiControlMode::refreshDisplayContext(bool fullRefresh) {
   switch (display->getDisplayContext()) {
     case DisplayFullHistory:
-      //logConsole("refresh full message history");
+      logConsole("refresh full message history");
       showMessageHistory(fullRefresh);
       break;
     case DisplayNearbyDevices:
