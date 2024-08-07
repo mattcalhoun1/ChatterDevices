@@ -944,7 +944,13 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       return true;
 
     case UserRequestChangeTime:
-      promptUserNewTime ();
+      if (chatter->isRootDevice(chatter->getDeviceId())) {
+        promptUserNewTime ();
+      }
+      else {
+        display->showAlert("Only root can change time!", AlertWarning);
+        delay(3000);
+      }
       return true;
     case UserRequestScreenTimeout1Min:
       chatter->getDeviceStore()->setScreenTimeout(ScreenTimeout1Min);
