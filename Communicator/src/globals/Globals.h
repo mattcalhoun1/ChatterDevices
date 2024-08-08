@@ -100,7 +100,7 @@
 //#define STORAGE_FRAM_I2C true
 
 // channel level logs. these logs will be encrypted at the same level as transmissions
-#define LORA_CHANNEL_LOG_ENABLED true
+#define LORA_CHANNEL_LOG_ENABLED false
 #define UDP_CHANNEL_LOG_ENABLED false
 #define CAN_CHANNEL_LOG_ENABLED false
 #define UART_CHANNEL_LOG_ENABLED false
