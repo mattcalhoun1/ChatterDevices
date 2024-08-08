@@ -64,7 +64,8 @@ class ControlMode : public ChatStatusCallback, public BackupCallback, public Lic
     void ackReceived(const char* sender, const char* messageId);
     bool userInterrupted ();
     void showStartupScreen (float progress);
-
+    void subChannelHopped ();
+    
     // touch screen, etc
     virtual bool isFullyInteractive () { return false; }
     virtual bool initializeNewDevice ();

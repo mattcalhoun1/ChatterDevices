@@ -1282,6 +1282,11 @@ void GuiControlMode::hideChatProgress () {
   fullRepaint = true;
 }
 
+void GuiControlMode::subChannelHopped () {
+  logConsole("gui control mode hop");
+  updateChatDashboard(true);
+}
+
 bool GuiControlMode::userInterrupted() {
   if(((FullyInteractiveDisplay*)display)->wasTouched()) {
     //logConsole("user interrupted!");

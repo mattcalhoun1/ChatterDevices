@@ -140,6 +140,10 @@ void ControlMode::updateChatDashboard () {
   }
 
 // chat status callback
+void ControlMode::subChannelHopped () {
+  updateChatDashboard();
+}
+
 void ControlMode::updateChatStatus (uint8_t channelNum, ChatStatus newStatus) {
   updateChatDashboard();
 }
