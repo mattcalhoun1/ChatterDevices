@@ -1283,7 +1283,6 @@ void GuiControlMode::hideChatProgress () {
 }
 
 void GuiControlMode::subChannelHopped () {
-  logConsole("gui control mode hop");
   updateChatDashboard(true);
 }
 
