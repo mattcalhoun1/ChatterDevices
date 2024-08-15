@@ -12,6 +12,18 @@ void Menu::show() {
   needsRepainted = true;
 }
 
+void Menu::show(uint8_t subMenu) {
+  if (subMenu == MENU_ID_FCC) {
+    Serial.println("Showing fcc menu");
+    fccMenu();
+    mode = MenuActive;
+    needsRepainted = true;
+    //delay(200);
+    //buttonPressed = false; 
+  }
+}
+
+
 bool Menu::handleScreenTouched(int touchX, int touchY) {
   if (mode == MenuActive && millis() - oledMenu.lastMenuActivity >= minTouchDelay) {
     // if user touched scroll button, handle that
@@ -236,6 +248,23 @@ void Menu::screenTimeoutMenu() {
   oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
   oledMenu.lastMenuActivity = millis();
 }
+
+void Menu::fccMenu() {
+  resetMenu(true); // clear any previous menu
+  oledMenu.menuId = MENU_ID_FCC;
+  oledMenu.noOfmenuItems = 4;
+  oledMenu.menuTitle = "FCC Tests";
+
+  oledMenu.menuItems[MENU_FCC_SPAM_1] = "Spam 911.8";
+  oledMenu.menuItems[MENU_FCC_SPAM_32] = "Spam 914.9";
+  oledMenu.menuItems[MENU_FCC_SPAM_64] = "Spam 918.1";
+  oledMenu.menuItems[MENU_FCC_HOP] = "Hop";
+
+  // highlight the center item to make he menu full
+  oledMenu.highlightedMenuItem = MENU_DEFAULT_HIGHLIGHTED_ITEM;
+  oledMenu.lastMenuActivity = millis();
+}
+
 
 void Menu::connectionsMenu() {
   resetMenu(true); // clear any previous menu
@@ -520,6 +549,31 @@ void Menu::securityActions() {
     }
 
     oledMenu.selectedMenuItem = 0;                // clear menu item selected flag as it has been actioned
+  }
+}
+
+void Menu::fccActions () {
+  if (oledMenu.menuId == MENU_ID_FCC) {
+    switch (oledMenu.selectedMenuItem) {
+      case MENU_FCC_SPAM_1:
+        resetMenu();
+        handler->handleEvent(UserTriggerFccSpam1);
+        break;
+      case MENU_FCC_SPAM_32:
+        resetMenu();
+        handler->handleEvent(UserTriggerFccSpam32);
+        break;
+      case MENU_FCC_SPAM_64:
+        handler->handleEvent(UserTriggerFccSpam64);
+        resetMenu();
+        break;
+      case MENU_FCC_HOP:
+        handler->handleEvent(UserTriggerFccHop);
+        resetMenu();
+        break;
+    }
+
+    oledMenu.selectedMenuItem = 0;
   }
 }
 
@@ -879,6 +933,9 @@ void Menu::menuActions () {
   }
   else if (oledMenu.menuId == MENU_ID_SECURITY) {
     securityActions();
+  }
+  else if (oledMenu.menuId == MENU_ID_FCC) {
+    fccActions();
   }
 }
 

@@ -973,6 +973,26 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       changeUserPassword();
 
       break;
+    case UserTriggerFccSpam1:
+      logConsole("fcc spam 1");
+      display->showAlert("FCC Testing", "Spam 911.8", AlertWarning);
+      chatter->beginFccTestMode(SpamFrequencyLow);
+      break;
+    case UserTriggerFccSpam32:
+      logConsole("fcc spam 32");
+      display->showAlert("FCC Testing", "Spam 914.9", AlertWarning);
+      chatter->beginFccTestMode(SpamFrequencyMid);
+      break;
+    case UserTriggerFccSpam64:
+      logConsole("fcc spam 64");
+      display->showAlert("FCC Testing", "Spam 918.1", AlertWarning);
+      chatter->beginFccTestMode(SpamFrequencyHigh);
+      break;
+    case UserTriggerFccHop:
+      logConsole("fcc hop");
+      display->showAlert("FCC Testing", "Frequency Hopping", AlertWarning);
+      chatter->beginFccTestMode(SpamFrequencyHop);
+      break;
     case UserRequestQuickFactoryReset:
     case UserRequestSecureFactoryReset:
       if (isFullyInteractive()) {
@@ -1629,6 +1649,10 @@ bool GuiControlMode::handleScreenTouched (int touchX, int touchY) {
           return handleEvent(UserRequestSecureBroadcast);
         case ButtonDM:
           return handleEvent(UserRequestDirectMessage);
+        case ButtonFcc:
+          logConsole("fcc button");
+          menu->show(MENU_ID_FCC);
+          return true;
         case ButtonFilter:
           return handleEvent(UserRequestFilterMessages);
         case ButtonMenu:

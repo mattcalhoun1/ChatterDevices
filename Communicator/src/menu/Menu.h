@@ -17,6 +17,8 @@
 #define MENU_MAIN_MESH 3
 #define MENU_MAIN_SECURITY 4
 #define MENU_MAIN_REMOTE 5
+#define MENU_MAIN_FCC 6
+
 //#define MENU_MAIN_POWER 6
 // inactive, just left here so compilation works ok
 #define MENU_MAIN_BACKPACKS 99
@@ -108,6 +110,12 @@
 #define MENU_ID_BACKPACK_TRIGGER 12
 #define MENU_ID_RELAY 13
 #define MENU_ID_SECURITY 14
+#define MENU_ID_FCC 15
+
+#define MENU_FCC_SPAM_1 1
+#define MENU_FCC_SPAM_32 2
+#define MENU_FCC_SPAM_64 3
+#define MENU_FCC_HOP 4
 
 #define MENU_HIGHLIGHT_CENTER false
 #define MENU_DEFAULT_HIGHLIGHTED_ITEM 3
@@ -162,6 +170,8 @@ class Menu : public TouchListener {
         void iteratorMenu (bool fullRepaint = false);
         void iteratorActions ();        
         void backpackTriggerActions ();
+        void fccMenu();
+        void fccActions();
 
         void menuActions ();
 
@@ -174,6 +184,9 @@ class Menu : public TouchListener {
         bool isShowing () {return mode != MenuOff; }
         unsigned long getLastActivity() {return oledMenu.lastMenuActivity; }
         void show ();
+
+        void show(uint8_t subMenu);
+
         void notifyButtonPressed ();
         void notifyRotaryChanged ();
 

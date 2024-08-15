@@ -63,7 +63,11 @@ enum CommunicatorEventType {
     RemoteBackpackRequestReceived = 54,
     UserTriggerRemoteThermal = 55,
     UserTriggerRemoteRelay = 56,
-    UserRequestPublicKeyTest = 57
+    UserRequestPublicKeyTest = 57,
+    UserTriggerFccSpam1 = 100,
+    UserTriggerFccSpam32 = 101,
+    UserTriggerFccSpam64 = 102,
+    UserTriggerFccHop = 103
 };
 
 struct CommunicatorEvent {

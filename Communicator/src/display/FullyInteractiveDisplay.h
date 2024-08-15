@@ -21,7 +21,8 @@ enum DisplayedButton {
     ButtonThermalSend = 8,
     ButtonThermalExit = 9,
     ButtonThermalReply = 10,
-    ButtonThermalForward = 11
+    ButtonThermalForward = 11,
+    ButtonFcc = 12
 };
 
 enum InteractiveContext {

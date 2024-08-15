@@ -13,6 +13,7 @@
 // which control mode in use
 #define CONTROL_MODE_GUI true
 #define CONTROL_MODE_TEST false
+#define FCC_TEST_ENABLED true
 
 #define LORA_DEFAULT_FREQUENCY LORA_DEFAULT_FREQUENCY_915
 #define LORA_MIN_FREQUENCY LORA_MIN_FREQUENCY_915
