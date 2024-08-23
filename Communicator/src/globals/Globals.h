@@ -111,6 +111,7 @@
 #define LORA_RFM9X_CS A4
 #define LORA_RFM9X_INT A5
 #define LORA_RFM9X_RST A0
+#define LORA_RFM9X_BUSY -1 // no busy pin
 #define CHATTER_WIFI_ENABLED
 #define ESP32_RESETN A3  // was btn a
 #define SPIWIFI_SS A1 // was rotary 1

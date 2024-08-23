@@ -46,7 +46,7 @@ logConsole("Initializing clock");
       #ifdef CHATTER_LORA_ENABLED
         if (chatter->getDeviceStore()->getLoraEnabled()) {
           showStatus("Init LoRa...");
-          chatter->addLoRaChannel(LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_CHANNEL_LOG_ENABLED);
+          chatter->addLoRaChannel(LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_RFM9X_BUSY, LORA_CHANNEL_LOG_ENABLED);
         }
         else {
           logConsole("Device LoRa disabled by user pref");
