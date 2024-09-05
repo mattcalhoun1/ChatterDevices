@@ -30,10 +30,7 @@ bool NearbyDeviceIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
     channelBuffer = pingTable->getChannel(deviceSlots[itemNum]);
     secondaryChannelBuffer = pingTable->getSecondaryChannel(deviceSlots[itemNum]);
 
-    // if dst, add an hour to the timestamp
-    if (chatter->getRtc()->isDstEnabled()) {
-        timestampBuffer += (60*60); // plus an hour
-    }
+    chatter->getRtc()->populateViewableTime (timestampBuffer, readableTimestampBuffer);
 
     if (!isTrustedBuffer) {
         sprintf(aliasBuffer, "unknown");
@@ -45,7 +42,7 @@ bool NearbyDeviceIterator::loadItemName (uint8_t itemNum, char* nameBuffer) {
 
     meshGraph->readConnectionRatings (chatter->getSelfAddress(), deviceSlots[itemNum], meshDirectRatingBuffer, meshIndirectRatingBuffer, meshRatingTimeBuffer);
     
-    sprintf(readableTimestampBuffer, "%02d:%02d:%02d", hour(timestampBuffer), minute(timestampBuffer), second(timestampBuffer));
+    //sprintf(readableTimestampBuffer, "%02d:%02d:%02d", hour(timestampBuffer), minute(timestampBuffer), second(timestampBuffer));
 
     // [0|1][00-99][0-99][0 - -99]TS[dev id][alias]
     memset(nameBuffer, 0, 6+8+CHATTER_DEVICE_ID_SIZE+STORAGE_MAX_ALIAS_LENGTH+1);
