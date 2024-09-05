@@ -11,6 +11,7 @@
 #include "../iterator/ItemIterator.h"
 #include "../iterator/NearbyDeviceIterator.h"
 #include "../iterator/ClusterAliasIterator.h"
+#include "../iterator/TimeZoneIterator.h"
 #include <SHA256.h>
 
 #include "../backpacks/thermal/ThermalEncoder.h"
@@ -115,7 +116,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener, public I
         void showMeshPath (const char* recipientId);
         bool promptSelectCluster ();
         void promptUserNewTime();
-        bool validateDatePart(int partVal, uint8_t partNum);
+        bool validateDatePart(const char* partVal, uint8_t partNum);
 
         bool promptClusterInfo (bool forceInput);
         bool createNewCluster ();
@@ -130,6 +131,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener, public I
         bool promptLicense ();
 
         void changeUserPassword ();
+        bool changeTimeZone();
 
         ThermalEncoder* encoder;
         Backpack* backpacks[MAX_BACKPACKS];
@@ -175,6 +177,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener, public I
         ItemIterator* messageIterator;
         ItemIterator* nearbyDeviceIterator;
         ItemIterator* clusterIterator;
+        ItemIterator* timeZoneIterator;
         uint8_t previewOffset = 0;
         uint8_t previewSize = 0;
 

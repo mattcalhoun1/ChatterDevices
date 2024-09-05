@@ -477,7 +477,7 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
     case UserRequestJoinCluster:
       assistant = new ChatterClusterAssistant(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_RFM9X_BUSY, LORA_CHANNEL_LOG_ENABLED, STRONG_ENCRYPTION_ENABLED);
       if(assistant->init()) {
-        bool success = assistant->attemptOnboard ();
+        bool success = assistant->onboardSynchronous ();
         if (success) {
           // queue the mesh data to get cleared on next startup
           chatter->getDeviceStore()->setClearMeshOnStartup(false);
@@ -512,14 +512,14 @@ bool CommunicatorControlMode::handleConnectedDevice () {
     cluster = new ChatterClusterAdminInterface(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_RFM9X_BUSY, LORA_CHANNEL_LOG_ENABLED, STRONG_ENCRYPTION_ENABLED);
     if (cluster->init()) {
       logConsole("Cluster Admin Interface Initialized");
-      return cluster->isConnected();
+      return cluster->onboardSynchronous();
     }
     else {
       logConsole("Cluster Admin Interface failed to initialize");
       return false;
     }
   }
-  else if (cluster->isConnected()) {
+  else if (cluster->onboardSynchronous()) {
     return true;
   }
 
@@ -714,7 +714,6 @@ void CommunicatorControlMode::enablePreference (CommunicatorPreference pref) {
     case PreferenceIgnoreExpiryEnabled:
       chatter->getDeviceStore()->setAllowExpiredMessages(true);
       break;
-
     case PreferenceBackpacksEnabled:
       chatter->getDeviceStore()->setCustomPreference(StoredPrefBackpacksEnabled, 'T');
       restartDevice();

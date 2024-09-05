@@ -49,7 +49,7 @@
 // disable if there are no buttons on the device
 #if defined (ARDUINO_SAMD_ZERO) || defined (ARDUINO_FEATHER_M4) || defined(ADAFRUIT_FEATHER_M4_EXPRESS) // adafruit
 #define FACTORY_RESET_PIN 4 // holding after restart to factory reset
-#define BUTTON_ACTION_PIN 4 // unlock screen, trigger backpack, etc
+//#define BUTTON_ACTION_PIN 4 // unlock screen, trigger backpack, etc
 #define VBATPIN A6 // for checking battery level
 #endif
 

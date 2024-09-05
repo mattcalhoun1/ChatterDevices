@@ -214,7 +214,7 @@ void Menu::relayMenu() {
 void Menu::deviceMenu() {
   resetMenu(true); // clear any previous menu
   oledMenu.menuId = MENU_ID_DEVICE;
-  oledMenu.noOfmenuItems = 8;
+  oledMenu.noOfmenuItems = 9;
   oledMenu.menuTitle = "Device";
 
   oledMenu.menuItems[MENU_DEVICE_CLEAR_MESSAGES] = "Clear Messages";
@@ -222,6 +222,7 @@ void Menu::deviceMenu() {
   //oledMenu.menuItems[MENU_DEVICE_KEYBOARD_ORIENTATION] = prefHandler->isPreferenceEnabled(PreferenceKeyboardLandscape) ? "Keyboard Small" : "Keyboard Large";
   oledMenu.menuItems[MENU_DEVICE_SCREEN_TIMEOUT] = "Screen Timeout";
   oledMenu.menuItems[MENU_DEVICE_SHOW_ID] = "Show ID";
+  oledMenu.menuItems[MENU_DEVICE_TIME_ZONE] = "Time Zone";
   oledMenu.menuItems[MENU_DEVICE_SET_TIME] = "Set Time";
   oledMenu.menuItems[MENU_DEVICE_SECURE_FACTORY_RESET] = "Factory Reset";
 
@@ -432,6 +433,10 @@ void Menu::deviceActions() {
       case MENU_DEVICE_SECURE_FACTORY_RESET:
         resetMenu();
         handler->handleEvent(UserRequestSecureFactoryReset);
+        break;
+      case MENU_DEVICE_TIME_ZONE:
+        resetMenu();
+        handler->handleEvent(UserRequestTzChange);
         break;
       case MENU_DEVICE_SET_TIME:
         resetMenu();

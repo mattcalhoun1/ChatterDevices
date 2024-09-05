@@ -19,7 +19,8 @@ enum CommunicatorPreference {
     PreferenceBackpackRelayEnabled = 14,
     PreferenceBackpackRelayRemoteEnabled = 15,
     PreferenceTruststoreLocked = 16,
-    PreferenceKeyForwarding = 17
+    PreferenceKeyForwarding = 17,
+    PreferenceTimeZone = 18
 };
 
 enum StoredPreference {

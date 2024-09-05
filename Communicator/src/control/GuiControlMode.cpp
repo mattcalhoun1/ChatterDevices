@@ -55,6 +55,7 @@ StartupState GuiControlMode::init() {
       messageIterator = new MessageIterator(chatter->getMessageStore(), chatter->getTrustStore(), chatter);
       nearbyDeviceIterator = new NearbyDeviceIterator(chatter->getPingTable(), chatter->getTrustStore(), chatter);
       clusterIterator = new ClusterAliasIterator(chatter->getClusterStore());
+      timeZoneIterator = new TimeZoneIterator();
 
       // show all messages for this cluster, unless user filters down
       setCurrentDeviceFilter(chatter->getDeviceId());
@@ -538,6 +539,10 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
   Backpack* bk = nullptr;  
   
   switch(eventType) {
+    case UserRequestTzChange:
+      changeTimeZone();
+      return true;
+      break;
     case UserThermalSnap:
       // see if backpack configured and ready
       bk = getBackpack(BackpackTypeThermal);
@@ -1063,14 +1068,14 @@ void GuiControlMode::changeUserPassword() {
 void GuiControlMode::promptUserNewTime () {
   uint8_t timePositions[6] = {0, 2, 4, 6, 8, 10}; // buffer positions of 2 digit pieces
   bool dst = false;
-  char userEnteredPart[3];
+  char userEnteredPart[16];
   char fullDateTime[13];
   memset(fullDateTime, 0, 13);
-  if (promptYesNo("Currently observing daylight savings time?")) {
+  /*if (promptYesNo("Currently observing daylight savings time?")) {
     dst = true;
-  }
+  }*/
 
-  char partTitle[7];
+  char partTitle[16];
   char partSubtitle[32];
   int userInputLength = 0;
   for (uint8_t pos = 0; pos < 6; pos++) {
@@ -1088,8 +1093,8 @@ void GuiControlMode::promptUserNewTime () {
         sprintf(partSubtitle, "%s", "Current day (ex: 31)");
         break;
       case 3:
-        sprintf(partTitle, "%s", "Hour");
-        sprintf(partSubtitle, "%s", "Current hour, 24hr format (ex: 13)");
+        sprintf(partTitle, "%s", "Hour (UTC!)");
+        sprintf(partSubtitle, "%s", "Current UTC hour, 24hr (ex: 13)");
         break;
       case 4:
         sprintf(partTitle, "%s", "Minute");
@@ -1111,9 +1116,8 @@ void GuiControlMode::promptUserNewTime () {
           userEnteredPart[1] = userEnteredPart[0];
           userEnteredPart[0] = '0';
         }
-        int userVal = atoi(userEnteredPart);
         // validate
-        if (validateDatePart(userVal, pos)) {
+        if (validateDatePart(userEnteredPart, pos)) {
           // if it IS ok, move on to next date part
           memcpy(fullDateTime + timePositions[pos], userEnteredPart, 2);
           partOk = true;
@@ -1177,23 +1181,67 @@ void GuiControlMode::setCurrentDeviceFilter(const char* deviceFilter) {
 
 }
 
-bool GuiControlMode::validateDatePart(int partVal, uint8_t partNum) {
-  switch (partNum)
-  {
-  case 0:
-    return partVal > 23 && partVal < 100;
-  case 1:
-    return partVal > 0 && partVal < 13;
-  case 2:
-    return partVal > 0 && partVal < 32;
-  case 3:
-    return partVal >= 0 && partVal < 24;
-  case 4:
-  case 5:
-    return partVal >= 0 && partVal < 60;  
-  default:
+bool GuiControlMode::validateDatePart(const char* partVal, uint8_t partNum) {
+  if (partVal[0] < '0' || partVal[0] > '9' || partVal[1] < '0' || partVal[1] > '9') {
     return false;
   }
+  int numericPartVal = atoi(partVal);
+
+  switch (partNum) {
+    case 0:
+      return numericPartVal > 23 && numericPartVal < 100;
+    case 1:
+      return numericPartVal > 0 && numericPartVal < 13;
+    case 2:
+      return numericPartVal > 0 && numericPartVal < 32;
+    case 3:
+      return numericPartVal >= 0 && numericPartVal < 24;
+    case 4:
+    case 5:
+      return numericPartVal >= 0 && numericPartVal < 60;  
+    default:
+      return false;
+  }
+}
+
+bool GuiControlMode::changeTimeZone () {
+  if (isFullyInteractive()) {
+    // select a time zone
+    timeZoneIterator->init(chatter->getClusterId(), chatter->getDeviceId(), true, true);
+    menu->setItemIterator(timeZoneIterator);
+    menu->iteratorMenu(true); // modal
+
+    // menu will be showing, turn up sensitivity
+    ((FullyInteractiveDisplay*)display)->setTouchSensitivity(TouchSensitivityHigh);
+
+    // wait for result of contact selections
+    while (menu->isShowing()) {
+      menu->menuUpdate();
+      delay(10);
+      ((FullyInteractiveDisplay*)display)->handleIfTouched();
+    }
+    ((FullyInteractiveDisplay*)display)->resetToDefaultTouchSensitivity();
+
+    if (menu->getIteratorSelection() != ITERATOR_SELECTION_NONE) {
+      // find the associated device id for the given slot
+      uint8_t selectedTzNum = timeZoneIterator->getItemVal(menu->getIteratorSelection());
+      char tzName[32];
+      timeZoneIterator->loadItemName(selectedTzNum, tzName);
+
+      // confirm with user
+      char fullPrompt[64];
+      sprintf(fullPrompt, "New TZ: %s", tzName);
+      if(promptYesNo(fullPrompt)) {
+        logConsole("User change tz to", tzName);
+        chatter->getDeviceStore()->setTimeZone((TimeZoneValue)selectedTzNum);
+        restartDevice();
+      }
+    }
+
+    ((FullyInteractiveDisplay*)display)->clearTouchInterrupts();
+    fullRepaint = true;    
+  }
+  return false;
 }
 
 
@@ -1952,7 +2000,7 @@ bool GuiControlMode::promptClusterInfo (bool forceInput) {
 
 bool GuiControlMode::createNewCluster () {
   if (promptClusterInfo(false)) {
-    ClusterAdmin* admin = new ClusterAdmin(chatter, STRONG_ENCRYPTION_ENABLED);
+    ClusterAdmin* admin = new ClusterAdmin(chatter, STRONG_ENCRYPTION_ENABLED, LORA_CHANNEL_LOG_ENABLED);
     display->showAlert("Initializing", AlertWarning);
     bool result = admin->generateCluster(newClusterAlias, newFrequency, newWifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, newWifiPreferred);
     chatter->getDeviceStore()->setClearMeshOnStartup(true);
@@ -2065,7 +2113,7 @@ bool GuiControlMode::initializeNewDevice () {
     deviceAliasLength = ((FullyInteractiveDisplay*)display)->getModalInput("Device Name", "Unique(ish) name others will see", 12, CharacterFilterAlphaNumeric, newDeviceAlias, newDeviceAlias, 0);
   }
   newDeviceAlias[deviceAliasLength] = 0;//term it, if the user backspaced some
-  ClusterAdmin* admin = new ClusterAdmin(chatter, STRONG_ENCRYPTION_ENABLED);
+  ClusterAdmin* admin = new ClusterAdmin(chatter, STRONG_ENCRYPTION_ENABLED, LOG_ENABLED);
 
   if (promptClusterInfo(true)) {
     display->showAlert("Initializing", AlertWarning);

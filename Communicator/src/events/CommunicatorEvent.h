@@ -67,7 +67,8 @@ enum CommunicatorEventType {
     UserTriggerFccSpam1 = 100,
     UserTriggerFccSpam32 = 101,
     UserTriggerFccSpam64 = 102,
-    UserTriggerFccHop = 103
+    UserTriggerFccHop = 103,
+    UserRequestTzChange = 104
 };
 
 struct CommunicatorEvent {

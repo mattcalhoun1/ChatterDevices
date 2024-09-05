@@ -40,7 +40,7 @@ enum StartupState {
 /**
  * Base class for the different control modes available for this vehicle.
  */
-class ControlMode : public ChatStatusCallback, public BackupCallback, public LicenseCallback {
+class ControlMode : public ChatStatusCallback, public BackupCallback, public LicenseCallback, public StorageStatusCallback {
   public:
     ControlMode (DeviceType _deviceType) { deviceType = _deviceType; }
     virtual void loop();
@@ -65,7 +65,10 @@ class ControlMode : public ChatStatusCallback, public BackupCallback, public Lic
     bool userInterrupted ();
     void showStartupScreen (float progress);
     void subChannelHopped ();
-    
+    void yieldForProcessing () {}// not necessary on samd
+    void resetStorageProgress () {}// not currently used on samd
+    void updateStorageProgress (float pct) {}// not currently used on samd
+
     // touch screen, etc
     virtual bool isFullyInteractive () { return false; }
     virtual bool initializeNewDevice ();
