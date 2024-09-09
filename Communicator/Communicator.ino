@@ -6,12 +6,14 @@
 #include "src/control/HeadlessControlMode.h"
 #include "src/control/GuiControlMode.h"
 #include "src/control/TestControlMode.h"
+#include "ChatterLogging.h"
 
 CommunicatorControlMode* controlMode;
 
 void setup() {
   long start = millis();
   Serial.begin(9600);
+
   // if log enabled, wait up to 5 sec for serial to become available
   if (LOG_ENABLED) {
     while (!Serial) {
@@ -22,9 +24,10 @@ void setup() {
     } 
   }
   delay(100);
+  setupLogging();
 
   if (BACKPACK_ENABLED) {
-    logConsole("connecting to backpack");
+    Logger::info("connecting to backpack", LogAppControl);
     start = millis();
     Serial1.begin(9600);
     // if log enabled, wait up to 5 sec for backpack to become available
@@ -35,12 +38,12 @@ void setup() {
       delay(10);
     } 
     if (Serial1) {
-      logConsole("Connected to backpack!");
+      Logger::info("Connected to backpack!", LogAppControl);
       Serial1.print("HELO!");
       Serial1.print("\n");
     }
     else {
-      logConsole("No backpack connected");
+      Logger::info("No backpack connected", LogAppControl);
     }
     delay(100);
   }
@@ -89,24 +92,24 @@ void setup() {
   controlMode->beginInteractiveIfPossible();
 
   if (startupState == StartupInitializeDevice) {
-    logConsole("Startup returned initialize new device");
+    Logger::info("Startup returned initialize new device", LogAppControl);
     controlMode->initializeNewDevice();
   }
   else if (startupState == StartupError) {
-    logConsole("Startup returned error");
+    Logger::error("Startup returned error", LogAppControl);
     controlMode->handleStartupError();
   }
   else if (startupState == StartupUnlicensed) {
-    logConsole("Startup returned unlicensed");
+    Logger::warn("Startup returned unlicensed", LogAppControl);
     controlMode->handleUnlicensedDevice();
   }
   if(startupState != StartupComplete) {
-    logConsole("Error initializing!");
+    Logger::error("Error initializing!", LogAppControl);
   }
 }
 
 DeviceType selectDeviceType () {
-  logConsole("Device Type: Communicator");
+  Logger::info("Device Type: Communicator", LogAppControl);
   return DeviceTypeCommunicator;
 }
 
@@ -148,7 +151,25 @@ void loop() {
   controlMode->loop();
 }
 
+void setupLogging () {
+  Logger::init(new SerialLogger());
 
-void logConsole (String msg) {
-  Serial.println(msg);
+  Logger::setLogLevel (LogChatter, LogLevelDebug);
+  Logger::setLogLevel (LogStorage, LogLevelInfo);
+  Logger::setLogLevel (LogEncryption, LogLevelInfo);
+  Logger::setLogLevel (LogComLora, LogLevelDebug);
+  Logger::setLogLevel (LogComWiFi, LogLevelInfo);
+  Logger::setLogLevel (LogComWired, LogLevelInfo);
+  Logger::setLogLevel (LogMesh, LogLevelInfo);
+  Logger::setLogLevel (LogMeshStrategy, LogLevelInfo);
+  Logger::setLogLevel (LogLicensing, LogLevelInfo);
+  Logger::setLogLevel (LogUi, LogLevelInfo);
+  Logger::setLogLevel (LogUiEvents, LogLevelInfo);
+  Logger::setLogLevel (LogAppControl, LogLevelInfo);
+  Logger::setLogLevel (LogMeshGraph, LogLevelInfo);
+  Logger::setLogLevel (LogLocation, LogLevelInfo);
+  Logger::setLogLevel (LogRtc, LogLevelInfo);
+  Logger::setLogLevel (LogOnboard, LogLevelInfo);
+  Logger::setLogLevel (LogInit, LogLevelInfo);
+  Logger::setLogLevel (LogBackup, LogLevelInfo); 
 }
