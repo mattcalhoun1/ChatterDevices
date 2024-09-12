@@ -519,7 +519,8 @@ bool GuiControlMode::sendRemoteTrigger (BackpackType type) {
       showStatus("Trigger remote");
       MessageSendResult result = attemptDirectSend();
       if (result == MessageSentDirect) {
-        display->showAlert("Trigger Sent", "Trigger directly sent", AlertSuccess);
+        Logger::info("Trigger sent direct", LogAppControl);
+        //display->showAlert("Trigger Sent", "Trigger directly sent", AlertSuccess);
       }
       else if (result == MessageSentMesh) {
         display->showAlert("Trigger Q'd", "Trigger directly mesh", AlertSuccess);
@@ -1423,7 +1424,10 @@ MessageSendResult GuiControlMode::attemptDirectSend () {
     messageSendResult = MessageSentBridge;
   }
   else if(result) {
-    display->showAlert("Sent", AlertSuccess);
+    // alerting here prevents ack from being received
+    Logger::info("Message sent direct", LogAppControl);
+
+    //display->showAlert("Sent", AlertSuccess);
     messageSendResult = MessageSentDirect;
   } 
   else {
