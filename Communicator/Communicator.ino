@@ -7,12 +7,16 @@
 #include "src/control/GuiControlMode.h"
 #include "src/control/TestControlMode.h"
 #include "ChatterLogging.h"
+#include <AlmostRandom.h>
 
 CommunicatorControlMode* controlMode;
 
 void setup() {
   long start = millis();
   Serial.begin(9600);
+
+  AlmostRandom ar;
+  randomSeed(ar.getRandomInt());
 
   // if log enabled, wait up to 5 sec for serial to become available
   if (LOG_ENABLED) {

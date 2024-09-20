@@ -2006,7 +2006,7 @@ bool GuiControlMode::createNewCluster () {
   if (promptClusterInfo(false)) {
     ClusterAdmin* admin = new ClusterAdmin(chatter, STRONG_ENCRYPTION_ENABLED, LORA_CHANNEL_LOG_ENABLED);
     display->showAlert("Initializing", AlertWarning);
-    bool result = admin->generateCluster(newClusterAlias, newFrequency, newWifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, newWifiPreferred);
+    bool result = admin->generateCluster(newClusterAlias, newFrequency, newWifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, newWifiPreferred, ClusterFrequencyHopHundredSec, ClusterFreq64);
     chatter->getDeviceStore()->setClearMeshOnStartup(true);
     display->showProgressBar(1.0);
 
@@ -2121,7 +2121,7 @@ bool GuiControlMode::initializeNewDevice () {
 
   if (promptClusterInfo(true)) {
     display->showAlert("Initializing", AlertWarning);
-    result = admin->genesis(newDeviceAlias, newDevicePassword, passwordLength, newClusterAlias, newFrequency, newWifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, newWifiPreferred);
+    result = admin->genesis(newDeviceAlias, newDevicePassword, passwordLength, newClusterAlias, newFrequency, newWifiEnabled, newDeviceWifiSsid, newDeviceWifiCred, newWifiPreferred, ClusterFrequencyHopHundredSec, ClusterFreq64);
     display->showProgressBar(1.0);
 
     // queue the mesh data to get cleared on next startup
