@@ -13,7 +13,7 @@
 // which control mode in use
 #define CONTROL_MODE_GUI true
 #define CONTROL_MODE_TEST false
-#define FCC_TEST_ENABLED true
+#define FCC_TEST_ENABLED false
 
 #define LOG_DEBUG
 #define LOG_INFO
