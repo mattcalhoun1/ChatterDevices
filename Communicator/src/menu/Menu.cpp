@@ -256,9 +256,9 @@ void Menu::fccMenu() {
   oledMenu.noOfmenuItems = 4;
   oledMenu.menuTitle = "FCC Tests";
 
-  oledMenu.menuItems[MENU_FCC_SPAM_1] = "Spam 911.8";
-  oledMenu.menuItems[MENU_FCC_SPAM_32] = "Spam 914.9";
-  oledMenu.menuItems[MENU_FCC_SPAM_64] = "Spam 918.1";
+  oledMenu.menuItems[MENU_FCC_SPAM_1] = "Spam 910.2";
+  oledMenu.menuItems[MENU_FCC_SPAM_32] = "Spam 914.85";
+  oledMenu.menuItems[MENU_FCC_SPAM_64] = "Spam 919.65";
   oledMenu.menuItems[MENU_FCC_HOP] = "Hop";
 
   // highlight the center item to make he menu full

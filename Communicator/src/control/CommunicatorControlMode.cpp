@@ -110,7 +110,7 @@ void CommunicatorControlMode::loop () {
   }
 
   // sync every loop, strategy decides how often
-  chatter->syncMesh();
+  chatter->syncMesh(MeshCycleFull);
 
   if (loopCount % 10 == 0) {
     //Serial.print("Free Memory: "); Serial.println(freeMemory());
@@ -456,6 +456,10 @@ bool CommunicatorControlMode::queueEvent(CommunicatorEventType eventType) {
 }
 
 bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
+  bool isConnected = false;
+  bool isComplete = false;
+  bool isTrying = true;
+
   switch(eventType) {
     case UserRequestQuickFactoryReset:
       logConsole("FACTORY RESET TRIGGERED");
@@ -477,13 +481,27 @@ bool CommunicatorControlMode::handleEvent (CommunicatorEventType eventType) {
     case UserRequestJoinCluster:
       assistant = new ChatterClusterAssistant(chatter, LORA_RFM9X_CS, LORA_RFM9X_INT, LORA_RFM9X_RST, LORA_RFM9X_BUSY, LORA_CHANNEL_LOG_ENABLED, STRONG_ENCRYPTION_ENABLED);
       if(assistant->init()) {
-        bool success = assistant->onboardSynchronous ();
-        if (success) {
-          // queue the mesh data to get cleared on next startup
-          chatter->getDeviceStore()->setClearMeshOnStartup(false);
+        assistant->beginOnboarding();
+
+        while (isComplete == false && isTrying == true) {
+          // step forward in onbaord
+          assistant->onboardNextStep();
+          isConnected = assistant->isConnected();
+          isComplete = assistant->isOnboardComplete();
+          isTrying = assistant->isOnboardingInProgress();
+
+          if (isConnected == false) {
+            updateChatStatus("Waiting for Connect");
+          }
+
         }
 
-        return success;
+        if (isComplete) {
+          // queue the mesh data to get cleared on next startup
+          chatter->getDeviceStore()->setClearMeshOnStartup(true);
+        }
+
+        return isComplete;
       }
       else {
         logConsole("Assistant failed to init");

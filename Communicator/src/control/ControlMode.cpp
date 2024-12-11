@@ -11,7 +11,8 @@ logConsole("Initializing clock");
   rtc = new DueRtClock();
 #elif defined (ADAFRUIT_FEATHER_M4_EXPRESS)
   logConsole("Samd51RtClock selected");
-  rtc = new Samd51RtClock();
+  rtc = new Samd51GpsRtClock();
+  rtc->init();
 #elif defined(ARDUINO_SAMD_MKRZERO) || defined (ARDUINO_SAMD_NANO_33_IOT) || defined (ARDUINO_SAMD_MKRWAN1310) || defined (ARDUINO_SAMD_ZERO) || defined(ARDUINO_FEATHER_M4)
   logConsole("ZeroRtClock selected");
   rtc = new ZeroRtClock();
@@ -26,9 +27,9 @@ logConsole("Initializing clock");
     logConsole("RTC Time: ", rtc->getViewableTime());
 
     #if defined(STORAGE_FRAM_SPI)
-      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramSPI, this, this, this, this, STRONG_ENCRYPTION_ENABLED);
+      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramSPI, this, this, this, this, STRONG_ENCRYPTION_ENABLED, LicenseModelFree);
     #elif defined(STORAGE_FRAM_I2C)
-      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramI2C, this, this, this, this, STRONG_ENCRYPTION_ENABLED);
+      chatter = new Chatter(ChatterDeviceCommunicator, BasicMode, rtc, StorageFramI2C, this, this, this, this, STRONG_ENCRYPTION_ENABLED, LicenseModelFree);
     #endif
 
     bool chatterReady = chatter->init();

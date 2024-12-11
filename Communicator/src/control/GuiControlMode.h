@@ -99,6 +99,7 @@ class GuiControlMode : public HeadsUpControlMode, public TouchListener, public I
         bool sendMessage (const char* deviceId, uint8_t* msg, int msgSize, MessageType _type);
         void requestFullRepaint () { fullRepaint = true; }
 
+        void setUiEnabled (bool enableInterrupt) {}
 
     protected:
         void refreshDisplayContext(bool fullRefresh);

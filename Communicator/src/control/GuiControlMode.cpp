@@ -981,17 +981,17 @@ bool GuiControlMode::handleEvent (CommunicatorEventType eventType) {
       break;
     case UserTriggerFccSpam1:
       logConsole("fcc spam 1");
-      display->showAlert("FCC Testing", "Spam 911.8", AlertWarning);
+      display->showAlert("FCC Testing", "Spam 910.2", AlertWarning);
       chatter->beginFccTestMode(SpamFrequencyLow);
       break;
     case UserTriggerFccSpam32:
       logConsole("fcc spam 32");
-      display->showAlert("FCC Testing", "Spam 914.9", AlertWarning);
+      display->showAlert("FCC Testing", "Spam 914.85", AlertWarning);
       chatter->beginFccTestMode(SpamFrequencyMid);
       break;
     case UserTriggerFccSpam64:
       logConsole("fcc spam 64");
-      display->showAlert("FCC Testing", "Spam 918.1", AlertWarning);
+      display->showAlert("FCC Testing", "Spam 919.65", AlertWarning);
       chatter->beginFccTestMode(SpamFrequencyHigh);
       break;
     case UserTriggerFccHop:
@@ -1413,9 +1413,9 @@ MessageSendResult GuiControlMode::attemptDirectSend () {
 
   if (sentViaMesh) {
     display->showAlert("Sending Mesh", "Planning Route", AlertWarning);
-    chatter->syncMesh(true); // force an instant sync, to schedule deliveries
+    chatter->syncMesh(MeshCycleFull); // force an instant sync, to schedule deliveries
     display->showAlert("Sending Mesh", "Forwarding first hop", AlertWarning);
-    chatter->syncMesh(true); // force another instant sync, to send packets if possible
+    chatter->syncMesh(MeshCycleFull); // force another instant sync, to send packets if possible
     display->showAlert("Sending Mesh", "Mesh Queued", AlertSuccess);
     messageSendResult = MessageSentMesh;
   }
