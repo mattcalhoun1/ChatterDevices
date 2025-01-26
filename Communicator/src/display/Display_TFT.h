@@ -1,6 +1,7 @@
 #ifndef DISPLAY_TFT_H
 #define DISPLAY_TFT_H
 
+#include "cbx_images.h"
 #include "Display.h"
 #include "MenuEnabledDisplay.h"
 #include "TouchEnabledDisplay.h"

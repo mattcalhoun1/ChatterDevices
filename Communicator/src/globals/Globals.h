@@ -7,7 +7,7 @@
 // radiolib vs rf 95w wrapper for radiohead
 //#define RH_USE_RADIOLIB true
 
-#define CHATTERBOX_FIRMWARE_VERSION "1.2.1"
+#define CHATTERBOX_FIRMWARE_VERSION "1.2.3"
 #define STRONG_ENCRYPTION_ENABLED true // false for export
 
 // which control mode in use

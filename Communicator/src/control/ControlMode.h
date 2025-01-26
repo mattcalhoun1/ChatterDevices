@@ -81,6 +81,7 @@ class ControlMode : public ChatStatusCallback, public BackupCallback, public Lic
 
     uint8_t promptLicenseKey (char* buffer);
     void licenseValidation (bool isValid);
+    Chatter* getChatter () {return chatter;}
 
   protected:
     // miscellaneous

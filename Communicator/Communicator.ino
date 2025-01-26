@@ -10,6 +10,7 @@
 #include <AlmostRandom.h>
 
 CommunicatorControlMode* controlMode;
+volatile bool timeSyncFlag = false;
 
 void setup() {
   long start = millis();
@@ -110,6 +111,15 @@ void setup() {
   if(startupState != StartupComplete) {
     Logger::error("Error initializing!", LogAppControl);
   }
+
+  #ifdef FACTORY_RESET_PIN
+  attachInterrupt(digitalPinToInterrupt(FACTORY_RESET_PIN), attemptTimeSync, LOW);
+  #endif
+
+}
+
+void attemptTimeSync () {
+  timeSyncFlag = true;
 }
 
 DeviceType selectDeviceType () {
@@ -151,6 +161,11 @@ void loop() {
     Serial1.print("!"); // just keep alive
   }
 
+  if (timeSyncFlag) {
+    timeSyncFlag = false;
+    controlMode->getChatter()->attemptTimeSync(120000);
+  }
+
   // control mode handles rest of the loop
   controlMode->loop();
 }
@@ -175,5 +190,5 @@ void setupLogging () {
   Logger::setLogLevel (LogRtc, LogLevelInfo);
   Logger::setLogLevel (LogOnboard, LogLevelInfo);
   Logger::setLogLevel (LogInit, LogLevelInfo);
-  Logger::setLogLevel (LogBackup, LogLevelInfo); 
+  Logger::setLogLevel (LogBackpack, LogLevelInfo); 
 }

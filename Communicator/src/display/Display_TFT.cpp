@@ -601,12 +601,15 @@ void Display_TFT::showButtons(InteractiveContext context, DisplayedButton active
   fillCircle(getLockButtonX() + (.5*getLockButtonSize()), getLockButtonY() + (.5*getLockButtonSize()) + 1, .05*getLockButtonSize(), Black);
 
   // show the flip button
-  display.drawRoundRect(getFlipButtonX(),getFlipButtonY(), getFlipButtonSize(), getFlipButtonY() + getFlipButtonSize(), 1, getTFTColor(LightGreen));
-  display.fillRoundRect(getFlipButtonX() + 1,getFlipButtonY() + 1, getFlipButtonSize() - 2, getFlipButtonSize() - 2, 1, getTFTColor(DarkGreen));
 
   // icon depends on which display context we are in.
   // this button will reflect the opposite
   if (displayContext == DisplayFullHistory) {
+    display.drawRGBBitmap(getFlipButtonX(),getFlipButtonY(),neighbors_26PixelData, 26, 26); // gamma5 or gamma6?
+    /*
+    display.drawRoundRect(getFlipButtonX(),getFlipButtonY(), getFlipButtonSize(), getFlipButtonY() + getFlipButtonSize(), 1, getTFTColor(LightGreen));
+    display.fillRoundRect(getFlipButtonX() + 1,getFlipButtonY() + 1, getFlipButtonSize() - 2, getFlipButtonSize() - 2, 1, getTFTColor(DarkGreen));
+
     drawLine(getFlipButtonX() + getFlipButtonSize() * .1, getFlipButtonY() + getFlipButtonSize() * .1, getFlipButtonX() + getFlipButtonSize() *.9, getFlipButtonY() + getFlipButtonSize()*.9, LightBlue);
     //drawLine(getFlipButtonX() + getFlipButtonSize() * .1, getFlipButtonY() + getFlipButtonSize() * .5, getFlipButtonX() + getFlipButtonSize() *.9, getFlipButtonY() + getFlipButtonSize()*.5, LightBlue);
     drawLine(getFlipButtonX() + getFlipButtonSize() * .1, getFlipButtonY() + getFlipButtonSize() * .9, getFlipButtonX() + getFlipButtonSize() *.9, getFlipButtonY() + getFlipButtonSize()*.1, LightBlue);
@@ -617,14 +620,12 @@ void Display_TFT::showButtons(InteractiveContext context, DisplayedButton active
     fillCircle(getFlipButtonX() + (.15*getFlipButtonSize()), getLockButtonY() + getFlipButtonSize() * .85, .07*getFlipButtonSize(), LightBlue);
     fillCircle(getFlipButtonX() + (.85*getFlipButtonSize()), getLockButtonY() + getFlipButtonSize() * .15, .07*getFlipButtonSize(), LightBlue);
     fillCircle(getFlipButtonX() + (.85*getFlipButtonSize()), getLockButtonY() + getFlipButtonSize() * .85, .07*getFlipButtonSize(), LightBlue);
-
-
-    //display.drawRoundRect(getFlipButtonX() + 5,getFlipButtonY() + 4, getFlipButtonSize() - 10, getFlipButtonSize()  - 8, 1, getTFTColor(Beige));
-    //display.fillRoundRect(getFlipButtonX() + 7,getFlipButtonY() + 6, getFlipButtonSize() - 14, getFlipButtonSize()  - 15, 1, getTFTColor(Beige));
-
-    //drawLine(getFlipButtonX() + getFlipButtonSize() - 6, getFlipButtonY() + 4, getFlipButtonX() + getFlipButtonSize() - 6, getFlipButtonY() + 2, Beige);
+    */
   }
   else {
+    display.drawRoundRect(getFlipButtonX(),getFlipButtonY(), getFlipButtonSize(), getFlipButtonY() + getFlipButtonSize(), 1, getTFTColor(LightGreen));
+    display.fillRoundRect(getFlipButtonX() + 1,getFlipButtonY() + 1, getFlipButtonSize() - 2, getFlipButtonSize() - 2, 1, getTFTColor(DarkGreen));
+
     display.drawRoundRect(getFlipButtonX() + 3,getFlipButtonY() + 3, getFlipButtonSize() - 6, getFlipButtonSize()  - 6, 1, getTFTColor(Beige));
 
     for (uint8_t i = 0; i < 4; i++) {
